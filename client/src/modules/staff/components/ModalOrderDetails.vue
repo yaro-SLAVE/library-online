@@ -11,23 +11,6 @@
           <h3>Заказчик:</h3>
           <span>{{ selectedOrder.user.last_name + " " + selectedOrder.user.first_name }}</span>
         </div>
-        <div class="section">
-          <h3>История статусов:</h3>
-          <ul class="status-list">
-            <li v-for="status in selectedOrder.statuses" :key="status.date" class="status-item">
-              <span class="status-date">{{ formatDate(status.date) }}</span>
-              <span class="status-badge" :class="'status-' + status.status">
-                {{ orderStatuses[status.status] }}
-              </span>
-              <span v-if="status.staff !== null" class="staff-name">
-                {{ status.staff?.first_name + " " + status.staff?.last_name }}
-              </span>
-              <span v-if="status.description" class="status-description">
-                ({{ status.description }})
-              </span>
-            </li>
-          </ul>
-        </div>
 
         <div class="section">
           <h3>Книги ({{ selectedOrder.books.length }})</h3>
@@ -89,6 +72,25 @@
               <div v-else-if="isCheckFailed && orderBook.id === selectedOrder.books[0].id"></div>
             </template>
           </div>
+        </div>
+
+        
+        <div class="section">
+          <h3>История статусов:</h3>
+          <ul class="status-list">
+            <li v-for="status in selectedOrder.statuses" :key="status.date" class="status-item">
+              <span class="status-date">{{ formatDate(status.date) }}</span>
+              <span class="status-badge" :class="'status-' + status.status">
+                {{ orderStatuses[status.status] }}
+              </span>
+              <span v-if="status.staff !== null" class="staff-name">
+                {{ status.staff?.first_name + " " + status.staff?.last_name }}
+              </span>
+              <span v-if="status.description" class="status-description">
+                ({{ status.description }})
+              </span>
+            </li>
+          </ul>
         </div>
       </div>
 

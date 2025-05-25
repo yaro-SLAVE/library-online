@@ -3,26 +3,67 @@
     <table class="table">
       <thead>
         <tr>
-          <th>#</th>
-          <th @click="sortOrders('user')" class="sortable-th">
+          <th 
+            @click="resetSorting" 
+            class="sortable-th"
+            :aria-sort="sortKey === 'id' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+          >
             <span class="th-content">
-              Клиент
-              <div class="th-icon">⇅</div>
+              #
+              <div class="th-icon">
+                <span v-if="sortKey === 'id'" class="direction-icon">
+                  {{ sortOrder === 1 ? '↑' : '↓' }}
+                </span>
+                <span v-else>⇅</span>
+              </div>
             </span>
           </th>
-          <th @click="sortOrders('date')" class="sortable-th">
-            <span class="th-content"> Дата и время <span class="th-icon">⇅</span> </span>
+          <th 
+            @click="sortOrders('user')" 
+            class="sortable-th"
+            :aria-sort="sortKey === 'user' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+          >
+            <span class="th-content">
+              Клиент
+              <div class="th-icon">
+                <span v-if="sortKey === 'user'" class="direction-icon">
+                  {{ sortOrder === 1 ? '↑' : '↓' }}
+                </span>
+                <span v-else>⇅</span>
+              </div>
+            </span>
           </th>
-          <th @click="sortOrders('date')"></th>
+          <th 
+            @click="sortOrders('date')" 
+            class="sortable-th"
+            :aria-sort="sortKey === 'date' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+          >
+            <span class="th-content">
+              Дата и время
+              <span class="th-icon">
+                <span v-if="sortKey === 'date'" class="direction-icon">
+                  {{ sortOrder === 1 ? '↑' : '↓' }}
+                </span>
+                <span v-else>⇅</span>
+              </span>
+            </span>
+          </th>
+          <th>Действия</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="order in sortedOrders" :key="order.id">
           <th>{{ order.id }}</th>
           <td>{{ order.user.first_name }} {{ order.user.last_name }}</td>
-          <td>{{ formatDate(order.statuses[0].date) }}</td>
+          <td>{{ formatDate(order.statuses[0]?.date) }}</td>
           <td>
-            <button class="info-button" @click="handleOpenOrderDetails(order.id)">Инфо</button>
+            <button 
+              class="info-button" 
+              @click="handleOpenOrderDetails(order.id)"
+              aria-label="Показать детали заказа"
+            >
+              Инфо
+            </button>
           </td>
         </tr>
       </tbody>
@@ -42,79 +83,67 @@ const emit = defineEmits<{
   (e: "getOrder", id: number): void;
 }>();
 
-const sortKey = ref<string>("id");
-const sortOrder = ref<number>(1);
+type SortKey = 'id' | 'user' | 'date';
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  const year = date.getFullYear().toString().padStart(4, "0");
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  const hours = date.getHours().toString().padStart(2, "0");
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-  const seconds = date.getSeconds().toString().padStart(2, "0");
+const sortKey = ref<SortKey>("id");
+const sortOrder = ref<1 | -1>(1);
 
-  // return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-  return `${day}.${month}.${year} | ${hours}:${minutes}:${seconds}`;
+function formatDate(dateString?: string): string {
+  if (!dateString) return '---';
+  
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).format(date).replace(',', ' |');
+  } catch {
+    return dateString;
+  }
 }
 
-// Функция для раскраски таблицы
-// function getRowClass(order: UserOrder) {
-//   const orderDate = new Date(order.statuses[0].date);
-//   const currentDate = new Date();
-//   const timeDifference = currentDate.getTime() - orderDate.getTime();
-//   const hoursDifference = timeDifference / (1000 * 3600);
+function resetSorting() {
+  sortKey.value = "id";
+  sortOrder.value = 1;
+}
 
-//   if (order.statuses[0].status === "new") {
-//     if (hoursDifference < 2) {
-//       return "table-success"; // Менее 2 часов - зеленый
-//     } else if (hoursDifference < 6) {
-//       return "table-warning"; // От 2 до 6 часов - желтый
-//     } else {
-//       return "table-danger"; // Более 6 часов - красный
-//     }
-//   }
-
-//   return "";
-// }
-
-// Функция сортировки
-function sortOrders(key: string) {
+function sortOrders(key: SortKey) {
   if (sortKey.value === key) {
-    sortOrder.value *= -1;
+    sortOrder.value = sortOrder.value === 1 ? -1 : 1;
   } else {
     sortKey.value = key;
     sortOrder.value = 1;
   }
 }
 
-// Вычисляемый массив для отсортированных заказов
 const sortedOrders = computed(() => {
+  if (!props.orders) return [];
+  
   return [...props.orders].sort((a, b) => {
-    let aValue: string | number;
-    let bValue: string | number;
-
+    let comparison = 0;
+    
     switch (sortKey.value) {
       case "user":
-        aValue = `${a.user.first_name} ${a.user.last_name}`;
-        bValue = `${b.user.first_name} ${b.user.last_name}`;
+        const aUser = `${a.user.first_name} ${a.user.last_name}`.toLowerCase();
+        const bUser = `${b.user.first_name} ${b.user.last_name}`.toLowerCase();
+        comparison = aUser.localeCompare(bUser);
         break;
       case "date":
-        aValue = new Date(a.statuses[0].date).getTime();
-        bValue = new Date(b.statuses[0].date).getTime();
+        const aDate = a.statuses[0]?.date ? new Date(a.statuses[0].date).getTime() : 0;
+        const bDate = b.statuses[0]?.date ? new Date(b.statuses[0].date).getTime() : 0;
+        comparison = aDate - bDate;
         break;
       case "id":
-        aValue = a.id;
-        bValue = b.id;
-        break;
       default:
-        aValue = a.id;
-        bValue = b.id;
+        comparison = a.id - b.id;
     }
 
-    if (aValue <= bValue) return -1 * sortOrder.value;
-    if (aValue >= bValue) return 1 * sortOrder.value;
-    return 0;
+    return comparison * sortOrder.value;
   });
 });
 
@@ -140,40 +169,31 @@ td {
   color: var(--color-text-800);
   background-color: var(--color-background-100);
 }
+
 tr {
   border-bottom: 1px solid var(--color-text-200);
-}
-
-th {
-  cursor: pointer;
-}
-
-.arrow-up,
-.arrow-down {
-  font-size: 14px;
-  margin-left: 8px;
-}
-
-.info-button {
-  padding: 6px 12px;
-  border: none;
-  font-size: 14px;
-  border-radius: 5px;
-  cursor: pointer;
-  background-color: var(--color-primary-400);
-}
-
-.info-button:hover {
-  background-color: var(--color-accent-700);
-}
-
-.info-button:focus {
-  outline: none;
 }
 
 .sortable-th {
   cursor: pointer;
   user-select: none;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: var(--color-background-200);
+    
+    .th-icon {
+      opacity: 1;
+    }
+  }
+  
+  &[aria-sort="ascending"],
+  &[aria-sort="descending"] {
+    .th-icon {
+      opacity: 1;
+      font-weight: bold;
+    }
+  }
 }
 
 .th-content {
@@ -185,9 +205,35 @@ th {
 .th-icon {
   font-size: 0.9em;
   opacity: 0.7;
+  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
 }
 
-.sortable-th:hover .th-icon {
-  opacity: 1;
+.direction-icon {
+  font-weight: bold;
+  color: var(--color-primary-500);
+}
+
+.info-button {
+  padding: 6px 12px;
+  border: none;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: var(--color-primary-400);
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: var(--color-accent-700);
+  }
+  
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-500);
+    outline-offset: 2px;
+  }
 }
 </style>
