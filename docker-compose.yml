@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   postgres:
-    image: postgres
+    image: postgres:17.5
     restart: unless-stopped
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
@@ -22,6 +22,7 @@ services:
       DJANGO_SECRET_KEY: "${DJANGO_SECRET_KEY}"
       DJANGO_SUPERUSER_USERNAME: "${DJANGO_SUPERUSER_USERNAME}"
       DJANGO_SUPERUSER_PASSWORD: "${DJANGO_SUPERUSER_PASSWORD}"
+      OPAC_HOSTNAME: "${OPAC_HOSTNAME}"
       SERVICE_HOSTNAME: "${SERVICE_HOSTNAME}"
       OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID}"
       OAUTH_CLIENT_SECRET: "${OAUTH_CLIENT_SECRET}"

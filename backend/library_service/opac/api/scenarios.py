@@ -12,7 +12,7 @@ class OpacScenario(DataClassJsonMixin):
 
 
 async def opac_scenarios(client: ClientSession, database: str) -> list[OpacScenario]:
-    r = await client.get(f"{settings.OPAC_HOSTNAME}/api/scenarios/${database}")
+    r = await client.get(f"{settings.OPAC_HOSTNAME}/api/scenarios/{database}")
     r.raise_for_status()
 
     return OpacScenario.schema().load(await r.json(), many=True)

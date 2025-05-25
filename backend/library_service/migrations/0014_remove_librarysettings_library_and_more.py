@@ -14,11 +14,4 @@ class Migration(migrations.Migration):
             model_name="librarysettings",
             name="library",
         ),
-        migrations.AlterField(
-            model_name="librarysettings",
-            name="holidays",
-            field=models.DateField(
-                default=list, verbose_name="Список календарных выходных"
-            ),
-        ),
     ]

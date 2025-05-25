@@ -1,4 +1,4 @@
-FROM node as build-frontend
+FROM node:24 as build-frontend
 
 ARG VITE_SERVICE_HOSTNAME
 ARG VITE_OAUTH_CLIENT_ID
@@ -7,6 +7,6 @@ WORKDIR /app
 COPY client/. /app/
 RUN --mount=type=cache,target=/app/.npm npm set cache /app/.npm && npm install && npm run build
 
-FROM nginx
+FROM nginx:1.27.5
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=build-frontend /app/dist/. /usr/share/nginx/html/
