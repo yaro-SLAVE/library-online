@@ -95,7 +95,9 @@ const open = defineModel<boolean>();
   color: var(--color-primary-600);
 }
 
-.qr-container {
+.qr-container { 
+  margin: auto;
+  height: fit-content; 
   padding: 1rem;
   background: white;
   border-radius: 12px;
