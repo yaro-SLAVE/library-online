@@ -95,19 +95,19 @@ const tabs = ref<TabConfig[]>([
   {
     label: "Новые",
     fetchFn: fetchNewOrders,
-    interval: 50000,
+    interval: 3000,
     data: [],
   },
   {
     label: "В работе",
     fetchFn: fetchProcessingOrders,
-    interval: 5000,
+    interval: 3000,
     data: [],
   },
   {
     label: "Готовые",
     fetchFn: fetchReadyOrders,
-    interval: 10000,
+    interval: 3000,
     data: [],
   },
   {
@@ -187,8 +187,7 @@ const fetchOrder = async (orderId: number) => {
   isLoading.value = false;
 };
 
-async function handleUpdateOrderStatus(orderId: number, newStatus: OrderStatusEnum) {
-  const description = "Временное описание";
+async function handleUpdateOrderStatus(orderId: number, newStatus: OrderStatusEnum, description: string) {
   try {
     await updateOrderStatus(orderId, newStatus, description);
   } catch (error) {

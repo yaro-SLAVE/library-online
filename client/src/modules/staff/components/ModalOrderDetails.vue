@@ -22,7 +22,7 @@
               <span v-if="status.staff !== null" class="staff-name">
                 {{ status.staff?.first_name + " " + status.staff?.last_name }}
               </span>
-              <span v-if="status.description" class="status-description">
+              <span v-if="status.description && status.description !== status.status" class="status-description">
                 ({{ status.description }})
               </span>
             </li>
@@ -203,7 +203,7 @@ const statusTransitions = {
 
 const emit = defineEmits<{
   (e: "close"): void;
-  (e: "nextOrderStatus", orderId: number, nextStatus: OrderStatusEnum): void;
+  (e: "nextOrderStatus", orderId: number, nextStatus: OrderStatusEnum, description: string): void;
   (e: "checkOrder", orderId: number): OrderCheckingInfo;
 }>();
 
@@ -242,21 +242,21 @@ const nextStatusButtonText = computed(() => {
 });
 
 const changeToCancelledStatus = () => {
-  emit("nextOrderStatus", selectedOrder.value.id, "cancelled");
+  emit("nextOrderStatus", selectedOrder.value.id,"cancelled", "cancelled");
   emit("close");
 };
 
 const openRejectModal = ref(false);
 const handleRejectOrder = (rejectReason: string) => {
   console.log(rejectReason);
-  emit("nextOrderStatus", selectedOrder.value.id, "new");
+  emit("nextOrderStatus", selectedOrder.value.id, "new", rejectReason);
   emit("close");
   openRejectModal.value = false;
 };
 
 const changeToNextStatus = () => {
   if (nextStatus.value) {
-    emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value);
+    emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value);
     emit("close");
   }
 };
