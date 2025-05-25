@@ -18,8 +18,8 @@
               <div
                 class="book-card"
                 :class="{
-                  error: !validBooksId.includes(orderBook.id),
-                  succes: validBooksId.includes(orderBook.id),
+                  error: isCheckFailed && !validBooksId.includes(orderBook.id),
+                  succes: isCheckFailed && validBooksId.includes(orderBook.id),
                 }"
               >
                 <ShortBookCard :book="orderBook.book" :truncate="isCheckFailed" />
@@ -27,10 +27,10 @@
               <div
                 class="book-card"
                 :class="{
-                  error: !validBooksId.includes(orderBook.id),
-                  succes: validBooksId.includes(orderBook.id),
+                  error: isCheckFailed && !validBooksId.includes(orderBook.id),
+                  succes: isCheckFailed && validBooksId.includes(orderBook.id),
                 }"
-                v-if="!validBooksId.includes(orderBook.id)"
+                v-if="isCheckFailed && !validBooksId.includes(orderBook.id)"
               >
                 <div>
                   <label>Причина:</label>
