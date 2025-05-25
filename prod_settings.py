@@ -2,7 +2,16 @@ from app.settings import *
 import os
 
 DEBUG = False
-ALLOWED_HOSTS = [os.environ.get("SERVICE_HOSTNAME")]
+
+SERVICE_HOSTNAME = os.environ.get("SERVICE_HOSTNAME")
+
+CSRF_TRUSTED_ORIGINS = [SERVICE_HOSTNAME]
+
+ALLOWED_HOSTS: list[str]
+if SERVICE_HOSTNAME == "http://localhost:8000":
+    ALLOWED_HOSTS = ["localhost"]
+else:
+    ALLOWED_HOSTS = [SERVICE_HOSTNAME]
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
@@ -11,7 +20,7 @@ OPAC_HOSTNAME = os.environ.get("OPAC_HOSTNAME")
 OAUTH_CLIENT_ID = os.environ.get("OAUTH_CLIENT_ID")
 OAUTH_CLIENT_SECRET = os.environ.get("OAUTH_CLIENT_SECRET")
 
-OPAC_INTERNAL_TOKEN = os.environ.get("OPAC_INTERNAL_TOKEN") 
+OPAC_INTERNAL_TOKEN = os.environ.get("OPAC_INTERNAL_TOKEN")
 
 DATABASES = {
     "default": {
