@@ -7,13 +7,14 @@
       </div>
       <div class="main-content">
         <div>
-          Читательский билет:
-          {{ props.order.user.library_card }}
-        </div>
-        <div>
           ФИО:
           {{ props.order.user.first_name }}
           {{ props.order.user.last_name }}
+          {{ props.order.user.fullname }}
+        </div>
+        <div>
+          Институт:
+          {{ props.order.user.department }}
         </div>
       </div>
     </div>

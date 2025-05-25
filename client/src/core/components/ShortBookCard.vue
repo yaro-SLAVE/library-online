@@ -1,5 +1,12 @@
 <template>
   <div class="book-details">
+    <div v-if="book.isbn?.[0]" class="book-row">
+      <div class="icon-cell">🔢</div>
+      <div class="content-cell">
+        <span class="isbn">ISBN: {{ book.isbn[0] }}</span>
+      </div>
+    </div>
+
     <div class="book-row">
       <div class="icon-cell">📖</div>
       <div class="content-cell" @click="toggleExpand">
@@ -104,6 +111,11 @@ function toggleExpandAuthor() {
 
 .year {
   font-size: 0.9rem;
+  color: var(--color-text-600);
+}
+
+.isbn {
+  font-size: 1.1rem;
   color: var(--color-text-600);
 }
 </style>
