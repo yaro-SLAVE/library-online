@@ -18,8 +18,8 @@
               <div
                 class="book-card"
                 :class="{
-                  error: isCheckFailed && orderBook.id !== selectedOrder.books[0].id,
-                  succes: isCheckFailed && orderBook.id === selectedOrder.books[0].id,
+                  error: !validBooksId.includes(orderBook.id),
+                  succes: validBooksId.includes(orderBook.id),
                 }"
               >
                 <ShortBookCard :book="orderBook.book" :truncate="isCheckFailed" />
@@ -27,10 +27,10 @@
               <div
                 class="book-card"
                 :class="{
-                  error: isCheckFailed && orderBook.id !== selectedOrder.books[0].id,
-                  succes: isCheckFailed && orderBook.id === selectedOrder.books[0].id,
+                  error: !validBooksId.includes(orderBook.id),
+                  succes: validBooksId.includes(orderBook.id),
                 }"
-                v-if="isCheckFailed"
+                v-if="!validBooksId.includes(orderBook.id)"
               >
                 <div>
                   <label>Причина:</label>
@@ -68,7 +68,7 @@
                   </select>
                 </div>
               </div>
-              <div v-else-if="isCheckFailed && orderBook.id === selectedOrder.books[0].id"></div>
+              <div v-else-if="isCheckFailed"></div>
             </template>
           </div>
         </div>
@@ -119,7 +119,7 @@
           {{ nextStatusButtonText }}
         </StyledButton>
       </div>
-      <button v-if="currentStatus == 'processing'" @click="isCheckFailed = !isCheckFailed">
+      <button v-if="currentStatus == 'processing'" @click="handleCheckFail">
         Перестраиваем вид для неудачной проверки
       </button>
       <button v-if="currentStatus == 'processing'" @click="openPrintStickerModal = true">
@@ -212,6 +212,15 @@ const selectedOrder = ref<Order>(props.order);
 
 // Реализовать логику проверки нахождения книги в читательском билете
 const isCheckFailed = ref(false);
+
+const validBooksId = ref<number[]>([]);
+
+const handleCheckFail = async () => {
+  validBooksId.value = props.order.books.map(book => book.id)          
+  .filter(id => id % 2 === 0)
+
+  isCheckFailed.value = !isCheckFailed.value;
+}
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
