@@ -47,7 +47,8 @@ class OrderItem(models.Model):
         ORDERED = "ordered", "Заказана"
         HANDED = "handed", "Выдана"
         RETURNED = "returned", "Возвращена"
-        CANCELLED = "cancelled", "Заказ отменен"
+        CANCELLED = "cancelled", "Не найдена"
+        ANALOGOUS = "analogous", "Подобран аналог"
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="books")
     book_id = models.CharField(max_length=255)

@@ -131,26 +131,19 @@ class UpdateOrderSerializer(aserializers.Serializer):
         elif new_status["status"] == OrderHistory.Status.READY:
             books = validated_data["books"]
 
-            #async for book in books:
-                #order_item = await OrderItem.objects.filter(book_id=book.book_id, order=instance).afirst()
+            async for book in books:
+                order_item = await OrderItem.objects.filter(book_id=book.book_id, order=instance).afirst()
 
-                # if validated_data["analogous"] is not None:
-                #     analogous_order_item = await OrderItem.objects.acreate()
-            # async for order_item in order_books:
-            #     if validated_data["exemplar_id"] is not None:
-            #         order_item.exemplar_id = validated_data["exemplar_id"]
+                if book["status"] == "analogous":
+                    analogous_order_item = await OrderItem.objects.acreate(order=instance, book_id=book["analogous"])
+                    order_item.analogous_order_item = analogous_order_item
+                    order_item.status = OrderItem.Status.ANALOGOUS
 
-            #     if validated_data["analogous_order_item"] is not None:
-            #         analogous_order_item = await OrderItem.objects.acreate(
-            #             order = instance,
-            #             book_id = validated_data["analogous_order_item"]["book_id"],
-            #             exemplar_id = validated_data["analogous_order_item"]["exemplar_id"],
-            #             status = OrderItem.Status.ORDERED
-            #         )
+                if book["status"] == "cancelled":
+                    order_item.status = OrderItem.Status.CANCELLED
+                    order_item.description = book["decription"]
 
-            #         order_item.analogous_order_item = analogous_order_item
-
-            #     await order_item.asave()
+                await order_item.asave()
 
             await OrderHistory.objects.acreate(
                 order=instance, status=OrderHistory.Status.READY, description=new_status["description"], staff=user
