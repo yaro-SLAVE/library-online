@@ -82,6 +82,58 @@ class AuthViewset(AsyncAPIView):
                     data={"refresh": str(tokens), "access": str(tokens.access_token)},
                 )
             
+            elif is_librarian:
+                info: UserInfo = await get_login_info(client, response.accessToken)
+                user, created = await User.objects.prefetch_related("profile").aget_or_create(
+                    profile__library_card=info.ticket,
+                    defaults={
+                        "username": info.mail,
+                        "email": info.mail,
+                    },
+                )
+
+                if created:
+                    await user.groups.aadd(await Group.objects.aget(name="Librarian"))
+
+                user.profile.library_card = info.ticket
+                user.profile.fullname = info.name
+                user.profile.department = info.department
+                user.profile.mira_id = info.mira
+                await user.profile.asave()
+
+                tokens = await sync_to_async(TokenObtainPairSerializer.get_token)(user)
+                return Response(
+                    status=200,
+                    data={"refresh": str(tokens), "access": str(tokens.access_token)},
+                )
+            
+            elif is_admin:
+                info: UserInfo = await get_login_info(client, response.accessToken)
+                user, created = await User.objects.prefetch_related("profile").aget_or_create(
+                    profile__library_card=info.ticket,
+                    defaults={
+                        "username": info.mail,
+                        "email": info.mail,
+                    },
+                )
+
+                if created:
+                    await user.groups.aadd(await Group.objects.aget(name="Librarian"))
+                    user.is_superuser = True
+                    await user.asave()
+
+                user.profile.library_card = info.ticket
+                user.profile.fullname = info.name
+                user.profile.department = info.department
+                user.profile.mira_id = info.mira
+                await user.profile.asave()
+
+                tokens = await sync_to_async(TokenObtainPairSerializer.get_token)(user)
+                return Response(
+                    status=200,
+                    data={"refresh": str(tokens), "access": str(tokens.access_token)},
+                )
+            
 class AuthThirdPartyViewset(AsyncAPIView):
     class Serializer(serializers.Serializer):
         token = serializers.CharField()
