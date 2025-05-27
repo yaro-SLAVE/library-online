@@ -8,8 +8,7 @@ export async function updateOrderStatus(
 ) {
   const statusUpdate = {
     description: description,
-    status: newStatus,
-    date: new Date().toISOString(),
+    status: newStatus
   };
 
   try {

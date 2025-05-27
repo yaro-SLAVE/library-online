@@ -3,10 +3,10 @@ from django.test import Client
 import pytest
 
 
-def authorize(client: Client, username: str = "user", password: str = "1234") -> tuple[str, str]:
+def authorize(client: Client, username: str = "user", password: str = "1235") -> tuple[str, str]:
     response = client.post("/api/auth/login/", {"username": username, "password": password})
     json = response.json()
-    client.defaults.update(HttpHeaders.to_wsgi_names({"Authorization": f"Bearer {json['access']}"}))
+    client.defaults.update(HttpHeaders.to_wsgi_names({"Authorization": f'Bearer {json["access"]}'}))
     return json["access"], json["refresh"]
 
 

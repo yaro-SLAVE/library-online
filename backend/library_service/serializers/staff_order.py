@@ -108,7 +108,7 @@ class UpdateOrderStatusSerializer(aserializers.ModelSerializer):
 
     class Meta:
         model = OrderHistory
-        fields = ["description", "status", "date"]
+        fields = ["description", "status"]
 
 class UpdateOrderSerializer(aserializers.Serializer):
     status = UpdateOrderStatusSerializer()
