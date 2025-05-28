@@ -24,10 +24,6 @@ class AuthViewset(AsyncAPIView):
         serializer = self.Serializer(data=self.request.data)
         serializer.is_valid(raise_exception=True)
 
-        #user = await User.objects.filter(username = serializer.validated_data["username"]).afirst()
-
-        #TODO проверка существования пользователя с данным username
-
         async with ClientSession() as client:
             error = ""
             response: AuthResponse | None = None
@@ -62,7 +58,7 @@ class AuthViewset(AsyncAPIView):
                 user, created = await User.objects.prefetch_related("profile").aget_or_create(
                     profile__library_card=info.ticket,
                     defaults={
-                        "username": info.mail,
+                        "username": serializer.validated_data["username"],
                         "email": info.mail,
                     },
                 )
@@ -87,7 +83,7 @@ class AuthViewset(AsyncAPIView):
                 user, created = await User.objects.prefetch_related("profile").aget_or_create(
                     profile__library_card=info.ticket,
                     defaults={
-                        "username": info.mail,
+                        "username": serializer.validated_data["username"],
                         "email": info.mail,
                     },
                 )
@@ -112,7 +108,7 @@ class AuthViewset(AsyncAPIView):
                 user, created = await User.objects.prefetch_related("profile").aget_or_create(
                     profile__library_card=info.ticket,
                     defaults={
-                        "username": info.mail,
+                        "username": serializer.validated_data["username"],
                         "email": info.mail,
                     },
                 )
@@ -147,9 +143,9 @@ class AuthThirdPartyViewset(AsyncAPIView):
             try:
                 info: UserInfo = await get_login_info(client, serializer.validated_data["token"])
                 user, created = await User.objects.prefetch_related("profile").aget_or_create(
-                    username = info.mail,
+                    username = serializer.validated_data["username"],
                     defaults={
-                        "username": info.mail,
+                        "username": serializer.validated_data["username"],
                         "email": info.mail,
                     },
                 )
