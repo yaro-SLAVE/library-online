@@ -3,15 +3,8 @@ import os
 
 DEBUG = False
 
-SERVICE_HOSTNAME = os.environ.get("SERVICE_HOSTNAME")
-
-CSRF_TRUSTED_ORIGINS = [SERVICE_HOSTNAME]
-
-ALLOWED_HOSTS: list[str]
-if SERVICE_HOSTNAME == "http://localhost:8000":
-    ALLOWED_HOSTS = ["localhost"]
-else:
-    ALLOWED_HOSTS = [SERVICE_HOSTNAME]
+CSRF_TRUSTED_ORIGINS = [os.environ.get("SERVICE_CSRF_HOSTNAME")]
+ALLOWED_HOSTS = [os.environ.get("SERVICE_HOSTNAME")]
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 

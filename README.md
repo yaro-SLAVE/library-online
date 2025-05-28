@@ -222,6 +222,7 @@ python manage.py runserver --settings local_settings
 - `DJANGO_SUPERUSER_USERNAME` (имя админского аккаунта в django)
 - `DJANGO_SUPERUSER_PASSWORD` (пароль админского аккаунта в django)
 - `SERVICE_HOSTNAME` (адрес сервиса, например: http://localhost:8000)
+- `SERVICE_CSRF_HOSTNAME` (адрес сервиса для CSRF, например: http://localhost:8000. Обязательно должен содержать http:// или https://)
 - `OAUTH_CLIENT_ID` (публичная часть oauth ключа для int.istu.edu)
 - `OAUTH_CLIENT_SECRET` (приватная часть oauth ключа для int.istu.edu)
 - `OPAC_INTERNAL_TOKEN` (супер-токен)
