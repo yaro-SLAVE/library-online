@@ -1,22 +1,31 @@
-describe('Auth Flow', () => {
+import { useAuthStore } from "@core/store/auth";
+import { createTestingPinia } from '@pinia/testing'
+import { setActivePinia, createPinia, storeToRefs } from 'pinia'
+import axios from "axios";
+
+describe('Counter Store', () => {
+  let originalAxios: any
+
   beforeEach(() => {
     cy.visit('/profile')
+    setActivePinia(createPinia())
+    originalAxios = axios.create()
   })
 
-  it('should login with valid credentials', () => {
-    cy.get('[data-cy="email"]').type('user@example.com')
-    cy.get('[data-cy="password"]').type('password123')
-    cy.get('[data-cy="submit"]').click()
-    
-    cy.url().should('include', '/dashboard')
-    cy.get('[data-cy="welcome-message"]').should('contain', 'Welcome back')
-  })
+  it('open orders', async () => {
+    const authStore = useAuthStore()
 
-  it('should show error with invalid credentials', () => {
-    cy.get('[data-cy="email"]').type('wrong@email.com')
-    cy.get('[data-cy="password"]').type('wrongpass')
-    cy.get('[data-cy="submit"]').click()
-    
-    cy.get('[data-cy="error-message"]').should('be.visible')
+    axios.interceptors.request.use(async (config) => {
+      if (await authStore.updateTokens()) {
+        config.headers.Authorization = `Bearer ${authStore.access}`
+      }
+      return config
+    })
+
+    const data = await authStore.login("", ""); // Здесь логин и пароль
+    const { currentUserRole, access } = storeToRefs(authStore);
+    currentUserRole.value = "Librarian";
+
+    cy.visit('/')
   })
 })
