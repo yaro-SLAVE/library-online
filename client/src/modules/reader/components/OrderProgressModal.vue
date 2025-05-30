@@ -82,7 +82,7 @@
         :animate="{ opacity: 1, scale: 1 }"
         :transition="{ duration: 0.4, ease: 'easeOut' }"
       >
-        <h4>✅ Заказ успешно оформлен!</h4>
+        <h4>Заказ успешно оформлен!</h4>
       </motion.div>
 
       <motion.div
@@ -92,14 +92,14 @@
         :animate="{ opacity: 1, y: 0 }"
         :transition="{ duration: 0.4, ease: 'easeOut' }"
       >
-        <h4>❌ Ошибка оформления заказа</h4>
+        <h4>Ошибка оформления заказа</h4>
       </motion.div>
     </motion.div>
-    <div class="btn-close">
-      <StyledButton v-if="state.isError || state.currentStep === 5" @click="handleCLoseClick">
-        Закрыть окно
-      </StyledButton>
-    </div>
+    <div class="btn-close-modal">
+        <StyledButton v-if="state.isError || state.currentStep === 5" @click="handleCLoseClick">
+          Закрыть окно
+        </StyledButton>
+      </div>
   </ModalDialog>
 </template>
 
@@ -151,7 +151,7 @@ const handleCLoseClick = () => {
 </script>
 
 <style lang="scss" scoped>
-.btn-close {
+.btn-close-modal {
   display: flex;
   justify-content: center;
 }
@@ -258,13 +258,11 @@ const handleCLoseClick = () => {
     font-size: 26px;
   }
   &.success {
-    background: rgba(76, 175, 80, 0.1);
-    color: var(--color-status-done);
+    color: var(--color-text-600);
   }
 
   &.error {
-    background: rgba(244, 67, 54, 0.1);
-    color: var(--color-status-error);
+    color: var(--color-text-600);
   }
 }
 
