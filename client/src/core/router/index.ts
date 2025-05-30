@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import readerRoutes from "./routes.reader";
-import staffRoutes from "./routes.staff";
+import { readerRoutes } from "@core/router/routes.reader";
+import { staffRoutes } from "@core/router/routes.staff";
 import { useAuthStore } from "@core/store/auth";
 import { storeToRefs } from "pinia";
 const router = createRouter({
@@ -19,6 +19,10 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   const { currentUserRole } = storeToRefs(authStore);
   const requiredRole = to.meta.role;
+
+  if (authStore.isCurrentUserInit === undefined) {
+    await authStore.updateProfileInfo();
+  }
 
   if (!requiredRole) {
     return next();

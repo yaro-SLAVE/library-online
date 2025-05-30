@@ -1,6 +1,6 @@
 import DefaultStaffLayout from "@core/views/DefaultStaffLayout.vue";
 
-export default [
+export const staffRoutes = [
   {
     path: "/staff",
     component: DefaultStaffLayout,
@@ -10,11 +10,13 @@ export default [
         path: "orders",
         name: "StaffOrdersPage",
         component: () => import("@staff/views/ManageOrdersPage.vue"),
+        meta: { requiresAuth: true },
       },
       {
         path: "profile",
         name: "StaffProfilePage",
         component: () => import("@core/views/ProfilePage.vue"),
+        meta: { requiresAuth: true },
       },
     ],
   },

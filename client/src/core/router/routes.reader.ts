@@ -1,6 +1,6 @@
 import ReaderLayout from "@core/views/ReaderLayout.vue";
 
-export default [
+export const readerRoutes =  [
   {
     path: "/",
     component: ReaderLayout,

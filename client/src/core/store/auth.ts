@@ -2,12 +2,22 @@ import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
-import { computed, onBeforeMount, ref } from "vue";
+import { computed, ref } from "vue";
 import type { ProfileInfo, Group } from "@api/types";
 import { profileInfo } from "@api/profile";
 
 export const useAuthStore = defineStore("auth", () => {
   type Token = string | undefined;
+
+  const access = useLocalStorage<Token>("accessToken", undefined);
+  const refresh = useLocalStorage<Token>("refreshToken", undefined);
+
+  const isAuthenticated = computed(() => refresh.value !== undefined);
+
+  const currentUser = ref<ProfileInfo>();
+  const isCurrentUserInit = ref<boolean>(false);
+
+  const currentUserRole = ref<Group>("Reader");
 
   type Tokens = {
     access: string;
@@ -23,11 +33,6 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  const access = useLocalStorage<Token>("accessToken", undefined);
-  const refresh = useLocalStorage<Token>("refreshToken", undefined);
-  const isAuthenticated = computed(() => refresh.value !== undefined);
-  const currentUser = ref<ProfileInfo>();
-  const currentUserRole = useLocalStorage<Group>("userRole", "Reader");
 
   async function refreshTokens(): Promise<boolean> {
     try {
@@ -59,7 +64,9 @@ export const useAuthStore = defineStore("auth", () => {
   async function updateProfileInfo() {
     if (await updateTokens()) {
       try {
+        if(isCurrentUserInit.value) return;
         currentUser.value = await profileInfo();
+        isCurrentUserInit.value = true;
         if (currentUser.value && !currentUser.value.groups.includes(currentUserRole.value)) {
           currentUserRole.value = "Reader";
         }
@@ -134,13 +141,10 @@ export const useAuthStore = defineStore("auth", () => {
     currentUserRole.value = role;
   }
 
-  onBeforeMount(async () => {
-    await updateProfileInfo();
-  });
-
   return {
     isAuthenticated,
     currentUser,
+    isCurrentUserInit,
     access,
     refresh,
     updateTokens,
