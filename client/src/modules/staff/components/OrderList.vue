@@ -3,8 +3,8 @@
     <table class="table">
       <thead>
         <tr>
-          <th 
-            @click="resetSorting" 
+          <th
+            @click="resetSorting"
             class="sortable-th"
             :aria-sort="sortKey === 'id' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
           >
@@ -12,37 +12,41 @@
               #
               <div class="th-icon">
                 <span v-if="sortKey === 'id'" class="direction-icon">
-                  {{ sortOrder === 1 ? '↑' : '↓' }}
+                  {{ sortOrder === 1 ? "↑" : "↓" }}
                 </span>
                 <span v-else>⇅</span>
               </div>
             </span>
           </th>
-          <th 
-            @click="sortOrders('user')" 
+          <th
+            @click="sortOrders('user')"
             class="sortable-th"
-            :aria-sort="sortKey === 'user' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+            :aria-sort="
+              sortKey === 'user' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'
+            "
           >
             <span class="th-content">
               Клиент
               <div class="th-icon">
                 <span v-if="sortKey === 'user'" class="direction-icon">
-                  {{ sortOrder === 1 ? '↑' : '↓' }}
+                  {{ sortOrder === 1 ? "↑" : "↓" }}
                 </span>
                 <span v-else>⇅</span>
               </div>
             </span>
           </th>
-          <th 
-            @click="sortOrders('date')" 
+          <th
+            @click="sortOrders('date')"
             class="sortable-th"
-            :aria-sort="sortKey === 'date' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+            :aria-sort="
+              sortKey === 'date' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'
+            "
           >
             <span class="th-content">
               Дата и время
               <span class="th-icon">
                 <span v-if="sortKey === 'date'" class="direction-icon">
-                  {{ sortOrder === 1 ? '↑' : '↓' }}
+                  {{ sortOrder === 1 ? "↑" : "↓" }}
                 </span>
                 <span v-else>⇅</span>
               </span>
@@ -57,8 +61,8 @@
           <td>{{ order.user.first_name }} {{ order.user.last_name }}</td>
           <td>{{ formatDate(order.statuses[0]?.date) }}</td>
           <td>
-            <button 
-              class="info-button" 
+            <button
+              class="info-button"
               @click="handleOpenOrderDetails(order.id)"
               aria-label="Показать детали заказа"
             >
@@ -83,25 +87,27 @@ const emit = defineEmits<{
   (e: "getOrder", id: number): void;
 }>();
 
-type SortKey = 'id' | 'user' | 'date';
+type SortKey = "id" | "user" | "date";
 
 const sortKey = ref<SortKey>("id");
 const sortOrder = ref<1 | -1>(1);
 
 function formatDate(dateString?: string): string {
-  if (!dateString) return '---';
-  
+  if (!dateString) return "---";
+
   try {
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    }).format(date).replace(',', ' |');
+    return new Intl.DateTimeFormat("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    })
+      .format(date)
+      .replace(",", " |");
   } catch {
     return dateString;
   }
@@ -123,10 +129,10 @@ function sortOrders(key: SortKey) {
 
 const sortedOrders = computed(() => {
   if (!props.orders) return [];
-  
+
   return [...props.orders].sort((a, b) => {
     let comparison = 0;
-    
+
     switch (sortKey.value) {
       case "user":
         const aUser = `${a.user.first_name} ${a.user.last_name}`.toLowerCase();
@@ -178,15 +184,15 @@ tr {
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s;
-  
+
   &:hover {
     background-color: var(--color-background-200);
-    
+
     .th-icon {
       opacity: 1;
     }
   }
-  
+
   &[aria-sort="ascending"],
   &[aria-sort="descending"] {
     .th-icon {
@@ -226,11 +232,11 @@ tr {
   cursor: pointer;
   background-color: var(--color-primary-400);
   transition: background-color 0.2s;
-  
+
   &:hover {
     background-color: var(--color-accent-700);
   }
-  
+
   &:focus-visible {
     outline: 2px solid var(--color-accent-500);
     outline-offset: 2px;

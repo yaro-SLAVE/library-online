@@ -8,7 +8,7 @@ export async function updateOrderStatus(
 ) {
   const statusUpdate = {
     description: description,
-    status: newStatus
+    status: newStatus,
   };
 
   try {

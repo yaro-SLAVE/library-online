@@ -187,7 +187,11 @@ const fetchOrder = async (orderId: number) => {
   isLoading.value = false;
 };
 
-async function handleUpdateOrderStatus(orderId: number, newStatus: OrderStatusEnum, description: string) {
+async function handleUpdateOrderStatus(
+  orderId: number,
+  newStatus: OrderStatusEnum,
+  description: string
+) {
   try {
     await updateOrderStatus(orderId, newStatus, description);
   } catch (error) {

@@ -43,6 +43,7 @@ const authStore = useAuthStore();
 const username = ref("");
 const password = ref("");
 async function login() {
+  console.log(OAUTH_CLIENT_ID);
   // TODO: предупреждать пользователя об ошибках
   await authStore.login(username.value, password.value);
 }

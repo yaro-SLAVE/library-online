@@ -15,9 +15,14 @@ export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = computed(() => refresh.value !== undefined);
 
   const currentUser = ref<ProfileInfo>();
-  const isCurrentUserInit = ref<boolean>(false);
 
-  const currentUserRole = ref<Group>("Reader");
+  const currentUserRole = computed((): Group => {
+    if (!currentUser.value) return "Reader";
+    if (currentUser.value.groups.includes("Librarian")) {
+      return "Librarian";
+    }
+    return "Reader";
+  });
 
   type Tokens = {
     access: string;
@@ -32,7 +37,6 @@ export const useAuthStore = defineStore("auth", () => {
       return Date.now() < decoded.exp! * 1000;
     }
   }
-
 
   async function refreshTokens(): Promise<boolean> {
     try {
@@ -64,12 +68,7 @@ export const useAuthStore = defineStore("auth", () => {
   async function updateProfileInfo() {
     if (await updateTokens()) {
       try {
-        if(isCurrentUserInit.value) return;
         currentUser.value = await profileInfo();
-        isCurrentUserInit.value = true;
-        if (currentUser.value && !currentUser.value.groups.includes(currentUserRole.value)) {
-          currentUserRole.value = "Reader";
-        }
       } catch {
         // TODO: check if the error is actually related to the tokens
         refresh.value = undefined;
@@ -129,7 +128,7 @@ export const useAuthStore = defineStore("auth", () => {
     const refreshCopy = refresh.value;
     refresh.value = undefined;
     access.value = undefined;
-    currentUserRole.value = "Reader";
+    currentUser.value = undefined;
 
     const simpleAxios = axios.create();
     await simpleAxios.post("/api/auth/logout/", {
@@ -137,14 +136,9 @@ export const useAuthStore = defineStore("auth", () => {
     });
   }
 
-  function setUserRole(role: Group) {
-    currentUserRole.value = role;
-  }
-
   return {
     isAuthenticated,
     currentUser,
-    isCurrentUserInit,
     access,
     refresh,
     updateTokens,
@@ -154,6 +148,5 @@ export const useAuthStore = defineStore("auth", () => {
     logout,
     thirdPartyLogin,
     currentUserRole,
-    setUserRole,
   };
 });

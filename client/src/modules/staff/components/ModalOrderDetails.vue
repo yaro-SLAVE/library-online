@@ -73,7 +73,6 @@
           </div>
         </div>
 
-        
         <div class="section">
           <h3>История статусов:</h3>
           <ul class="status-list">
@@ -85,7 +84,10 @@
               <span v-if="status.staff !== null" class="staff-name">
                 {{ status.staff?.first_name + " " + status.staff?.last_name }}
               </span>
-              <span v-if="status.description && status.description !== status.status" class="status-description">
+              <span
+                v-if="status.description && status.description !== status.status"
+                class="status-description"
+              >
                 ({{ status.description }})
               </span>
             </li>
@@ -216,11 +218,10 @@ const isCheckFailed = ref(false);
 const validBooksId = ref<number[]>([]);
 
 const handleCheckFail = async () => {
-  validBooksId.value = props.order.books.map(book => book.id)          
-  .filter(id => id % 2 === 0)
+  validBooksId.value = props.order.books.map((book) => book.id).filter((id) => id % 2 === 0);
 
   isCheckFailed.value = !isCheckFailed.value;
-}
+};
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -252,7 +253,7 @@ const nextStatusButtonText = computed(() => {
 });
 
 const changeToCancelledStatus = () => {
-  emit("nextOrderStatus", selectedOrder.value.id,"cancelled", "cancelled");
+  emit("nextOrderStatus", selectedOrder.value.id, "cancelled", "cancelled");
   emit("close");
 };
 
