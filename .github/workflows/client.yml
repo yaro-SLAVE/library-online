@@ -30,9 +30,9 @@ jobs:
     - name: Run linter
       run: |
         cd client
-        npx eslint reader/ shared/ staff-panel/ --fix --ignore-pattern .gitignore
+        npx eslint src/ --fix --ignore-pattern .gitignore
 
     - name: Check formatting
       run: |
         cd client
-        npx prettier -c reader/ shared/ staff-panel/
+        npx prettier -c src/
