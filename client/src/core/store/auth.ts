@@ -19,7 +19,7 @@ export const useAuthStore = defineStore("auth", () => {
   const currentUserRole = computed((): Group => {
     if (!currentUser.value) return "Reader";
     if (currentUser.value.groups.includes("Librarian")) {
-      return "Reader";
+      return "Librarian";
     }
     return "Reader";
   });
