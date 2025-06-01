@@ -3,6 +3,7 @@ from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.utils import timezone
 
 from rest_framework import serializers
 from rest_framework.response import Response
@@ -93,6 +94,9 @@ class BitrixAuthView(AsyncAPIView):
                 pass #Если не нашли аккаунт с данным mira_id, есть смысл авторизовать читателя?
 
             await user.profile.asave()
+
+            user.last_login = timezone.now()
+            await user.asave(update_fields=['last_login'])
 
             # TODO: это можно в асинке переписать
             tokens = await sync_to_async(TokenObtainPairSerializer.get_token)(user)

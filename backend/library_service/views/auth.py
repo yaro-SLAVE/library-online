@@ -4,6 +4,7 @@ from asgiref.sync import sync_to_async
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.utils import timezone
 
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -72,6 +73,9 @@ class AuthViewset(AsyncAPIView):
                 user.profile.mira_id = info.mira
                 await user.profile.asave()
 
+                user.last_login = timezone.now()
+                await user.asave(update_fields=['last_login'])
+
                 tokens = await sync_to_async(TokenObtainPairSerializer.get_token)(user)
                 return Response(
                     status=200,
@@ -96,6 +100,9 @@ class AuthViewset(AsyncAPIView):
                 user.profile.department = info.department
                 user.profile.mira_id = info.mira
                 await user.profile.asave()
+                
+                user.last_login = timezone.now()
+                await user.asave(update_fields=['last_login'])
 
                 tokens = await sync_to_async(TokenObtainPairSerializer.get_token)(user)
                 return Response(
@@ -124,6 +131,9 @@ class AuthViewset(AsyncAPIView):
                 user.profile.mira_id = info.mira
                 await user.profile.asave()
 
+                user.last_login = timezone.now()
+                await user.asave(update_fields=['last_login'])
+                
                 tokens = await sync_to_async(TokenObtainPairSerializer.get_token)(user)
                 return Response(
                     status=200,
@@ -159,6 +169,9 @@ class AuthThirdPartyViewset(AsyncAPIView):
                 user.profile.mira_id = info.mira
                 await user.profile.asave()
 
+                user.last_login = timezone.now()
+                await user.asave(update_fields=['last_login'])
+                
                 tokens = await sync_to_async(TokenObtainPairSerializer.get_token)(user)
                 return Response(
                     status=200,

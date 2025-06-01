@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from adrf.viewsets import GenericViewSet as AsyncGenericViewSet
+from asgiref.sync import sync_to_async
 
 from library_service.mixins import (
     LockUserMixin,
@@ -12,10 +13,11 @@ from library_service.mixins import (
     SessionRetrieveModelMixin,
     SessionUpdateModelMixin,
 )
-
 from library_service.models.order import Order, OrderHistory, OrderItem
 
 from library_service.serializers.order import BorrowedBookSerializer, CreateUpdateOrderSerializer, OrderSerializer
+
+from library_service.emails import send_new_order_notification
 
 ACCEPTABLE_STATUSES = [
     OrderHistory.Status.NEW,
@@ -47,7 +49,11 @@ class OrderViewset(
 
     @LockUserMixin.lock_request
     async def acreate(self, *args, **kwargs):
-        return await super().acreate(*args, **kwargs)
+        response = await super().acreate(*args, **kwargs)
+        if response.status_code == status.HTTP_201_CREATED:
+            await send_new_order_notification()
+
+        return response
 
     @LockUserMixin.lock_request
     async def aupdate(self, *args, **kwargs):
