@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint src/core/ src/modules/ --fix --ignore-pattern .gitignore",
-    "format": "prettier --write src/core/ src/modules/",
+    "lint": "eslint src/ --fix --ignore-pattern .gitignore",
+    "format": "prettier --write src/",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "dev": "vite",
