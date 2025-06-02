@@ -96,10 +96,10 @@
       </motion.div>
     </motion.div>
     <div class="btn-close-modal">
-        <StyledButton v-if="state.isError || state.currentStep === 5" @click="handleCLoseClick">
-          Закрыть окно
-        </StyledButton>
-      </div>
+      <StyledButton v-if="state.isError || state.currentStep === 5" @click="handleCLoseClick">
+        Закрыть окно
+      </StyledButton>
+    </div>
   </ModalDialog>
 </template>
 

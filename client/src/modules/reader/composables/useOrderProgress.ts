@@ -28,7 +28,8 @@ export const useOrderProgress = () => {
     },
     {
       title: "Проверка возвращаемых книг",
-      error: "Необходимо отметить книги, которые вы обещаете вернуть. Пожалуйста, выберите их выше.",
+      error:
+        "Необходимо отметить книги, которые вы обещаете вернуть. Пожалуйста, выберите их выше.",
       messages: null,
     },
     {
@@ -49,7 +50,6 @@ export const useOrderProgress = () => {
       messages: null,
     },
   ];
-  
 
   const modalState = ref<ModalState>({
     isOpen: false,

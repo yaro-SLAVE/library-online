@@ -56,20 +56,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="order in sortedOrders" :key="order.id">
-          <th>{{ order.id }}</th>
-          <td>{{ order.user.first_name }} {{ order.user.last_name }}</td>
-          <td>{{ formatDate(order.statuses[0]?.date) }}</td>
-          <td>
-            <button
-              class="info-button"
-              @click="handleOpenOrderDetails(order.id)"
-              aria-label="Показать детали заказа"
-            >
-              Инфо
-            </button>
-          </td>
-        </tr>
+        <OrderTableRow
+          v-for="order in sortedOrders"
+          :key="order.id"
+          :order="order"
+          @get-order="handleOpenOrderDetails"
+        />
       </tbody>
     </table>
   </div>
@@ -78,7 +70,7 @@
 <script setup lang="ts">
 import { defineProps, ref, computed } from "vue";
 import type { UserOrder } from "@api/types";
-
+import OrderTableRow from "@staff/components/OrderTableRow.vue";
 const props = defineProps<{
   orders: UserOrder[];
 }>();
@@ -91,27 +83,6 @@ type SortKey = "id" | "user" | "date";
 
 const sortKey = ref<SortKey>("id");
 const sortOrder = ref<1 | -1>(1);
-
-function formatDate(dateString?: string): string {
-  if (!dateString) return "---";
-
-  try {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("ru-RU", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    })
-      .format(date)
-      .replace(",", " |");
-  } catch {
-    return dateString;
-  }
-}
 
 function resetSorting() {
   sortKey.value = "id";

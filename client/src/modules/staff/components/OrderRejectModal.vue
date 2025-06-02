@@ -26,7 +26,7 @@ import { ref } from "vue";
 
 import StyledButton from "@components/StyledButton.vue";
 
-const props = defineProps<{
+defineProps<{
   modelValue: boolean;
 }>();
 
