@@ -39,7 +39,6 @@
   "devDependencies": {
     "@cypress/vue": "^6.0.2",
     "@cypress/webpack-dev-server": "^4.1.0",
-    "@pinia/testing": "^1.0.1",
     "@testing-library/vue": "^8.1.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/jest": "^29.5.14",
