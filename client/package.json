@@ -37,9 +37,6 @@
     "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
-    "@cypress/vue": "^6.0.2",
-    "@cypress/webpack-dev-server": "^4.1.0",
-    "@testing-library/vue": "^8.1.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.13",
@@ -51,7 +48,6 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.5.1",
     "@vue/vue3-jest": "^29.2.6",
-    "cypress": "^14.4.0",
     "eslint": "^9.19.0",
     "eslint-plugin-vue": "^9.32.0",
     "happy-dom": "^17.4.7",
