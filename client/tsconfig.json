@@ -21,6 +21,6 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
-    "types": ["vite/client", "cypress", "@testing-library/cypress", "./cypress/support/component"]
+    "types": ["vite/client"]
   },
 }
