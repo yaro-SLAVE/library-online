@@ -46,9 +46,9 @@
     <ModalOrderDetails
       v-if="selectedOrder"
       :order="selectedOrder"
+      :onCheckOrder="handleCheckOrder"
       @close="selectedOrder = null"
       @next-order-status="handleUpdateOrderStatus"
-      @check-order="handleCheckOrder"
     />
     <LoadingModal v-model="isLoading" />
   </div>

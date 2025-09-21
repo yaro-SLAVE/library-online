@@ -97,8 +97,20 @@ export async function checkOrder(orderId: number): Promise<OrderCheckingInfo> {
   try {
     const { data } = await axios.get(`/api/staff/order/check/${orderId}/`);
     console.log(`/api/order/${orderId}`, data);
+    
+    console.log('Найденные книги:', data.found_books);
+    console.log('Ненайденные книги:', data.notfound_books); 
+    console.log('Аналоги:', data.additional_books);
+
     return data;
   } catch (error) {
+    // if (error.response?.status === 404) {
+    //   console.error('Заказ не найден');
+    // } else if (error.response?.status === 401) {
+    //   console.error('Требуется авторизация');
+    // } else {
+    //   console.error('Ошибка сервера');
+    // }
     console.error("Ошибка при получении заказа", error);
     throw error;
   }

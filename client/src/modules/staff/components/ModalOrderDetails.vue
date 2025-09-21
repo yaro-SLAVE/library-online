@@ -146,11 +146,20 @@ import type { OrderStatusEnum } from "@api/types";
 import { orderStatuses } from "@api/types";
 
 const openPrintModal = ref(false);
-
 const openPrintStickerModal = ref(false);
 
-// Составить список возможных причин отсутствия книг
-// В последствии перейдут в модуль администратора
+const props = defineProps<{
+  order: Order;
+  onCheckOrder: (orderId: number) => Promise<OrderCheckingInfo | undefined>;
+}>();
+
+const emit = defineEmits<{
+  (e: "close"): void;
+  (e: "nextOrderStatus", orderId: number, nextStatus: OrderStatusEnum, description: string): void;
+}>();
+
+const selectedOrder = ref<Order>(props.order);
+
 const unavailableReasons = ref([
   { value: "analog", label: "Аналог" },
   { value: "noAvailableCopies", label: "Нет доступных экземпляров" },
@@ -169,9 +178,43 @@ const availableAnalogs = ref([
   { id: 2, title: "Преступление и наказание", author: "Ф.М. Достоевский" },
 ]);
 
-const props = defineProps<{
-  order: Order;
-}>();
+const validBooksId = ref<number[]>([]);
+const unavailableBooks = ref<number[]>([]);
+const analogBooks = ref<string[]>([]);
+const checkingResult = ref<OrderCheckingInfo | null>(null);
+const isCheckFailed = ref(false);
+
+const handleCheckFail = async () => {
+  try {
+    const result = await props.onCheckOrder(selectedOrder.value.id);
+    console.log('Результат проверки заказа:', result);
+
+    if (result) {
+      // Разбиваем результат на 3 отдельных массива
+      const foundBooks = result.found_books || [];
+      const notFoundBooks = result.notfound_books || [];
+      const additionalBooks = result.additional_books || [];
+
+      console.log('Найденные книги:', foundBooks);
+      console.log('Ненайденные книги:', notFoundBooks);
+      console.log('Аналоги:', additionalBooks);
+
+      validBooksId.value = foundBooks.map(book => book.id);
+      unavailableBooks.value = notFoundBooks.map(book => book.id);
+      analogBooks.value = additionalBooks;
+
+      checkingResult.value = result;
+
+    } else {
+      console.error('Не удалось получить результат проверки');
+    }
+  } catch (error) {
+    console.error('Ошибка при вызове проверки заказа:', error);
+  }
+
+  // validBooksId.value = props.order.books.map((book) => book.id).filter((id) => id % 2 === 0);
+  // isCheckFailed.value = !isCheckFailed.value;
+};
 
 const statusTransitions = {
   new: {
@@ -203,25 +246,6 @@ const statusTransitions = {
     nextButtonText: "",
   },
 } as const;
-
-const emit = defineEmits<{
-  (e: "close"): void;
-  (e: "nextOrderStatus", orderId: number, nextStatus: OrderStatusEnum, description: string): void;
-  (e: "checkOrder", orderId: number): OrderCheckingInfo;
-}>();
-
-const selectedOrder = ref<Order>(props.order);
-
-// Реализовать логику проверки нахождения книги в читательском билете
-const isCheckFailed = ref(false);
-
-const validBooksId = ref<number[]>([]);
-
-const handleCheckFail = async () => {
-  validBooksId.value = props.order.books.map((book) => book.id).filter((id) => id % 2 === 0);
-
-  isCheckFailed.value = !isCheckFailed.value;
-};
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
