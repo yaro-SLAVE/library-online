@@ -112,7 +112,7 @@
         </StyledButton>
         <StyledButton
           v-if="currentStatus == 'ready'"
-          @click="changeToCancelledStatus"
+          @click="openCancelModal = true"
           theme="accent"
         >
           Отменить заказ
@@ -133,6 +133,7 @@
     </div>
   </div>
   <OrderRejectModal v-model="openRejectModal" @confirm="handleRejectOrder" />
+  <OrderCancelModal v-model="openCancelModal" @confirm="handleOrderCancel" />
   <PrintModal v-model="openPrintModal" :order="selectedOrder" />
   <PrintStickerModal v-model="openPrintStickerModal" :order="selectedOrder" />
 </template>
@@ -148,9 +149,28 @@ import type { Order, OrderCheckingInfo } from "@api/types";
 import type { OrderStatusEnum } from "@api/types";
 import { orderStatuses } from "@api/types";
 import { checkOrder } from "@core/api/order";
+import OrderCancelModal from "@staff/components/OrderCancelModal.vue";
 
 const openPrintModal = ref(false);
 const openPrintStickerModal = ref(false);
+
+const openCancelModal = ref(false);
+
+const handleOrderCancel = (cancelData: { reason: string; comment: string }) => {
+  // Формируем описание для статуса
+  const reasonLabel = cancellationReasons.value.find(r => r.value === cancelData.reason)?.label || '';
+  const description = `${reasonLabel}${cancelData.comment ? `: ${cancelData.comment}` : ''}`;
+  
+  emit("nextOrderStatus", selectedOrder.value.id, "cancelled", description);
+  openCancelModal.value = false;
+  emit("close");
+};
+
+const cancellationReasons = ref([
+  { value: "debt", label: "Не принес долги" },
+  { value: "no_show", label: "В черном списке" },
+  { value: "changed_mind", label: "Должник по учебе" },
+]);
 
 const props = defineProps<{
   order: Order;

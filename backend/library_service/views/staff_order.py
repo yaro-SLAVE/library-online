@@ -11,6 +11,7 @@ from aiohttp import ClientSession
 from library_service.models.user import UserProfile
 from library_service.opac.api.ticket import opac_reader_loans
 from library_service.opac.book import book_retrieve_by_id
+from library_service.opac.book import book_retrieve
 
 from library_service.mixins import (
     SessionListModelMixin,
@@ -19,6 +20,8 @@ from library_service.mixins import (
 )
 
 from library_service.models.order import Order, OrderHistory, OrderItem
+
+from library_service.serializers.catalog import BookSerializer
 
 from library_service.serializers.staff_order import (
     UserOrderSerializer,
@@ -150,7 +153,7 @@ class StaffOrderGetUpdateViewset(
 
             for loan in loans_id_list:
                 if loan not in books:
-                    additional_books.append(loan)
+                    additional_books.append(await book_retrieve(client, loan))
 
             response = {
                 "found_books": await OrderItemSerializer(
@@ -159,7 +162,9 @@ class StaffOrderGetUpdateViewset(
                 "notfound_books": await OrderItemSerializer(
                     notfound_books, many=True, context=self.get_serializer_context()
                 ).adata,
-                "additional_books": additional_books,
+                "additional_books": BookSerializer(
+                    additional_books, many=True, context=self.get_serializer_context()
+                ).data,
             }
 
         print(response)
