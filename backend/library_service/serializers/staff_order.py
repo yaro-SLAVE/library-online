@@ -131,19 +131,20 @@ class UpdateOrderSerializer(aserializers.Serializer):
         elif new_status["status"] == OrderHistory.Status.READY:
             books = validated_data["books"]
 
-            async for book in books:
-                order_item = await OrderItem.objects.filter(book_id=book.book_id, order=instance).afirst()
+            if (len(books) > 0):
+                async for book in books:
+                    order_item = await OrderItem.objects.filter(book_id=book.book_id, order=instance).afirst()
 
-                if book["status"] == "analogous":
-                    analogous_order_item = await OrderItem.objects.acreate(order=instance, book_id=book["analogous"])
-                    order_item.analogous_order_item = analogous_order_item
-                    order_item.status = OrderItem.Status.ANALOGOUS
+                    if book["status"] == "analogous":
+                        analogous_order_item = await OrderItem.objects.acreate(order=instance, book_id=book["analogous"])
+                        order_item.analogous_order_item = analogous_order_item
+                        order_item.status = OrderItem.Status.ANALOGOUS
 
-                if book["status"] == "cancelled":
-                    order_item.status = OrderItem.Status.CANCELLED
-                    order_item.description = book["decription"]
+                    if book["status"] == "cancelled":
+                        order_item.status = OrderItem.Status.CANCELLED
+                        order_item.description = book["decription"]
 
-                await order_item.asave()
+                    await order_item.asave()
 
             await OrderHistory.objects.acreate(
                 order=instance, status=OrderHistory.Status.READY, description=new_status["description"], staff=user

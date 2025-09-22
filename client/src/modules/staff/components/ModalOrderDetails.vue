@@ -117,13 +117,16 @@
         >
           Отменить заказ
         </StyledButton>
-        <StyledButton v-if="nextStatus" @click="changeToNextStatus" theme="secondary">
+        <StyledButton v-if="currentStatus == 'processing'" @click="handleCheckFail" theme="secondary">
+          {{ nextStatusButtonText }}
+        </StyledButton>
+        <StyledButton v-if="nextStatus && currentStatus !== 'processing'" @click="changeToNextStatus" theme="secondary">
           {{ nextStatusButtonText }}
         </StyledButton>
       </div>
-      <button v-if="currentStatus == 'processing'" @click="handleCheckFail">
+      <!-- <button v-if="currentStatus == 'processing'" @click="handleCheckFail">
         Перестраиваем вид для неудачной проверки
-      </button>
+      </button> -->
       <button v-if="currentStatus == 'processing'" @click="openPrintStickerModal = true">
         Печать этикетки
       </button>
@@ -144,6 +147,7 @@ import OrderRejectModal from "@staff/components/OrderRejectModal.vue";
 import type { Order, OrderCheckingInfo } from "@api/types";
 import type { OrderStatusEnum } from "@api/types";
 import { orderStatuses } from "@api/types";
+import { checkOrder } from "@core/api/order";
 
 const openPrintModal = ref(false);
 const openPrintStickerModal = ref(false);
@@ -204,6 +208,15 @@ const handleCheckFail = async () => {
       analogBooks.value = additionalBooks;
 
       checkingResult.value = result;
+
+      if (notFoundBooks.length > 0) {
+        isCheckFailed.value = true;
+        availableAnalogs.value = additionalBooks;
+      } else {
+        console.log("-----------------------")
+        emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value);
+        emit("close");
+      }
 
     } else {
       console.error('Не удалось получить результат проверки');
