@@ -16,9 +16,7 @@ export const useAuthStore = defineStore("auth", () => {
 
   const currentUser = ref<ProfileInfo>();
   const isCurrentUserInit = ref<boolean>(false);
-  const currentUserRole = ref<Group>("Reader");
-
-
+  const currentUserRole = useLocalStorage<Group>("user_role", "Reader");
 
   type Tokens = {
     access: string;
@@ -131,6 +129,7 @@ export const useAuthStore = defineStore("auth", () => {
     refresh.value = undefined;
     access.value = undefined;
     currentUser.value = undefined;
+    currentUserRole.value = "Reader";
 
     const simpleAxios = axios.create();
     await simpleAxios.post("/api/auth/logout/", {
