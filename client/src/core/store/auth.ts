@@ -15,14 +15,10 @@ export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = computed(() => refresh.value !== undefined);
 
   const currentUser = ref<ProfileInfo>();
+  const isCurrentUserInit = ref<boolean>(false);
+  const currentUserRole = ref<Group>("Reader");
 
-  const currentUserRole = computed((): Group => {
-    if (!currentUser.value) return "Reader";
-    if (currentUser.value.groups.includes("Librarian")) {
-      return "Librarian";
-    }
-    return "Reader";
-  });
+
 
   type Tokens = {
     access: string;
@@ -68,12 +64,18 @@ export const useAuthStore = defineStore("auth", () => {
   async function updateProfileInfo() {
     if (await updateTokens()) {
       try {
+        if(isCurrentUserInit.value) return;
         currentUser.value = await profileInfo();
+        isCurrentUserInit.value = true;
+         if (currentUser.value && !currentUser.value.groups.includes(currentUserRole.value)) {
+          currentUserRole.value = "Reader";
+        }
       } catch {
         // TODO: check if the error is actually related to the tokens
         refresh.value = undefined;
         access.value = undefined;
         currentUser.value = undefined;
+        currentUserRole.value = "Reader";
       }
     }
   }
@@ -136,8 +138,15 @@ export const useAuthStore = defineStore("auth", () => {
     });
   }
 
+  
+  function setUserRole(role: Group) {
+    currentUserRole.value = role;
+  }
+
   return {
     isAuthenticated,
+    isCurrentUserInit,
+    setUserRole,
     currentUser,
     access,
     refresh,

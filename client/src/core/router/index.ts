@@ -19,7 +19,9 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   const { currentUserRole } = storeToRefs(authStore);
   const requiredRole = to.meta.role;
-
+  if (authStore.isCurrentUserInit === undefined) {
+    await authStore.updateProfileInfo();
+  }
   // if(requiredAuth && !authStore.isAuthenticated) {
   //   return next ("/");
   // }

@@ -10,11 +10,13 @@ export const staffRoutes = [
         path: "orders",
         name: "StaffOrdersPage",
         component: () => import("@staff/views/ManageOrdersPage.vue"),
+        meta: { requiresAuth: true },
       },
       {
         path: "profile",
         name: "StaffProfilePage",
         component: () => import("@core/views/ProfilePage.vue"),
+        meta: { requiresAuth: true },
       },
     ],
   },
