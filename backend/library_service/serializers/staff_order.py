@@ -196,4 +196,4 @@ class BorrowedBookSerializer(aserializers.ModelSerializer):
 class CheckOrderSerializer(aserializers.Serializer):
     found_books = OrderItemSerializer(many=True)
     notfound_books = OrderItemSerializer(many=True)
-    additional_books = serializers.ListField(child=serializers.CharField())
+    additional_books = BookSerializer(many=True)
