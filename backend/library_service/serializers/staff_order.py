@@ -148,9 +148,14 @@ class UpdateOrderSerializer(aserializers.Serializer):
 
                     await order_item.asave()
 
-            await OrderHistory.objects.acreate(
-                order=instance, status=OrderHistory.Status.READY, description=new_status["description"], staff=user
-            )
+            if (await OrderItem.objects.filter(order=instance).exclude(status=OrderItem.Status.CANCELLED).afirst() is None):
+                await OrderHistory.objects.acreate(
+                    order=instance, status=OrderHistory.Status.CANCELLED, description="Нет найденных или замененных книг", staff=user
+                )
+            else:    
+                await OrderHistory.objects.acreate(
+                    order=instance, status=OrderHistory.Status.READY, description=new_status["description"], staff=user
+                )
 
         elif new_status["status"] == OrderHistory.Status.DONE:
 

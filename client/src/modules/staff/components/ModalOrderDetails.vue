@@ -42,7 +42,7 @@
                     <option
                       v-for="reason in unavailableReasons"
                       :key="reason.value"
-                      :value="reason.label"
+                      :value="reason.value"
                       :label="reason.label"
                     />
                   </select>
@@ -54,7 +54,7 @@
                     placeholder="Введите комментарий..."
                   ></textarea>
                 </div>
-                <div class="" v-if="unavailableBookReason[orderBook.id] === 'analog' && unavailableBooks.includes(orderBook.id)">
+                <div v-if="unavailableBookReason[orderBook.id] === 'analogous' && unavailableBooks.includes(orderBook.id)">
                   <label>Аналог:</label>
                   <select
                     v-model="selectedAnalogBookId[orderBook.id]"
@@ -116,10 +116,10 @@
         >
           Отменить заказ
         </StyledButton>
-        <StyledButton v-if="currentStatus == 'processing' && isCheckFailed !== true" @click="handleCheckFail" theme="secondary">
+        <StyledButton v-if="currentStatus == 'processing' && isCheckFailed !== true" @click="checkOrderAvailability" theme="secondary">
           {{ nextStatusButtonText }}
         </StyledButton>
-        <StyledButton v-if="currentStatus == 'processing' && isCheckFailed === true" @click="handleCheckFail" theme="secondary">
+        <StyledButton v-if="currentStatus == 'processing' && isCheckFailed === true" @click="checkOrderAvailability" theme="secondary">
           Повторно првоерить готовность
         </StyledButton>
         <StyledButton v-if="nextStatus && currentStatus !== 'processing'" @click="changeToNextStatus" theme="secondary">
@@ -244,7 +244,7 @@ const checkOrderAvailability = async () => {
           const updates = unavailableBooks.value.map(bookId => ({
             book_id: bookId,
             description: unavailableBookReason.value[bookId] !== null ? unavailableBookReason.value[bookId] : unavailableBookComment.value[bookId] !== null ? unavailableBookComment.value[bookId] : "",
-            status: ((unavailableBookReason.value[bookId] !== null && unavailableBookReason.value[bookId] !== "analogous") || unavailableBookComment.value[bookId] !== null) ? "cancelled" : (unavailableBookReason.value[bookId] !== "analog" ? "analogous" : "ordered"),
+            status: unavailableBookReason.value[bookId] === "analogous" ? "analogous" : "cancelled",
             analogous: unavailableBookReason.value[bookId] === 'analogous' 
               ? selectedAnalogBookId.value[bookId] 
               : ""
@@ -274,7 +274,7 @@ const validateNotFoundBooks = (): boolean => {
       return false;
     }
     // Если причина "analog", проверяем что выбран аналог
-    if (reason === 'analog') {
+    if (reason === 'analogous') {
       const analogId = selectedAnalogBookId.value[bookId];
       if (!analogId) {
         console.warn(`Для книги ID:${bookId} не выбран аналог`);
