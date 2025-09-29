@@ -117,14 +117,17 @@
         >
           Отменить заказ
         </StyledButton>
-        <StyledButton v-if="currentStatus == 'processing'" @click="handleCheckFail" theme="secondary">
+        <StyledButton v-if="currentStatus == 'processing'" @click="checkOrderAvailability" theme="secondary">
           {{ nextStatusButtonText }}
         </StyledButton>
+        <div v-if="isCheckFailed">
+          <button @click="handleConfirmNotFoundBooks">Подтвердить</button>
+        </div>
         <StyledButton v-if="nextStatus && currentStatus !== 'processing'" @click="changeToNextStatus" theme="secondary">
           {{ nextStatusButtonText }}
         </StyledButton>
       </div>
-      <!-- <button v-if="currentStatus == 'processing'" @click="handleCheckFail">
+      <!-- <button v-if="currentStatus == 'processing'" @click="checkOrderAvailability">
         Перестраиваем вид для неудачной проверки
       </button> -->
       <button v-if="currentStatus == 'processing'" @click="openPrintStickerModal = true">
@@ -190,7 +193,6 @@ const unavailableReasons = ref([
   { value: "damaged", label: "Книга испорчена" },
 ]);
 
-// Нужно будет привязать комментарии и аналоги к книгам из заказа
 const unavailableBookReason = ref<Record<number, string>>({});
 const unavailableBookComment = ref<Record<number, string>>({});
 const selectedAnalogBookId = ref<Record<number, number | null>>({});
@@ -201,10 +203,15 @@ const availableAnalogs = ref<{id: number; title: string; author: string}[]>([]);
 
 const isCheckFailed = ref(false);
 
-const handleCheckFail = async () => {
+const checkOrderAvailability = async () => {
   try {
     const result = await props.onCheckOrder(selectedOrder.value.id);
     console.log('Результат проверки заказа:', result);
+
+    if (!result) {
+      console.error('Не удалось получить результат проверки');
+      return;
+    }
 
     if (result) {
       unavailableBookReason.value = {};
@@ -233,26 +240,12 @@ const handleCheckFail = async () => {
       if (notFoundBooks.length > 0) {
         isCheckFailed.value = true;
       } else {
-        console.log("-----------------------")
-        if (validateNotFoundBooks()) {
-          console.log('Все причины и аналоги заполнены');
-          
-          const updates = unavailableBooks.value.map(bookId => ({
-            bookId,
-            reason: unavailableBookReason.value[bookId],
-            comment: unavailableBookComment.value[bookId],
-            analogId: unavailableBookReason.value[bookId] === 'analog' 
-              ? selectedAnalogBookId.value[bookId] 
-              : null
-          }));
-          console.log('Данные для отправки на бэк:', updates);
-
-          if (nextStatus.value)
-            emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value);
+        // Все книги найдены - сразу переходим к следующему статусу
+        if (nextStatus.value) {
+          emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value);
           emit("close");
         }
       }
-
     } else {
       console.error('Не удалось получить результат проверки');
     }
@@ -261,19 +254,42 @@ const handleCheckFail = async () => {
   }
 };
 
+const handleConfirmNotFoundBooks = () => {
+  if (validateNotFoundBooks()) {
+    console.log('Все причины и аналоги заполнены');
+    
+    const updates = unavailableBooks.value.map(bookId => ({
+      bookId,
+      reason: unavailableBookReason.value[bookId],
+      comment: unavailableBookComment.value[bookId],
+      analogId: unavailableBookReason.value[bookId] === 'analog' 
+        ? selectedAnalogBookId.value[bookId] 
+        : null
+    }));
+    console.log('Данные для отправки на бэк:', updates);
+
+    // Здесь должна быть отправка данных на бэкенд
+
+    if (nextStatus.value) {
+      emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value);
+    }
+    emit("close");
+  }
+};
+
 const validateNotFoundBooks = (): boolean => {
   return unavailableBooks.value.every(bookId => {
     const reason = unavailableBookReason.value[bookId];
     // Проверяем что указана причина
-    if (!reason || reason === '') {
+    if (!reason) {
       console.log(`Для книги ID:${bookId} не указана причина`);
       return false;
     }
     // Если причина "analog", проверяем что выбран аналог
     if (reason === 'analog') {
       const analogId = selectedAnalogBookId.value[bookId];
-      if (analogId === null || analogId === undefined) {
-        console.log(`Для книги ID:${bookId} не выбран аналог`);
+      if (!analogId) {
+        console.warn(`Для книги ID:${bookId} не выбран аналог`);
         return false;
       }
     }
