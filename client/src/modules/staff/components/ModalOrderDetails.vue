@@ -126,7 +126,7 @@
           {{ nextStatusButtonText }}
         </StyledButton>
       </div>
-      <!-- <button v-if="currentStatus == 'processing'" @click="handleCheckFail">
+      <!-- <button v-if="currentStatus == 'processing'" @click="checkOrderAvailability">
         Перестраиваем вид для неудачной проверки
       </button> -->
       <button v-if="currentStatus == 'processing'" @click="openPrintStickerModal = true">
@@ -191,7 +191,6 @@ const unavailableReasons = ref([
   { value: "damaged", label: "Книга испорчена" },
 ]);
 
-// Нужно будет привязать комментарии и аналоги к книгам из заказа
 const unavailableBookReason = ref<Record<number, string>>({});
 const unavailableBookComment = ref<Record<number, string>>({});
 const selectedAnalogBookId = ref<Record<number, number | null>>({});
@@ -202,10 +201,15 @@ const availableAnalogs = ref<{id: number; title: string; author: string}[]>([]);
 
 const isCheckFailed = ref(false);
 
-const handleCheckFail = async () => {
+const checkOrderAvailability = async () => {
   try {
     const result = await props.onCheckOrder(selectedOrder.value.id);
     console.log('Результат проверки заказа:', result);
+
+    if (!result) {
+      console.error('Не удалось получить результат проверки');
+      return;
+    }
 
     if (result) {
       // Разбиваем результат на 3 отдельных массива
@@ -265,15 +269,15 @@ const validateNotFoundBooks = (): boolean => {
   return unavailableBooks.value.every(bookId => {
     const reason = unavailableBookReason.value[bookId];
     // Проверяем что указана причина
-    if (!reason || reason === '') {
+    if (!reason) {
       console.log(`Для книги ID:${bookId} не указана причина`);
       return false;
     }
     // Если причина "analog", проверяем что выбран аналог
     if (reason === 'analog') {
       const analogId = selectedAnalogBookId.value[bookId];
-      if (analogId === null || analogId === undefined) {
-        console.log(`Для книги ID:${bookId} не выбран аналог`);
+      if (!analogId) {
+        console.warn(`Для книги ID:${bookId} не выбран аналог`);
         return false;
       }
     }
