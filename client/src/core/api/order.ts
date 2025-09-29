@@ -4,7 +4,8 @@ import type { BorrowedBook, Order, UserOrder, OrderStatusEnum, OrderCheckingInfo
 export async function updateOrderStatus(
   orderId: number,
   newStatus: OrderStatusEnum,
-  description?: string
+  description?: string,
+  books?: [],
 ) {
   const statusUpdate = {
     description: description,
@@ -19,7 +20,7 @@ export async function updateOrderStatus(
     const updatedStatuses = [...currentOrder.statuses, statusUpdate];
     console.log(updatedStatuses);
 
-    await axios.put(`/api/staff/order/${orderId}/`, { status: statusUpdate, books: [] });
+    await axios.put(`/api/staff/order/${orderId}/`, { status: statusUpdate, books: books });
     console.log(`Статус заказа ${orderId} добавлен: "${newStatus}"`);
   } catch (error) {
     console.error("Ошибка при обновлении статуса заказа", error);
@@ -74,8 +75,14 @@ export async function fetchReadyOrders(): Promise<UserOrder[]> {
 
 export async function fetchArchiveOrders(): Promise<UserOrder[]> {
   try {
+    let data = [];
     const response = await axios.get("/api/staff/order/?status=done");
-    return response.data;
+    data = response.data;
+    const response2 = await axios.get("/api/staff/order/?status=cancelled");
+    response2.data.forEach(element => {
+      data.push(element);
+    });
+    return data;
   } catch (error) {
     console.error("Ошибка при получении готовых заказов:", error);
     throw error;

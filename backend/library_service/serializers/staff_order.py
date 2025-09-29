@@ -60,6 +60,7 @@ class OrderItemSerializer(aserializers.ModelSerializer):
             "id",
             "book",
             "status",
+            "description",
             "handed_date",
             "to_return_date",
             "returned_date",
@@ -102,7 +103,7 @@ class OrderBookSerializer(aserializers.Serializer):
     book_id = serializers.CharField()
     status = serializers.CharField()
     description = serializers.CharField()
-    analogous = serializers.CharField()
+    analogous = serializers.CharField(required=False, allow_blank=True)
 
 class UpdateOrderStatusSerializer(aserializers.ModelSerializer):
 
@@ -132,17 +133,18 @@ class UpdateOrderSerializer(aserializers.Serializer):
             books = validated_data["books"]
 
             if (len(books) > 0):
-                async for book in books:
-                    order_item = await OrderItem.objects.filter(book_id=book.book_id, order=instance).afirst()
+                for book in books:
+                    order_item = await OrderItem.objects.filter(pk=book['book_id'], order=instance).afirst()
 
                     if book["status"] == "analogous":
                         analogous_order_item = await OrderItem.objects.acreate(order=instance, book_id=book["analogous"])
+                        order_item.description = book["description"]
                         order_item.analogous_order_item = analogous_order_item
                         order_item.status = OrderItem.Status.ANALOGOUS
 
                     if book["status"] == "cancelled":
                         order_item.status = OrderItem.Status.CANCELLED
-                        order_item.description = book["decription"]
+                        order_item.description = book["description"]
 
                     await order_item.asave()
 

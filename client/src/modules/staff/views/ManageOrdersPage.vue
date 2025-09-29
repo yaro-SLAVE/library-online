@@ -190,10 +190,11 @@ const fetchOrder = async (orderId: number) => {
 async function handleUpdateOrderStatus(
   orderId: number,
   newStatus: OrderStatusEnum,
-  description: string
+  description: string,
+  books: [] = [],
 ) {
   try {
-    await updateOrderStatus(orderId, newStatus, description);
+    await updateOrderStatus(orderId, newStatus, description, books);
   } catch (error) {
     console.error("Ошибка при обновлении статуса заказа", error);
   }

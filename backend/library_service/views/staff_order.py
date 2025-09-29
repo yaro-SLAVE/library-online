@@ -78,8 +78,10 @@ class StaffOrderViewset(
             target_status = OrderHistory.Status.PROCESSING
         elif status == "ready":
             target_status = OrderHistory.Status.READY
-        else:
+        elif status == "done":
             target_status = OrderHistory.Status.DONE
+        else:
+            target_status = OrderHistory.Status.CANCELLED
 
         data = await self.get_data(target_status)
         return Response(data)

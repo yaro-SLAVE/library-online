@@ -42,10 +42,9 @@
                     <option
                       v-for="reason in unavailableReasons"
                       :key="reason.value"
-                      :value="reason.value"
-                    >
-                      {{ reason.label }}
-                    </option>
+                      :value="reason.label"
+                      :label="reason.label"
+                    />
                   </select>
                 </div>
                 <div class="comment-card">
@@ -117,8 +116,11 @@
         >
           Отменить заказ
         </StyledButton>
-        <StyledButton v-if="currentStatus == 'processing'" @click="handleCheckFail" theme="secondary">
+        <StyledButton v-if="currentStatus == 'processing' && isCheckFailed !== true" @click="handleCheckFail" theme="secondary">
           {{ nextStatusButtonText }}
+        </StyledButton>
+        <StyledButton v-if="currentStatus == 'processing' && isCheckFailed === true" @click="handleCheckFail" theme="secondary">
+          Повторно првоерить готовность
         </StyledButton>
         <StyledButton v-if="nextStatus && currentStatus !== 'processing'" @click="changeToNextStatus" theme="secondary">
           {{ nextStatusButtonText }}
@@ -185,7 +187,6 @@ const emit = defineEmits<{
 const selectedOrder = ref<Order>(props.order);
 
 const unavailableReasons = ref([
-  { value: "analog", label: "Аналог" },
   { value: "noAvailableCopies", label: "Нет доступных экземпляров" },
   { value: "damaged", label: "Книга испорчена" },
 ]);
@@ -207,10 +208,6 @@ const handleCheckFail = async () => {
     console.log('Результат проверки заказа:', result);
 
     if (result) {
-      unavailableBookReason.value = {};
-      unavailableBookComment.value = {};
-      selectedAnalogBookId.value = {};
-
       // Разбиваем результат на 3 отдельных массива
       const foundBooks = result.found_books || [];
       const notFoundBooks = result.notfound_books || [];
@@ -224,31 +221,34 @@ const handleCheckFail = async () => {
       unavailableBooks.value = notFoundBooks.map(book => book.id);
       availableAnalogs.value = additionalBooks;
 
-      notFoundBooks.forEach(book => {
-        unavailableBookReason.value[book.id] = '';
-        unavailableBookComment.value[book.id] = '';
-        selectedAnalogBookId.value[book.id] = null;
-      });
+      if (availableAnalogs.value.length > 0) {
+        unavailableReasons.value.push({ value: "analogous", label: "Аналог" });
+      }
 
-      if (notFoundBooks.length > 0) {
+      // notFoundBooks.forEach(book => {
+      //   unavailableBookReason.value[book.id] = '';
+      //   unavailableBookComment.value[book.id] = '';
+      //   selectedAnalogBookId.value[book.id] = null;
+      // });
+
+      if (notFoundBooks.length > 0 && !validateNotFoundBooks()) {
         isCheckFailed.value = true;
       } else {
-        console.log("-----------------------")
         if (validateNotFoundBooks()) {
           console.log('Все причины и аналоги заполнены');
           
           const updates = unavailableBooks.value.map(bookId => ({
-            bookId,
-            reason: unavailableBookReason.value[bookId],
-            comment: unavailableBookComment.value[bookId],
-            analogId: unavailableBookReason.value[bookId] === 'analog' 
+            book_id: bookId,
+            description: unavailableBookReason.value[bookId] !== null ? unavailableBookReason.value[bookId] : unavailableBookComment.value[bookId] !== null ? unavailableBookComment.value[bookId] : "",
+            status: ((unavailableBookReason.value[bookId] !== null && unavailableBookReason.value[bookId] !== "analogous") || unavailableBookComment.value[bookId] !== null) ? "cancelled" : (unavailableBookReason.value[bookId] !== "analog" ? "analogous" : "ordered"),
+            analogous: unavailableBookReason.value[bookId] === 'analogous' 
               ? selectedAnalogBookId.value[bookId] 
-              : null
+              : ""
           }));
           console.log('Данные для отправки на бэк:', updates);
 
           if (nextStatus.value)
-            emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value);
+            emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value, updates);
           emit("close");
         }
       }
@@ -356,6 +356,7 @@ const handleRejectOrder = (rejectReason: string) => {
 
 const changeToNextStatus = () => {
   if (nextStatus.value) {
+
     emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value);
     emit("close");
   }
