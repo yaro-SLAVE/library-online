@@ -8,26 +8,25 @@ const router = createRouter({
   routes: [
     ...readerRoutes,
     ...staffRoutes,
-    {
-      path: "/:pathMatch(.*)*",
-      redirect: "/",
-    },
   ],
 });
 
 router.beforeEach(async (to, from, next) => {
+  
+  if (to.path.startsWith('/admin')) {
+    return next('/');
+  }
+
+  console.log("to.path = ", to.path)
+
   const authStore = useAuthStore();
   const { currentUserRole } = storeToRefs(authStore);
   const requiredRole = to.meta.role;
-  console.log("authStore.isCurrentUserInit", authStore.isCurrentUserInit)
-  console.log("authStore.currentUserRole", authStore.currentUserRole);
-  if (authStore.isCurrentUserInit === false) {
-    console.log("YES UPDATE USER")
-    await authStore.updateProfileInfo();
-    console.log("authStore.isCurrentUserInit", authStore.isCurrentUserInit)
-  console.log("authStore.currentUserRole", authStore.currentUserRole);
-  }
   
+  if (authStore.isCurrentUserInit === false) {
+    await authStore.updateProfileInfo();
+  }
+
   // if(requiredAuth && !authStore.isAuthenticated) {
   //   return next ("/");
   // }

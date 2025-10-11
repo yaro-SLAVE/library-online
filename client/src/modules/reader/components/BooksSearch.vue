@@ -1,70 +1,41 @@
 <template>
   <SurfaceCard>
     <form @submit.prevent="search" class="flex flex-col">
-      <SelectList
-        v-model="library"
-        :options="
-          libraries.map((x) => {
-            return { id: x.id, name: `${x.address} (${x.description})` };
-          })
-        "
-        blank-option="Все библиотеки"
-        @change="updateSearchParams"
-      />
+      <SelectList v-model="library" :options="libraries.map((x) => {
+        return { id: x.id, name: `${x.address} (${x.description})` };
+      })
+        " blank-option="Все библиотеки" @change="updateSearchParams" />
 
       <div v-for="(condition, index) in conditions" :key="index" class="filter-condition">
         <div class="filter-parameter">
-          <SelectList
-            class="and-or"
-            v-if="index !== 0"
-            v-model="condition.operator"
-            :options="[
-              { id: '*', name: 'И' },
-              { id: '+', name: 'ИЛИ' },
-            ]"
-            :default-option="'*'"
-            @change="updateSearchParams"
-          />
+          <SelectList class="and-or" v-if="index !== 0" v-model="condition.operator" :options="[
+            { id: '*', name: 'И' },
+            { id: '+', name: 'ИЛИ' },
+          ]" :default-option="'*'" @change="updateSearchParams" />
 
-          <SelectList
-            class="scenarios"
-            v-model="condition.scenarioPrefix"
-            :options="
-              scenarios.map((x) => {
-                return {
-                  id: x.prefix,
-                  name: `${x.description}`,
-                };
-              })
-            "
-            :default-option="defaultScenario"
-            @change="updateSearchParams"
-          />
+          <SelectList class="scenarios" v-model="condition.scenarioPrefix" :options="scenarios.map((x) => {
+            return {
+              id: x.prefix,
+              name: `${x.description}`,
+            };
+          })
+            " :default-option="defaultScenario" @change="updateSearchParams" />
         </div>
 
-        <TextField
-          v-model="condition.value"
-          placeholder="Введите значение"
-          @input="updateSearchParams"
-        />
+        <TextField v-model="condition.value" placeholder="Введите значение" @input="updateSearchParams" />
 
-        <StyledButton
-          v-if="index !== 0"
-          theme="accent"
-          class="remove-button"
-          @click="removeCondition(index)"
-        >
+        <StyledButton v-if="index !== 0" theme="accent" class="remove-button" @click="removeCondition(index)">
           <XMarkIcon class="button-icon" />
         </StyledButton>
       </div>
 
       <div class="actions">
-        <StyledButton theme="secondary" @click="addCondition"
-          >Добавить условие <PlusIcon class="button-icon offset"
-        /></StyledButton>
-        <StyledButton theme="primary" type="submit"
-          >Поиск <MagnifyingGlassIcon class="button-icon offset"
-        /></StyledButton>
+        <StyledButton theme="secondary" @click="addCondition">Добавить условие
+          <PlusIcon class="button-icon offset" />
+        </StyledButton>
+        <StyledButton theme="primary" type="submit">Поиск
+          <MagnifyingGlassIcon class="button-icon offset" />
+        </StyledButton>
       </div>
     </form>
 
@@ -84,15 +55,11 @@
         <span>Отображено {{ paginatedResults.length }} из {{ results.length }} результатов</span>
         <nav class="pagination-slider" aria-label="Навигация по страницам">
           <template v-for="page in pageEntries" v-bind:key="page">
-            <button
-              v-if="page !== -1"
-              :class="{
-                left: page === 1,
-                right: page === totalPages,
-                active: page === currentPage,
-              }"
-              @click="currentPage = page"
-            >
+            <button v-if="page !== -1" :class="{
+              left: page === 1,
+              right: page === totalPages,
+              active: page === currentPage,
+            }" @click="currentPage = page">
               {{ page }}
             </button>
             <span v-else>...</span>
@@ -228,7 +195,16 @@ const pageEntries = computed(() => {
 });
 
 onBeforeMount(async () => {
-  [scenarios.value, libraries.value] = await Promise.all([scenariosList(), librariesList()]);
+  const [scenariosResult, librariesResult] = await Promise.allSettled([
+    scenariosList(),
+    librariesList(),
+  ]);
+
+  if (scenariosResult.status === "fulfilled") 
+    scenarios.value = scenariosResult.value;
+
+  if (librariesResult.status === "fulfilled") 
+    libraries.value = librariesResult.value;
 
   const queryParam = router.currentRoute.value.query["query"];
   const libraryParam = router.currentRoute.value.query["library"];
@@ -333,6 +309,7 @@ onBeforeMount(async () => {
 .button-icon {
   width: 1.2em;
   height: 1.2em;
+
   &.offset {
     margin-left: 0.5em;
   }
@@ -409,13 +386,17 @@ onBeforeMount(async () => {
     }
 
     transition: 0.05s;
+
     @include light-theme {
+
       &:hover,
       &.active {
         background-color: var(--color-background-100);
       }
     }
+
     @include dark-theme {
+
       &:hover,
       &.active {
         background-color: var(--color-background-200);

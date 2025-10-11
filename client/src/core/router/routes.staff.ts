@@ -1,5 +1,5 @@
 import DefaultStaffLayout from "@core/views/DefaultStaffLayout.vue";
-
+import AdminView from "@modules/staff/views/AdminView.vue";
 export const staffRoutes = [
   {
     path: "/staff",
@@ -18,6 +18,11 @@ export const staffRoutes = [
         component: () => import("@core/views/ProfilePage.vue"),
         meta: { requiresAuth: true },
       },
+      {
+        path: "moderator",
+        name: "moderator",
+        component: AdminView,
+      }
     ],
   },
 ];
