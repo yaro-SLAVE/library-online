@@ -4,5 +4,5 @@ export interface Link {
 }
 
 export interface LinksConfig extends Link {
-    hide:boolean
+    hide?:boolean
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="app">
-    <PageHeader />
-
+    <Header :links="links"/>
+    <PageHeader/>
     <main>
       <div>
         <RouterView />
@@ -13,16 +13,19 @@
 </template>
 
 <script setup lang="ts">
-import PageHeader from "@reader/components/PageHeader.vue";
-import PageFooter from "@reader/components/PageFooter.vue";
 import { RouterView } from "vue-router";
+import Header from "@core/components/Header.vue";
+import PageFooter from "@reader/components/PageFooter.vue";
+import { useReaderLinks } from "@core/composables/useReaderLinks";
+
+const { links } = useReaderLinks();
 </script>
 
 <style scoped lang="scss">
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Обеспечивает, чтобы футер всегда был внизу страницы */
+  min-height: 100vh;
 }
 
 main {
