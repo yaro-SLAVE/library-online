@@ -1,4 +1,4 @@
-import DefaultStaffLayout from "@core/views/DefaultStaffLayout.vue";
+import DefaultStaffLayout from "@core/layout/DefaultStaffLayout.vue";
 import AdminView from "@modules/staff/views/AdminView.vue";
 export const staffRoutes = [
   {

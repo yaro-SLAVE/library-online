@@ -1,7 +1,7 @@
 <template>
     <div class="app">
-        <div class="app-body">
-            <Transition name="slide">
+        <Transition name="slide">
+            <div class="app-body">
                 <div class="sidebar-container" v-if="isOpen">
                     <div class="sidebar">
                         <nav>
@@ -11,24 +11,20 @@
                         </nav>
                     </div>
                 </div>
-            </Transition>
-            <div class="main-content">
-                <button 
-                    class="toggle-btn" 
-                    @click="isOpen = !isOpen"
-                    :class="{ 'is-open': isOpen }"
-                >
-                    <span class="line line-top"></span>
-                    <span class="line line-bottom"></span>
-                </button>
+                <div class="main-content">
+                    <button class="toggle-btn" @click="isOpen = !isOpen" :class="{ 'is-open': isOpen }">
+                        <span class="line line-top"></span>
+                        <span class="line line-bottom"></span>
+                    </button>
+                </div>
             </div>
-        </div>
+        </Transition>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { RouterLink } from 'vue-router'; 
+import { RouterLink } from 'vue-router';
 const isOpen = ref(false);
 </script>
 
@@ -42,8 +38,8 @@ const isOpen = ref(false);
 
 .app-body {
     display: flex;
-    flex: 1; 
-    overflow: hidden; 
+    flex: 1;
+    overflow: hidden;
 }
 
 .sidebar-container {
@@ -79,9 +75,9 @@ const isOpen = ref(false);
 }
 
 .main-content {
-    flex: 1; 
+    flex: 1;
     padding: 20px;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
 
 .slide-enter-active,
@@ -109,8 +105,8 @@ const isOpen = ref(false);
 
 
 .toggle-btn {
-    position: relative; 
-    margin-right: 20px; 
+    position: relative;
+    margin-right: 20px;
     width: 40px;
     height: 40px;
     background: #007bff;
@@ -149,5 +145,4 @@ const isOpen = ref(false);
 .toggle-btn.is-open .line-bottom {
     transform: rotate(-45deg);
 }
-
 </style>
