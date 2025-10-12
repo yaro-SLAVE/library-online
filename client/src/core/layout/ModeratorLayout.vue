@@ -13,9 +13,8 @@
 import { RouterView } from "vue-router";
 import Header from "@core/components/Header.vue";
 
-import { useStaffLinks } from "@core/composables/useStaffLinks"; 
-
-const { links } = useStaffLinks();
+import { useModeratorLinks } from "@core/composables/useModeratorLinks";
+const { links } = useModeratorLinks();
 
 </script>
 

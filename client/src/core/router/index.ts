@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { readerRoutes } from "@core/router/routes.reader";
 import { staffRoutes } from "@core/router/routes.staff";
+import { moderatorRoutes } from "./routes.moderator";
 import { useAuthStore } from "@core/store/auth";
 import { storeToRefs } from "pinia";
 const router = createRouter({
@@ -8,6 +9,7 @@ const router = createRouter({
   routes: [
     ...readerRoutes,
     ...staffRoutes,
+    ...moderatorRoutes,
   ],
 });
 
@@ -26,10 +28,6 @@ router.beforeEach(async (to, from, next) => {
   if (authStore.isCurrentUserInit === false) {
     await authStore.updateProfileInfo();
   }
-
-  // if(requiredAuth && !authStore.isAuthenticated) {
-  //   return next ("/");
-  // }
 
   if (!authStore.currentUser) {
     await authStore.updateProfileInfo();

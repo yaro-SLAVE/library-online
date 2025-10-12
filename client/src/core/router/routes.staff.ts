@@ -18,11 +18,6 @@ export const staffRoutes = [
         component: () => import("@core/views/ProfilePage.vue"),
         meta: { requiresAuth: true },
       },
-      {
-        path: "moderator",
-        name: "moderator",
-        component: AdminView,
-      }
     ],
   },
 ];

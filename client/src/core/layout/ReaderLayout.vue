@@ -1,24 +1,22 @@
 <template>
   <div class="app">
-    <Header :links="links"/>
-    <PageHeader/>
+    <Header :links="links" />
     <main>
       <div>
         <RouterView />
-      </div>
+      </div>1
     </main>
   </div>
-
-  <PageFooter class="footer" />
 </template>
 
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import Header from "@core/components/Header.vue";
-import PageFooter from "@reader/components/PageFooter.vue";
-import { useReaderLinks } from "@core/composables/useReaderLinks";
 
-const { links } = useReaderLinks();
+import { useStaffLinks } from "@core/composables/useStaffLinks"; 
+
+const { links } = useStaffLinks();
+
 </script>
 
 <style scoped lang="scss">
