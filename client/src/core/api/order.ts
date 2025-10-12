@@ -5,7 +5,7 @@ export async function updateOrderStatus(
   orderId: number,
   newStatus: OrderStatusEnum,
   description?: string,
-  books?: [],
+  books?: []
 ) {
   const statusUpdate = {
     description: description,
@@ -79,7 +79,7 @@ export async function fetchArchiveOrders(): Promise<UserOrder[]> {
     const response = await axios.get("/api/staff/order/?status=done");
     data = response.data;
     const response2 = await axios.get("/api/staff/order/?status=cancelled");
-    response2.data.forEach(element => {
+    response2.data.forEach((element) => {
       data.push(element);
     });
     return data;
@@ -104,10 +104,10 @@ export async function checkOrder(orderId: number): Promise<OrderCheckingInfo> {
   try {
     const { data } = await axios.get(`/api/staff/order/check/${orderId}/`);
     console.log(`/api/order/${orderId}`, data);
-    
-    console.log('Найденные книги:', data.found_books);
-    console.log('Ненайденные книги:', data.notfound_books); 
-    console.log('Аналоги:', data.additional_books);
+
+    console.log("Найденные книги:", data.found_books);
+    console.log("Ненайденные книги:", data.notfound_books);
+    console.log("Аналоги:", data.additional_books);
 
     return data;
   } catch (error) {

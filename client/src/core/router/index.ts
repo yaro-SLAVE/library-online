@@ -1,36 +1,28 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { readerRoutes } from "@core/router/routes.reader";
 import { staffRoutes } from "@core/router/routes.staff";
+import { moderatorRoutes } from "./routes.moderator";
 import { useAuthStore } from "@core/store/auth";
 import { storeToRefs } from "pinia";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    ...readerRoutes,
-    ...staffRoutes,
-    {
-      path: "/:pathMatch(.*)*",
-      redirect: "/",
-    },
-  ],
+  routes: [...readerRoutes, ...staffRoutes, ...moderatorRoutes],
 });
 
 router.beforeEach(async (to, from, next) => {
+  if (to.path.startsWith("/admin")) {
+    return next("/");
+  }
+
+  console.log("to.path = ", to.path);
+
   const authStore = useAuthStore();
   const { currentUserRole } = storeToRefs(authStore);
   const requiredRole = to.meta.role;
-  console.log("authStore.isCurrentUserInit", authStore.isCurrentUserInit)
-  console.log("authStore.currentUserRole", authStore.currentUserRole);
+
   if (authStore.isCurrentUserInit === false) {
-    console.log("YES UPDATE USER")
     await authStore.updateProfileInfo();
-    console.log("authStore.isCurrentUserInit", authStore.isCurrentUserInit)
-  console.log("authStore.currentUserRole", authStore.currentUserRole);
   }
-  
-  // if(requiredAuth && !authStore.isAuthenticated) {
-  //   return next ("/");
-  // }
 
   if (!authStore.currentUser) {
     await authStore.updateProfileInfo();

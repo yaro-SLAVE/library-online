@@ -60,11 +60,13 @@
 
       <div class="actions">
         <StyledButton theme="secondary" @click="addCondition"
-          >Добавить условие <PlusIcon class="button-icon offset"
-        /></StyledButton>
+          >Добавить условие
+          <PlusIcon class="button-icon offset" />
+        </StyledButton>
         <StyledButton theme="primary" type="submit"
-          >Поиск <MagnifyingGlassIcon class="button-icon offset"
-        /></StyledButton>
+          >Поиск
+          <MagnifyingGlassIcon class="button-icon offset" />
+        </StyledButton>
       </div>
     </form>
 
@@ -228,7 +230,14 @@ const pageEntries = computed(() => {
 });
 
 onBeforeMount(async () => {
-  [scenarios.value, libraries.value] = await Promise.all([scenariosList(), librariesList()]);
+  const [scenariosResult, librariesResult] = await Promise.allSettled([
+    scenariosList(),
+    librariesList(),
+  ]);
+
+  if (scenariosResult.status === "fulfilled") scenarios.value = scenariosResult.value;
+
+  if (librariesResult.status === "fulfilled") libraries.value = librariesResult.value;
 
   const queryParam = router.currentRoute.value.query["query"];
   const libraryParam = router.currentRoute.value.query["library"];
@@ -333,6 +342,7 @@ onBeforeMount(async () => {
 .button-icon {
   width: 1.2em;
   height: 1.2em;
+
   &.offset {
     margin-left: 0.5em;
   }
@@ -409,12 +419,14 @@ onBeforeMount(async () => {
     }
 
     transition: 0.05s;
+
     @include light-theme {
       &:hover,
       &.active {
         background-color: var(--color-background-100);
       }
     }
+
     @include dark-theme {
       &:hover,
       &.active {

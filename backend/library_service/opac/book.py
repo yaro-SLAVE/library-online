@@ -89,7 +89,7 @@ async def books_list(client: ClientSession, libraries: Iterable[Library], expres
 
 async def books_announces_list(client: ClientSession) -> list[Book]:
     announces = await opac_announces_list(client)
-
+    
     # NOTE: тут вылетит исключение, если не зарегистрирована БД ISTU
     istu_library = (
         await LibraryDatabase.objects.filter(database="ISTU").prefetch_related("library").afirst()

@@ -9,7 +9,7 @@
 
         <div class="nav-links">
           <RouterLink
-            v-for="[index, link] in links.entries()"
+            v-for="[index, link] in props.links.entries()"
             v-bind:key="index"
             :to="link.to"
             class="nav-link"
@@ -29,7 +29,7 @@
     </nav>
     <div class="mobile-menu" :class="{ open: mobileMenuOpen }">
       <RouterLink
-        v-for="[index, link] in links.entries()"
+        v-for="[index, link] in props.links.entries()"
         v-bind:key="index"
         :to="link.to"
         class="nav-link"
@@ -42,37 +42,15 @@
 
 <script setup lang="ts">
 import Logo from "@assets/images/ntb-logo.png";
-import { useAuthStore } from "@core/store/auth";
-import { storeToRefs } from "pinia";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { Bars3Icon } from "@heroicons/vue/24/outline";
 import FontSwitcher from "@components/FontSwitcher.vue";
 import ThemeSwitcher from "@components/ThemeSwitcher.vue";
-
-const authStore = useAuthStore();
-const { isAuthenticated } = storeToRefs(authStore);
-
-const links = computed(() =>
-  [
-    {
-      to: "/profile",
-      name: isAuthenticated.value ? "Профиль" : "Вход",
-    },
-    {
-      to: "/basket",
-      name: "Корзина",
-    },
-    {
-      to: "/orders",
-      name: "Заказы",
-      hide: !isAuthenticated.value,
-    },
-    {
-      to: "/note",
-      name: "О проекте",
-    },
-  ].filter((x) => !x.hide)
-);
+import type { Link } from "@core/types/types";
+interface HeaderProps {
+  links: Link[];
+}
+const props = defineProps<HeaderProps>();
 
 const mobileMenuOpen = ref(false);
 </script>

@@ -1,4 +1,4 @@
-import ReaderLayout from "@core/views/ReaderLayout.vue";
+import ReaderLayout from "@core/layout/ReaderLayout.vue";
 
 export const readerRoutes = [
   {

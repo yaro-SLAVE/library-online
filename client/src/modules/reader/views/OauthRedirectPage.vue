@@ -65,7 +65,6 @@ const handleUserRoleChoice = (choice: Group) => {
   state.value = "success";
   router.push("/profile");
 };
-
 </script>
 
 <style lang="scss" scoped>

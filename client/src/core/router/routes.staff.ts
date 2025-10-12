@@ -1,5 +1,4 @@
-import DefaultStaffLayout from "@core/views/DefaultStaffLayout.vue";
-
+import DefaultStaffLayout from "@core/layout/DefaultStaffLayout.vue";
 export const staffRoutes = [
   {
     path: "/staff",
