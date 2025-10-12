@@ -377,7 +377,6 @@ const nextStatusButtonText = computed(() => {
   return statusTransitions[currentStatus.value].nextButtonText;
 });
 
-
 const openRejectModal = ref(false);
 const handleRejectOrder = (rejectReason: string) => {
   console.log(rejectReason);
