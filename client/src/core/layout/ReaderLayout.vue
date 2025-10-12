@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <Header :links="links" />
+    <AppHeader :links="links" />
     <main>
       <div>
         <RouterView />
@@ -11,11 +11,10 @@
 
 <script setup lang="ts">
 import { RouterView } from "vue-router";
-import Header from "@core/components/Header.vue";
+import AppHeader from "@core/components/AppHeader.vue";
 import { useReaderLinks } from "@core/composables/useReaderLinks";
 
 const { links } = useReaderLinks();
-
 </script>
 
 <style scoped lang="scss">

@@ -6,25 +6,20 @@ import { useAuthStore } from "@core/store/auth";
 import { storeToRefs } from "pinia";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    ...readerRoutes,
-    ...staffRoutes,
-    ...moderatorRoutes,
-  ],
+  routes: [...readerRoutes, ...staffRoutes, ...moderatorRoutes],
 });
 
 router.beforeEach(async (to, from, next) => {
-  
-  if (to.path.startsWith('/admin')) {
-    return next('/');
+  if (to.path.startsWith("/admin")) {
+    return next("/");
   }
 
-  console.log("to.path = ", to.path)
+  console.log("to.path = ", to.path);
 
   const authStore = useAuthStore();
   const { currentUserRole } = storeToRefs(authStore);
   const requiredRole = to.meta.role;
-  
+
   if (authStore.isCurrentUserInit === false) {
     await authStore.updateProfileInfo();
   }

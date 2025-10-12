@@ -1,5 +1,5 @@
-import { computed } from 'vue';
-import { storeToRefs } from 'pinia';
+import { computed } from "vue";
+import { storeToRefs } from "pinia";
 import { useAuthStore } from "@core/store/auth";
 import type { Link } from "@core/types/types";
 
@@ -20,7 +20,7 @@ export const useReaderLinks = () => {
       {
         to: "/orders",
         name: "Заказы",
-        hide: !isAuthenticated.value, 
+        hide: !isAuthenticated.value,
       },
       {
         to: "/note",
@@ -28,10 +28,8 @@ export const useReaderLinks = () => {
       },
     ];
 
-    return rawLinks
-      .filter((x) => !x.hide)
-      .map((x): Link => ({ to: x.to, name: x.name }));
+    return rawLinks.filter((x) => !x.hide).map((x): Link => ({ to: x.to, name: x.name }));
   });
 
   return { links };
-}
+};

@@ -30,7 +30,11 @@
                   error: isCheckFailed && !validBooksId.includes(orderBook.id),
                   succes: isCheckFailed && validBooksId.includes(orderBook.id),
                 }"
-                v-if="isCheckFailed && !validBooksId.includes(orderBook.id) && unavailableBooks.includes(orderBook.id)"
+                v-if="
+                  isCheckFailed &&
+                  !validBooksId.includes(orderBook.id) &&
+                  unavailableBooks.includes(orderBook.id)
+                "
               >
                 <div>
                   <label>Причина:</label>
@@ -54,7 +58,12 @@
                     placeholder="Введите комментарий..."
                   ></textarea>
                 </div>
-                <div v-if="unavailableBookReason[orderBook.id] === 'analogous' && unavailableBooks.includes(orderBook.id)">
+                <div
+                  v-if="
+                    unavailableBookReason[orderBook.id] === 'analogous' &&
+                    unavailableBooks.includes(orderBook.id)
+                  "
+                >
                   <label>Аналог:</label>
                   <select
                     v-model="selectedAnalogBookId[orderBook.id]"
@@ -116,13 +125,25 @@
         >
           Отменить заказ
         </StyledButton>
-        <StyledButton v-if="currentStatus == 'processing' && isCheckFailed !== true" @click="checkOrderAvailability" theme="secondary">
+        <StyledButton
+          v-if="currentStatus == 'processing' && isCheckFailed !== true"
+          @click="checkOrderAvailability"
+          theme="secondary"
+        >
           {{ nextStatusButtonText }}
         </StyledButton>
-        <StyledButton v-if="currentStatus == 'processing' && isCheckFailed === true" @click="checkOrderAvailability" theme="secondary">
+        <StyledButton
+          v-if="currentStatus == 'processing' && isCheckFailed === true"
+          @click="checkOrderAvailability"
+          theme="secondary"
+        >
           Повторно првоерить готовность
         </StyledButton>
-        <StyledButton v-if="nextStatus && currentStatus !== 'processing'" @click="changeToNextStatus" theme="secondary">
+        <StyledButton
+          v-if="nextStatus && currentStatus !== 'processing'"
+          @click="changeToNextStatus"
+          theme="secondary"
+        >
           {{ nextStatusButtonText }}
         </StyledButton>
       </div>
@@ -150,7 +171,6 @@ import OrderRejectModal from "@staff/components/OrderRejectModal.vue";
 import type { Order, OrderCheckingInfo } from "@api/types";
 import type { OrderStatusEnum } from "@api/types";
 import { orderStatuses } from "@api/types";
-import { checkOrder } from "@core/api/order";
 import OrderCancelModal from "@staff/components/OrderCancelModal.vue";
 
 const openPrintModal = ref(false);
@@ -160,9 +180,10 @@ const openCancelModal = ref(false);
 
 const handleOrderCancel = (cancelData: { reason: string; comment: string }) => {
   // Формируем описание для статуса
-  const reasonLabel = cancellationReasons.value.find(r => r.value === cancelData.reason)?.label || '';
-  const description = `${reasonLabel}${cancelData.comment ? `: ${cancelData.comment}` : ''}`;
-  
+  const reasonLabel =
+    cancellationReasons.value.find((r) => r.value === cancelData.reason)?.label || "";
+  const description = `${reasonLabel}${cancelData.comment ? `: ${cancelData.comment}` : ""}`;
+
   emit("nextOrderStatus", selectedOrder.value.id, "cancelled", description);
   openCancelModal.value = false;
   emit("close");
@@ -197,17 +218,17 @@ const selectedAnalogBookId = ref<Record<number, number | null>>({});
 
 const validBooksId = ref<number[]>([]);
 const unavailableBooks = ref<number[]>([]);
-const availableAnalogs = ref<{id: number; title: string; author: string}[]>([]);
+const availableAnalogs = ref<{ id: number; title: string; author: string }[]>([]);
 
 const isCheckFailed = ref(false);
 
 const checkOrderAvailability = async () => {
   try {
     const result = await props.onCheckOrder(selectedOrder.value.id);
-    console.log('Результат проверки заказа:', result);
+    console.log("Результат проверки заказа:", result);
 
     if (!result) {
-      console.error('Не удалось получить результат проверки');
+      console.error("Не удалось получить результат проверки");
       return;
     }
 
@@ -217,12 +238,12 @@ const checkOrderAvailability = async () => {
       const notFoundBooks = result.notfound_books || [];
       const additionalBooks = result.additional_books || [];
 
-      console.log('Найденные книги:', foundBooks);
-      console.log('Ненайденные книги:', notFoundBooks);
-      console.log('Аналоги:', additionalBooks);
+      console.log("Найденные книги:", foundBooks);
+      console.log("Ненайденные книги:", notFoundBooks);
+      console.log("Аналоги:", additionalBooks);
 
-      validBooksId.value = foundBooks.map(book => book.id);
-      unavailableBooks.value = notFoundBooks.map(book => book.id);
+      validBooksId.value = foundBooks.map((book) => book.id);
+      unavailableBooks.value = notFoundBooks.map((book) => book.id);
       availableAnalogs.value = additionalBooks;
 
       if (availableAnalogs.value.length > 0) {
@@ -239,34 +260,45 @@ const checkOrderAvailability = async () => {
         isCheckFailed.value = true;
       } else {
         if (validateNotFoundBooks()) {
-          console.log('Все причины и аналоги заполнены');
-          
-          const updates = unavailableBooks.value.map(bookId => ({
+          console.log("Все причины и аналоги заполнены");
+
+          const updates = unavailableBooks.value.map((bookId) => ({
             book_id: bookId,
-            description: unavailableBookReason.value[bookId] !== null ? unavailableBookReason.value[bookId] : unavailableBookComment.value[bookId] !== null ? unavailableBookComment.value[bookId] : "",
+            description:
+              unavailableBookReason.value[bookId] !== null
+                ? unavailableBookReason.value[bookId]
+                : unavailableBookComment.value[bookId] !== null
+                  ? unavailableBookComment.value[bookId]
+                  : "",
             status: unavailableBookReason.value[bookId] === "analogous" ? "analogous" : "cancelled",
-            analogous: unavailableBookReason.value[bookId] === 'analogous' 
-              ? selectedAnalogBookId.value[bookId] 
-              : ""
+            analogous:
+              unavailableBookReason.value[bookId] === "analogous"
+                ? selectedAnalogBookId.value[bookId]
+                : "",
           }));
-          console.log('Данные для отправки на бэк:', updates);
+          console.log("Данные для отправки на бэк:", updates);
 
           if (nextStatus.value)
-            emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value, updates);
+            emit(
+              "nextOrderStatus",
+              selectedOrder.value.id,
+              nextStatus.value,
+              nextStatus.value,
+              updates
+            );
           emit("close");
         }
       }
-
     } else {
-      console.error('Не удалось получить результат проверки');
+      console.error("Не удалось получить результат проверки");
     }
   } catch (error) {
-    console.error('Ошибка при вызове проверки заказа:', error);
+    console.error("Ошибка при вызове проверки заказа:", error);
   }
 };
 
 const validateNotFoundBooks = (): boolean => {
-  return unavailableBooks.value.every(bookId => {
+  return unavailableBooks.value.every((bookId) => {
     const reason = unavailableBookReason.value[bookId];
     // Проверяем что указана причина
     if (!reason) {
@@ -274,7 +306,7 @@ const validateNotFoundBooks = (): boolean => {
       return false;
     }
     // Если причина "analog", проверяем что выбран аналог
-    if (reason === 'analogous') {
+    if (reason === "analogous") {
       const analogId = selectedAnalogBookId.value[bookId];
       if (!analogId) {
         console.warn(`Для книги ID:${bookId} не выбран аналог`);
@@ -345,10 +377,6 @@ const nextStatusButtonText = computed(() => {
   return statusTransitions[currentStatus.value].nextButtonText;
 });
 
-const changeToCancelledStatus = () => {
-  emit("nextOrderStatus", selectedOrder.value.id, "cancelled", "cancelled");
-  emit("close");
-};
 
 const openRejectModal = ref(false);
 const handleRejectOrder = (rejectReason: string) => {
@@ -360,7 +388,6 @@ const handleRejectOrder = (rejectReason: string) => {
 
 const changeToNextStatus = () => {
   if (nextStatus.value) {
-
     emit("nextOrderStatus", selectedOrder.value.id, nextStatus.value, nextStatus.value);
     emit("close");
   }

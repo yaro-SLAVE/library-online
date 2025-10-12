@@ -191,7 +191,7 @@ async function handleUpdateOrderStatus(
   orderId: number,
   newStatus: OrderStatusEnum,
   description: string,
-  books: [] = [],
+  books: [] = []
 ) {
   try {
     await updateOrderStatus(orderId, newStatus, description, books);

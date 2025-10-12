@@ -62,10 +62,10 @@ export const useAuthStore = defineStore("auth", () => {
   async function updateProfileInfo() {
     if (await updateTokens()) {
       try {
-        if(isCurrentUserInit.value) return;
+        if (isCurrentUserInit.value) return;
         currentUser.value = await profileInfo();
         isCurrentUserInit.value = true;
-         if (currentUser.value && !currentUser.value.groups.includes(currentUserRole.value)) {
+        if (currentUser.value && !currentUser.value.groups.includes(currentUserRole.value)) {
           currentUserRole.value = "Reader";
         }
       } catch {
@@ -137,7 +137,6 @@ export const useAuthStore = defineStore("auth", () => {
     });
   }
 
-  
   function setUserRole(role: Group) {
     currentUserRole.value = role;
   }

@@ -48,7 +48,7 @@ import FontSwitcher from "@components/FontSwitcher.vue";
 import ThemeSwitcher from "@components/ThemeSwitcher.vue";
 import type { Link } from "@core/types/types";
 interface HeaderProps {
-    links: Link[]
+  links: Link[];
 }
 const props = defineProps<HeaderProps>();
 

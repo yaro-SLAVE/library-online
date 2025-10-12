@@ -1,22 +1,21 @@
 <template>
   <div class="app">
-    <Header :links="links" />
+    <AppHeader :links="links" />
     <main>
-        <ModeratorSideBar :links="sidebarLinks"/>
-        <RouterView />
+      <ModeratorSideBar :links="sidebarLinks" />
+      <RouterView />
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
 import { RouterView } from "vue-router";
-import Header from "@core/components/Header.vue";
+import AppHeader from "@core/components/AppHeader.vue";
 import ModeratorSideBar from "./ModeratorSideBar.vue";
 import { useModeratorLinks } from "@core/composables/useModeratorLinks";
 import { sidebarLinks } from "./sidebarData";
 
 const { links } = useModeratorLinks();
-
 </script>
 
 <style scoped lang="scss">

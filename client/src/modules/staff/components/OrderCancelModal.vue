@@ -8,17 +8,9 @@
 
       <div class="modal-body">
         <div class="form-group">
-          <select
-            v-model="selectedReason"
-            class="form-select"
-            aria-label="Причина отмены заказа"
-          >
+          <select v-model="selectedReason" class="form-select" aria-label="Причина отмены заказа">
             <option value="" disabled selected>Выберите причину отмены</option>
-            <option
-              v-for="reason in cancellationReasons"
-              :key="reason.value"
-              :value="reason.value"
-            >
+            <option v-for="reason in cancellationReasons" :key="reason.value" :value="reason.value">
               {{ reason.label }}
             </option>
           </select>
@@ -210,12 +202,12 @@ const confirm = () => {
     width: 100%;
     margin: 1rem;
   }
-  
+
   .modal-footer {
     flex-direction: column-reverse;
     gap: 0.75rem;
   }
-  
+
   .modal-footer button {
     width: 100%;
   }

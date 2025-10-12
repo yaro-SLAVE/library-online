@@ -1,5 +1,4 @@
 import DefaultStaffLayout from "@core/layout/DefaultStaffLayout.vue";
-import AdminView from "@core/layout/moderator/ModeratorSideBar.vue";
 export const staffRoutes = [
   {
     path: "/staff",
