@@ -12,10 +12,9 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
 import Header from "@core/components/Header.vue";
+import { useReaderLinks } from "@core/composables/useReaderLinks";
 
-import { useStaffLinks } from "@core/composables/useStaffLinks"; 
-
-const { links } = useStaffLinks();
+const { links } = useReaderLinks();
 
 </script>
 
