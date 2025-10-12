@@ -10,123 +10,22 @@ import type { SidebarLink } from '@core/types/types';
 export const sidebarLinks: SidebarLink[] = [
     {
         name: 'Читатели',
-        to: '/admin/readers',
+        to: 'readers',
         icon: UsersIcon,
     },
     {
         name: 'Заказы',
-        to: '/admin/orders',
+        to: 'orders',
         icon: ShoppingCartIcon,
     },
     {
         name: 'Черный список',
-        to: '/admin/blacklist',
+        to: 'blacklist',
         icon: MinusCircleIcon,
     },
     {
         name: 'Настройка системы',
-        to: '/admin/settings',
+        to: 'settings',
         icon: Cog6ToothIcon,
     },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    {
-        name: 'Настройка системы',
-        to: '/admin/settings',
-        icon: Cog6ToothIcon,
-    },
-    
 ];

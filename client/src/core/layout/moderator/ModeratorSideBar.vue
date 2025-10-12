@@ -106,7 +106,7 @@ const colors = ["#FF008C", "#D309E1", "#9C1AFF", "#7700FF", "#4400FF"]
                         <component :is="link.icon" class="icon-placeholder"/>
                     </div>
 
-                    <RouterLink :to="link.to" class="text-placeholder" >
+                    <RouterLink :to="{ name: link.to}" class="text-placeholder" >
                          {{ link.name }}
                     </RouterLink>
                 </motion.li>

@@ -6,8 +6,26 @@ export const moderatorRoutes = [
     meta: { role: "Librarian" },
     children: [
       {
-        path: "some",
-        name: "some",
+        path: "readers",
+        name: "readers",
+        component: () => import("@modules/moderator/views/Someview.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "orders",
+        name: "orders",
+        component: () => import("@modules/moderator/views/Someview.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "blacklist",
+        name: "blacklist",
+        component: () => import("@modules/moderator/views/Someview.vue"),
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "settings",
+        name: "settings",
         component: () => import("@modules/moderator/views/Someview.vue"),
         meta: { requiresAuth: true },
       },
