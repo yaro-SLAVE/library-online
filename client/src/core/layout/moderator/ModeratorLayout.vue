@@ -3,7 +3,8 @@
     <AppHeader :links="links" />
     <main>
       <ModeratorSideBar :links="sidebarLinks" />
-      <RouterView />
+      <RouterView />      
+
     </main>
   </div>
 </template>
@@ -28,6 +29,8 @@ const { links } = useModeratorLinks();
 main {
   flex: 1;
   display: flex;
+  flex-direction: row;
+  gap: 2rem;
 }
 
 .footer {
