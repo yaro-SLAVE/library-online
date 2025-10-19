@@ -3,7 +3,7 @@
     <AppHeader :links="links" />
     <main>
       <ModeratorSideBar :links="sidebarLinks" />
-      <RouterView class="page" />      
+      <RouterView class="page" />
     </main>
   </div>
 </template>
@@ -32,7 +32,7 @@ main {
 }
 
 .page {
-  flex:1;
+  flex: 1;
 }
 
 .footer {
