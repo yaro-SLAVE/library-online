@@ -49,39 +49,44 @@ const sidebarVariants: MotionProps["variants"] = {
   open: {
     x: 0,
     width: "260px",
+    opacity: 1,
     transition: {
       type: "spring",
-      stiffness: 200,
-      damping: 25,
+      stiffness: 100,
+      damping: 30,
     },
   },
   closed: {
     width: "0px",
     padding: "0px",
     x: "-100%",
+    opacity: 0,
     transition: {
       type: "spring",
-      stiffness: 200,
-      damping: 25,
+      stiffness: 100,
+      damping: 30,
     },
   },
 };
 </script>
 
 <template>
-  <div class="container">
+  <div class="sidebar-container">
     <motion.nav
       :initial="false"
       :animate="isOpen ? 'open' : 'closed'"
       :custom="dimensions.height"
-      :class="{ 'nav--open': isOpen }"
+      :style="{
+        borderRight: isOpen ? '1px solid var(--color-text-700)' : '1px solid transparent',
+        opacity: 'transition: opacity 0.3s ease;',
+      }"
       ref="containerRef"
       class="nav"
     >
       <button class="toggle-container" @click="toggle">
         <component :is="currentBarIcon" class="toggle-icon" />
       </button>
-      <motion.ul class="list" :variants="sidebarVariants" v-show="isOpen || true">
+      <motion.ul class="list" :variants="sidebarVariants">
         <motion.li
           v-for="link in props.links"
           :key="link.name"
@@ -103,11 +108,12 @@ const sidebarVariants: MotionProps["variants"] = {
 </template>
 
 <style scoped>
-.container {
-  flex: 1;
+.sidebar-container {
   max-width: fit-content;
   background-color: none;
   backdrop-filter: blur(30px);
+  position: static;
+  height: 100vh;
 }
 
 .nav {
@@ -116,14 +122,14 @@ const sidebarVariants: MotionProps["variants"] = {
   align-items: flex-start;
   height: 100vh;
   overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
+  background-color: none;
   background-color: none;
 }
 
 .nav--open {
-  border-right: 1px solid var(--color-text-700);
+  width: 260px;
+  min-width: 260px;
 }
 
 .toggle-container {
