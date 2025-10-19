@@ -28,4 +28,7 @@ class ProfileSerializer(aserializers.ModelSerializer):
         return obj.user.last_name
 
     async def get_groups(self, obj: UserProfile):
-        return [x.name async for x in obj.user.groups.all()]
+        user_groups = [x.name async for x in obj.user.groups.all()]
+        if obj.user.is_superuser and obj.user.is_staff:
+            user_groups.append("Admin")
+        return user_groups
