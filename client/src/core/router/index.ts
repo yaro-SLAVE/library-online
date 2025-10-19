@@ -40,9 +40,9 @@ router.beforeEach(async (to, from, next) => {
     lastProfileCheck = now;
   }
 
-  const requiredRoles = to.matched
-    .map(r => r.meta.roles)
-    .find(r => r !== undefined) as string[] | undefined;
+  const requiredRoles = to.matched.map((r) => r.meta.roles).find((r) => r !== undefined) as
+    | string[]
+    | undefined;
 
   if (requiredRoles?.includes(user.currentRole)) {
     return next();

@@ -44,7 +44,7 @@ onBeforeMount(async () => {
     state.value = "auth";
     const success = await authStore.bitrixLogin(code);
     if (success) {
-      userStore.fetchProfile();
+      await userStore.fetchProfile();
       const { currentUser } = storeToRefs(userStore);
       if (currentUser.value?.groups?.includes("Librarian")) {
         openModal.value = true;

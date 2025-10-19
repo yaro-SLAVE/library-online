@@ -41,10 +41,14 @@ export const useUserStore = defineStore("user", () => {
   }
 
   function setCurrentRole(role: Group) {
-    if (availableRoles.value.includes(role)) {
+    if (
+      availableRoles.value.includes(role) &&
+      availableRoles.value.includes("Admin") &&
+      role === "Librarian"
+    ) {
+      currentRole.value = "Admin";
+    } else if (availableRoles.value.includes(role)) {
       currentRole.value = role;
-    } else {
-      console.warn(`Роль "${role}" недоступна пользователю`);
     }
   }
 
