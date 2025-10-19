@@ -5,7 +5,7 @@
       <h3 class="text-center">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</h3>
       <h4 class="text-center">{{ currentUser?.username }}</h4>
       <h5 class="text-center">
-        {{ groups[currentUserRole] }}
+        {{ groups[currentRole] }}
       </h5>
       <StyledButton theme="accent" class="w-full" @click="handleLogout">Выйти</StyledButton>
     </div>
@@ -17,11 +17,13 @@ import { groups } from "@api/types";
 import StyledButton from "@components/StyledButton.vue";
 import LoginForm from "@modules/reader/components/LoginForm.vue";
 import { useAuthStore } from "@core/store/auth";
+import { useUserStore } from "@core/store/user";
 import { storeToRefs } from "pinia";
 import router from "@core/router/index";
 const authStore = useAuthStore();
-const { isAuthenticated, currentUser, currentUserRole } = storeToRefs(authStore);
-
+const userStore = useUserStore();
+const { isAuthenticated } = storeToRefs(authStore);
+const { currentUser, currentRole } = storeToRefs(userStore);
 const handleLogout = () => {
   router.push("/");
   authStore.logout();
