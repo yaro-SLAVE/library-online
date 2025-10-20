@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useAuthStore } from "@core/store/auth";
+import { useUserStore } from "@core/store/user";
 import LoadingModal from "@components/LoadingModal.vue";
 import OrderList from "@staff/components/OrderList.vue";
 import ModalOrderDetails from "@staff/components/ModalOrderDetails.vue";
@@ -71,7 +71,7 @@ import {
 import type { UserOrder, Order, OrderStatusEnum, OrderCheckingInfo } from "@api/types";
 import { getOrderStaff, updateOrderStatus, checkOrder } from "@api/order";
 
-const authStore = useAuthStore();
+const userStore = useUserStore();
 const isLoading = ref(false);
 
 interface TabConfig {
@@ -151,7 +151,7 @@ const fetchUserOrders = async (tab: TabConfig): Promise<UserOrder[]> => {
           name = status.staff.username;
         }
       });
-      return name === authStore.currentUser?.username;
+      return name === userStore.currentUser?.username;
     });
   }
   return data;
