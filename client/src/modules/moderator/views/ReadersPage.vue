@@ -156,14 +156,15 @@ useAuthentication((isAuthenticated) => {
 <style scoped lang="scss">
 .readers-page {
   flex: 1;
+  padding: 16px;
 }
 
 .page-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   
   h2 {
     color: var(--color-text-800);
-    margin: 0 0 0 3rem;
+    margin: 0;
   }
   
   .stats {
