@@ -8,7 +8,7 @@ export const moderatorRoutes = [
       {
         path: "readers",
         name: "readers",
-        component: () => import("@modules/staff/views/ManageOrdersPage.vue"),
+        component: () => import("@modules/moderator/views/ReadersPage.vue"),
         meta: { requiresAuth: true },
       },
       {
