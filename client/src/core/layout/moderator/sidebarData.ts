@@ -28,4 +28,10 @@ export const sidebarLinks: SidebarLink[] = [
     to: "settings",
     icon: Cog6ToothIcon,
   },
+  {
+    name: "Статистика",
+    to: "stats",
+    icon: Cog6ToothIcon,
+  },
+
 ];

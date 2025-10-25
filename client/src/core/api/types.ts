@@ -135,3 +135,11 @@ export type OrderCheckingInfo = {
   notfound_books: OrderBook[];
   additional_books: string[];
 };
+
+export type LiveStats = {
+  timestamp: string;
+  total_orders: number;
+  new_orders: number;
+  orders_in_work: number;
+  orders_in_waiting: number;
+};
