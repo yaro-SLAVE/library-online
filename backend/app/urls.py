@@ -52,6 +52,8 @@ router.register("staff/order", StaffOrderGetUpdateViewset, basename="staff/order
 router.register("staff/order/borrowed", StaffBorrowedViewset, basename="staff/order/borrowed")
 router.register("reasons/cancel", OrderCommentViewset, basename="reasons/cancel")
 router.register("reasons/notfound", OrderItemCommentViewset, basename="reasons/notfound")
+router.register("stats", OrderItemCommentViewset, basename="stats")
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
