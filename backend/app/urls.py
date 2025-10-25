@@ -37,6 +37,7 @@ from library_service.views.profile import ProfileViewset
 from library_service.views.staff_order import StaffOrderViewset, StaffOrderGetUpdateViewset, StaffBorrowedViewset
 from library_service.views.comments import OrderCommentViewset, OrderItemCommentViewset
 from library_service.views.auth import AuthViewset, AuthThirdPartyViewset
+from library_service.views.stats import StatsViewset
 
 router = AsyncDefaultRouter()
 router.register("book", BookViewset, basename="book")
@@ -52,7 +53,7 @@ router.register("staff/order", StaffOrderGetUpdateViewset, basename="staff/order
 router.register("staff/order/borrowed", StaffBorrowedViewset, basename="staff/order/borrowed")
 router.register("reasons/cancel", OrderCommentViewset, basename="reasons/cancel")
 router.register("reasons/notfound", OrderItemCommentViewset, basename="reasons/notfound")
-router.register("stats", OrderItemCommentViewset, basename="stats")
+router.register("stats", StatsViewset, basename="stats")
 
 
 urlpatterns = [

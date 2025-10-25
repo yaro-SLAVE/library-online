@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-class CurrentStatsSerializer(serializers.Serializer):
+class LiveStatsSerializer(serializers.Serializer):
     timestamp = serializers.DateTimeField()
     total_orders = serializers.IntegerField()
     new_orders = serializers.IntegerField()
