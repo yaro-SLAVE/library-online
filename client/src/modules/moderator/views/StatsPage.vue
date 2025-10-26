@@ -9,6 +9,7 @@ const stats = ref<LiveStats>();
 const isLoading = ref(true);
 
 const handleExport = async (selectedColumns: string[]) => {
+    console.log(selectedColumns);
   //     await statsStore.exportToExcel(selectedColumns);
 };
 

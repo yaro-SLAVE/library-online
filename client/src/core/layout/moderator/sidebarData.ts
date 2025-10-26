@@ -3,7 +3,7 @@ import {
   ShoppingCartIcon,
   MinusCircleIcon,
   Cog6ToothIcon,
-  ChartPieIcon
+  ChartPieIcon,
 } from "@heroicons/vue/24/outline";
 
 import type { SidebarLink } from "@core/types/types";
@@ -34,5 +34,4 @@ export const sidebarLinks: SidebarLink[] = [
     to: "stats",
     icon: ChartPieIcon,
   },
-
 ];

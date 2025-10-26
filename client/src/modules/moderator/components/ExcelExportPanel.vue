@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { 
-  DocumentArrowDownIcon,
-  CheckCircleIcon,
-  XCircleIcon 
-} from '@heroicons/vue/24/outline';
+import { ref, computed } from "vue";
+import { DocumentArrowDownIcon, CheckCircleIcon, XCircleIcon } from "@heroicons/vue/24/outline";
 
 interface ColumnGroup {
   name: string;
@@ -17,62 +13,62 @@ interface ColumnItem {
   children?: ColumnItem[];
 }
 
-const emit = defineEmits(['export']);
+const emit = defineEmits(["export"]);
 
 const columnGroups = ref<ColumnGroup[]>([
   {
-    name: 'Заказы',
+    name: "Заказы",
     items: [
-      { label: 'Заказчик', value: 'customer' },
-      { 
-        label: 'Даты', 
-        value: 'dates',
+      { label: "Заказчик", value: "customer" },
+      {
+        label: "Даты",
+        value: "dates",
         children: [
-          { label: 'Создания', value: 'creation_date' },
-          { label: 'Взятия на исполнение', value: 'acceptance_date' },
-          { label: 'Готовности', value: 'ready_date' },
-          { label: 'Завершения', value: 'completion_date' }
-        ]
+          { label: "Создания", value: "creation_date" },
+          { label: "Взятия на исполнение", value: "acceptance_date" },
+          { label: "Готовности", value: "ready_date" },
+          { label: "Завершения", value: "completion_date" },
+        ],
       },
-      { label: 'Итоговый статус', value: 'final_status' },
-      { label: 'Кто собрал', value: 'assembler' },
-      { label: 'Кто выдал', value: 'issuer' }
-    ]
+      { label: "Итоговый статус", value: "final_status" },
+      { label: "Кто собрал", value: "assembler" },
+      { label: "Кто выдал", value: "issuer" },
+    ],
   },
   {
-    name: 'Читатели',
+    name: "Читатели",
     items: [
-      { label: 'ФИО', value: 'reader_name' },
-      { label: 'Подразделение', value: 'department' },
-      { label: 'Блокировки', value: 'blocks' }
-    ]
+      { label: "ФИО", value: "reader_name" },
+      { label: "Подразделение", value: "department" },
+      { label: "Блокировки", value: "blocks" },
+    ],
   },
   {
-    name: 'Книги заказов',
+    name: "Книги заказов",
     items: [
-      { label: 'Инвентарный номер', value: 'inventory_number' },
-      { label: 'Номер карты комплектования', value: 'kit_card_number' },
-      { label: 'Коротко о книге', value: 'book_summary' }
-    ]
+      { label: "Инвентарный номер", value: "inventory_number" },
+      { label: "Номер карты комплектования", value: "kit_card_number" },
+      { label: "Коротко о книге", value: "book_summary" },
+    ],
   },
   {
-    name: 'Сотрудники',
+    name: "Сотрудники",
     items: [
-      { label: 'ФИО', value: 'employee_name' },
-      { label: 'Филиал', value: 'branch' }
-    ]
-  }
+      { label: "ФИО", value: "employee_name" },
+      { label: "Филиал", value: "branch" },
+    ],
+  },
 ]);
 
 const selectedColumns = ref<Set<string>>(new Set());
 const isExporting = ref(false);
-const exportStatus = ref<'idle' | 'success' | 'error'>('idle');
+const exportStatus = ref<"idle" | "success" | "error">("idle");
 
 const selectionStats = computed(() => {
   const total = columnGroups.value.reduce((acc, group) => {
     let count = 0;
     const countItems = (items: ColumnItem[]) => {
-      items.forEach(item => {
+      items.forEach((item) => {
         count++;
         if (item.children) countItems(item.children);
       });
@@ -83,7 +79,7 @@ const selectionStats = computed(() => {
 
   return {
     selected: selectedColumns.value.size,
-    total
+    total,
   };
 });
 
@@ -97,7 +93,7 @@ const toggleColumn = (value: string) => {
 
 const toggleAllInGroup = (group: ColumnGroup, select: boolean) => {
   const toggleItems = (items: ColumnItem[]) => {
-    items.forEach(item => {
+    items.forEach((item) => {
       if (select) {
         selectedColumns.value.add(item.value);
       } else {
@@ -108,12 +104,12 @@ const toggleAllInGroup = (group: ColumnGroup, select: boolean) => {
       }
     });
   };
-  
+
   toggleItems(group.items);
 };
 
 const selectAll = () => {
-  columnGroups.value.forEach(group => toggleAllInGroup(group, true));
+  columnGroups.value.forEach((group) => toggleAllInGroup(group, true));
 };
 
 const clearAll = () => {
@@ -124,21 +120,21 @@ const handleExport = async () => {
   if (selectedColumns.value.size === 0) return;
 
   isExporting.value = true;
-  exportStatus.value = 'idle';
+  exportStatus.value = "idle";
 
   try {
-    await emit('export', Array.from(selectedColumns.value));
-    exportStatus.value = 'success';
-    
+    await emit("export", Array.from(selectedColumns.value));
+    exportStatus.value = "success";
+
     setTimeout(() => {
-      exportStatus.value = 'idle';
+      exportStatus.value = "idle";
     }, 3000);
   } catch (error) {
-    console.error('Export failed:', error);
-    exportStatus.value = 'error';
-    
+    console.error("Export failed:", error);
+    exportStatus.value = "error";
+
     setTimeout(() => {
-      exportStatus.value = 'idle';
+      exportStatus.value = "idle";
     }, 3000);
   } finally {
     isExporting.value = false;
@@ -166,44 +162,26 @@ const handleExport = async () => {
 
     <!-- Глобальные действия -->
     <div class="global-actions">
-      <button @click="selectAll" class="action-btn select-all-btn">
-        Выбрать все
-      </button>
-      <button @click="clearAll" class="action-btn clear-all-btn">
-        Очистить все
-      </button>
+      <button @click="selectAll" class="action-btn select-all-btn">Выбрать все</button>
+      <button @click="clearAll" class="action-btn clear-all-btn">Очистить все</button>
     </div>
 
     <div class="columns-selection">
-      <div 
-        v-for="group in columnGroups" 
-        :key="group.name"
-        class="column-group"
-      >
+      <div v-for="group in columnGroups" :key="group.name" class="column-group">
         <div class="group-header">
           <h4 class="group-title">{{ group.name }}</h4>
           <div class="group-actions">
-            <button 
-              @click="toggleAllInGroup(group, true)"
-              class="group-action-btn"
-            >
+            <button @click="toggleAllInGroup(group, true)" class="group-action-btn">
               Выбрать все
             </button>
-            <button 
-              @click="toggleAllInGroup(group, false)"
-              class="group-action-btn"
-            >
+            <button @click="toggleAllInGroup(group, false)" class="group-action-btn">
               Очистить
             </button>
           </div>
         </div>
-        
+
         <div class="column-items">
-          <div 
-            v-for="item in group.items" 
-            :key="item.value"
-            class="column-item"
-          >
+          <div v-for="item in group.items" :key="item.value" class="column-item">
             <label class="checkbox-label main-checkbox">
               <input
                 type="checkbox"
@@ -213,7 +191,7 @@ const handleExport = async () => {
               <span class="custom-checkbox"></span>
               <span class="checkbox-text">{{ item.label }}</span>
             </label>
-            
+
             <div v-if="item.children" class="nested-items">
               <label
                 v-for="child in item.children"
@@ -236,41 +214,31 @@ const handleExport = async () => {
 
     <div class="export-actions">
       <div class="export-status" v-if="exportStatus !== 'idle'">
-        <CheckCircleIcon 
-          v-if="exportStatus === 'success'" 
-          class="status-icon success" 
-        />
-        <XCircleIcon 
-          v-if="exportStatus === 'error'" 
-          class="status-icon error" 
-        />
+        <CheckCircleIcon v-if="exportStatus === 'success'" class="status-icon success" />
+        <XCircleIcon v-if="exportStatus === 'error'" class="status-icon error" />
         <span class="status-text">
           {{
-            exportStatus === 'success' 
-              ? 'Файл успешно сформирован!' 
-              : 'Ошибка при формировании файла'
+            exportStatus === "success"
+              ? "Файл успешно сформирован!"
+              : "Ошибка при формировании файла"
           }}
         </span>
       </div>
 
-      <button 
+      <button
         @click="handleExport"
         :disabled="selectedColumns.size === 0 || isExporting"
         class="export-button"
         :class="{
-          'disabled': selectedColumns.size === 0,
-          'exporting': isExporting,
-          'success': exportStatus === 'success',
-          'error': exportStatus === 'error'
+          disabled: selectedColumns.size === 0,
+          exporting: isExporting,
+          success: exportStatus === 'success',
+          error: exportStatus === 'error',
         }"
       >
         <DocumentArrowDownIcon class="button-icon" />
-        <span v-if="!isExporting">
-          Скачать Excel ({{ selectedColumns.size }})
-        </span>
-        <span v-else class="exporting-text">
-          Формируем отчет...
-        </span>
+        <span v-if="!isExporting"> Скачать Excel ({{ selectedColumns.size }}) </span>
+        <span v-else class="exporting-text"> Формируем отчет... </span>
       </button>
     </div>
   </div>
@@ -286,11 +254,7 @@ const handleExport = async () => {
 
 .panel-header {
   padding: 2rem;
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-50) 0%,
-    var(--color-background-100) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-background-100) 100%);
   border-bottom: 1px solid var(--color-background-200);
   display: flex;
   justify-content: space-between;
@@ -497,7 +461,7 @@ input[type="checkbox"] {
     border-color: var(--color-primary-500);
 
     &::after {
-      content: '✓';
+      content: "✓";
       color: white;
       font-size: 12px;
       font-weight: bold;
@@ -553,11 +517,7 @@ input[type="checkbox"] {
 }
 
 .export-button {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-500) 0%,
-    var(--color-primary-600) 100%
-  );
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-600) 100%);
   color: var(--color-text-50);
   border: none;
   padding: 1rem 2.5rem;
@@ -576,11 +536,7 @@ input[type="checkbox"] {
   &:hover:not(.disabled):not(.exporting) {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 69, 186, 0.4);
-    background: linear-gradient(
-      135deg,
-      var(--color-primary-600) 0%,
-      var(--color-primary-700) 100%
-    );
+    background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
   }
 
   &.disabled {
@@ -614,7 +570,7 @@ input[type="checkbox"] {
     gap: 0.5rem;
 
     &::after {
-      content: '';
+      content: "";
       width: 1rem;
       height: 1rem;
       border: 2px solid transparent;
@@ -626,8 +582,12 @@ input[type="checkbox"] {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .columns-selection::-webkit-scrollbar {
