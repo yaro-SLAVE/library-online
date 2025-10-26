@@ -3,6 +3,7 @@ import {
   ShoppingCartIcon,
   MinusCircleIcon,
   Cog6ToothIcon,
+  ChartPieIcon
 } from "@heroicons/vue/24/outline";
 
 import type { SidebarLink } from "@core/types/types";
@@ -31,7 +32,7 @@ export const sidebarLinks: SidebarLink[] = [
   {
     name: "Статистика",
     to: "stats",
-    icon: Cog6ToothIcon,
+    icon: ChartPieIcon,
   },
 
 ];
