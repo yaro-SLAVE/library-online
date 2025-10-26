@@ -4,7 +4,6 @@
     <td>{{ reader.user.fullname }}</td>
     <td>{{ reader.total_books_ordered }}</td>
     <td>{{ reader.total_orders }}</td>
-    <td>{{ reader.completed_orders }}</td>
     <td>{{ reader.cancelled_orders }}</td>
   </tr>
 </template>

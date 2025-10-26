@@ -72,29 +72,6 @@
       
       <div class="filter-row">
         <div class="filter-group">
-          <label>Выданные заказы от</label>
-          <div class="range-inputs">
-            <input 
-              v-model.number="filters.minCompleted" 
-              type="number" 
-              min="0"
-              placeholder="Мин"
-              class="filter-input"
-              @change="onFilterChange"
-            >
-            <span class="filter-separator">до</span>
-            <input 
-              v-model.number="filters.maxCompleted" 
-              type="number" 
-              min="0"
-              placeholder="Макс"
-              class="filter-input"
-              @change="onFilterChange"
-            >
-          </div>
-        </div>
-        
-        <div class="filter-group">
           <label>Отмененные заказы от</label>
           <div class="range-inputs">
             <input 
@@ -116,16 +93,6 @@
             >
           </div>
         </div>
-
-        <div class="filter-group">
-          <label>Статус читателя</label>
-          <select v-model="filters.status" class="filter-select" @change="onFilterChange">
-            <option value="">Все</option>
-            <option value="withCard">С читательским билетом</option>
-            <option value="withoutCard">Без читательского билета</option>
-            <option value="problematic">Проблемные (много отмен)</option>
-          </select>
-        </div>
       </div>
     </div>
 
@@ -133,66 +100,80 @@
       <table class="table">
         <thead>
           <tr>
-            <th>#</th>
-            <th>
-              <div class="column-header">
-                <span>ФИО читателя</span>
-                <button 
-                  @click="sortBy('fullname')" 
-                  class="sort-btn"
-                  :class="{ active: sortField === 'fullname' }"
-                >
-                  ↕️
-                </button>
-              </div>
+            <th
+              @click="resetSorting"
+              class="sortable-th"
+              :aria-sort="sortField === 'id' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+            >
+              <span class="th-content">
+                #
+                <div class="th-icon">
+                  <span v-if="sortField === 'id'" class="direction-icon">
+                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                  </span>
+                  <span v-else>⇅</span>
+                </div>
+              </span>
             </th>
-            <th>
-              <div class="column-header">
-                <span>Количество заказанных книг</span>
-                <button 
-                  @click="sortBy('total_books_ordered')" 
-                  class="sort-btn"
-                  :class="{ active: sortField === 'total_books_ordered' }"
-                >
-                  ↕️
-                </button>
-              </div>
+            <th
+              @click="sortBy('fullname')"
+              class="sortable-th"
+              :aria-sort="sortField === 'fullname' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+            >
+              <span class="th-content">
+                ФИО читателя
+                <div class="th-icon">
+                  <span v-if="sortField === 'fullname'" class="direction-icon">
+                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                  </span>
+                  <span v-else>⇅</span>
+                </div>
+              </span>
             </th>
-            <th>
-              <div class="column-header">
-                <span>Количество заказов</span>
-                <button 
-                  @click="sortBy('total_orders')" 
-                  class="sort-btn"
-                  :class="{ active: sortField === 'total_orders' }"
-                >
-                  ↕️
-                </button>
-              </div>
+            <th
+              @click="sortBy('total_orders')"
+              class="sortable-th"
+              :aria-sort="sortField === 'total_orders' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+            >
+              <span class="th-content">
+                Количество заказов
+                <div class="th-icon">
+                  <span v-if="sortField === 'total_orders'" class="direction-icon">
+                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                  </span>
+                  <span v-else>⇅</span>
+                </div>
+              </span>
             </th>
-            <th>
-              <div class="column-header">
-                <span>Количество выданных заказов</span>
-                <button 
-                  @click="sortBy('completed_orders')" 
-                  class="sort-btn"
-                  :class="{ active: sortField === 'completed_orders' }"
-                >
-                  ↕️
-                </button>
-              </div>
+            <th
+              @click="sortBy('total_books_ordered')"
+              class="sortable-th"
+              :aria-sort="sortField === 'total_books_ordered' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+            >
+              <span class="th-content">
+                Количество заказанных книг
+                <div class="th-icon">
+                  <span v-if="sortField === 'total_books_ordered'" class="direction-icon">
+                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                  </span>
+                  <span v-else>⇅</span>
+                </div>
+              </span>
             </th>
-            <th>
-              <div class="column-header">
-                <span>Количество отмененных заказов</span>
-                <button 
-                  @click="sortBy('cancelled_orders')" 
-                  class="sort-btn"
-                  :class="{ active: sortField === 'cancelled_orders' }"
-                >
-                  ↕️
-                </button>
-              </div>
+            <th
+              @click="sortBy('cancelled_orders')"
+              class="sortable-th"
+              :aria-sort="sortField === 'cancelled_orders' ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'"
+            >
+              <span class="th-content">
+                Количество отмененных заказов
+                <div class="th-icon">
+                  <span v-if="sortField === 'cancelled_orders'" class="direction-icon">
+                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                  </span>
+                  <span v-else>⇅</span>
+                </div>
+              </span>
             </th>
           </tr>
         </thead>
@@ -200,9 +181,16 @@
           <ReadersTableRow v-for="reader in readersData" :key="reader.id" :reader="reader" />
         </tbody>
       </table>
-
       <div v-if="readersData.length === 0 && !loading" class="empty-state">
-        {{ hasActiveFilters ? 'Нет читателей, соответствующих фильтрам' : 'Нет данных о читателях' }}
+        <div v-if="hasActiveFilters" class="empty-state-content">
+          <p>Нет читателей, соответствующих фильтрам</p>
+          <button @click="clearAllFilters" class="clear-filters-btn">
+            Сбросить фильтры
+          </button>
+        </div>
+        <div v-else class="empty-state-content">
+          <p>Нет данных о читателях</p>
+        </div>
       </div>
     </div>
 
@@ -217,7 +205,7 @@ import LoadingModal from "@components/LoadingModal.vue";
 import { type Order } from "@api/types";
 import { type UserInfo } from "@api/types";
 
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useAuthentication } from "@core/composables/auth";
 import { useAuthStore } from "@core/store/auth";
 import { useRouter } from "vue-router";
@@ -225,11 +213,9 @@ import { useRouter } from "vue-router";
 // TODO: вставить API запрос
 // import
 
-const orders = ref<Order[]>([]);
 const readersData = ref<any[]>([]);
 const loading = ref(false);
 const authStore = useAuthStore();
-const notAllowedModalOpen = ref(false);
 const router = useRouter();
 
 const filters = ref({
@@ -238,14 +224,20 @@ const filters = ref({
   maxBooks: null as number | null,
   minOrders: null as number | null,
   maxOrders: null as number | null,
-  minCompleted: null as number | null,
-  maxCompleted: null as number | null,
   minCancelled: null as number | null,
   maxCancelled: null as number | null,
   status: ''
 });
 
-const sortField = ref<string>('');
+const pagination = ref({
+  page: 1,
+  limit: 20,
+  total: 0
+});
+
+type SortField = 'id' | 'fullname' | 'total_orders' | 'total_books_ordered' | 'cancelled_orders';
+
+const sortField = ref<SortField>('id');
 const sortDirection = ref<'asc' | 'desc'>('asc');
 
 let filterTimeout: NodeJS.Timeout | null = null;
@@ -255,7 +247,6 @@ const hasActiveFilters = computed(() => {
   return f.fullname !== '' || 
          f.minBooks !== null || f.maxBooks !== null ||
          f.minOrders !== null || f.maxOrders !== null ||
-         f.minCompleted !== null || f.maxCompleted !== null ||
          f.minCancelled !== null || f.maxCancelled !== null ||
          f.status !== '';
 });
@@ -270,8 +261,6 @@ const loadReadersData = async () => {
     if (filters.value.maxBooks !== null) params.max_books = filters.value.maxBooks;
     if (filters.value.minOrders !== null) params.min_orders = filters.value.minOrders;
     if (filters.value.maxOrders !== null) params.max_orders = filters.value.maxOrders;
-    if (filters.value.minCompleted !== null) params.min_completed = filters.value.minCompleted;
-    if (filters.value.maxCompleted !== null) params.max_completed = filters.value.maxCompleted;
     if (filters.value.minCancelled !== null) params.min_cancelled = filters.value.minCancelled;
     if (filters.value.maxCancelled !== null) params.max_cancelled = filters.value.maxCancelled;
     if (filters.value.status) params.status = filters.value.status;
@@ -299,24 +288,58 @@ const loadReadersData = async () => {
   }
 };
 
+const validateAllRanges = (): boolean => {
+  const f = filters.value;
+  const errors: string[] = [];
+  
+  if (f.minBooks !== null && f.maxBooks !== null && f.minBooks > f.maxBooks) {
+    errors.push('Минимальное количество книг не может быть больше максимального');
+  }
+  
+  if (f.minOrders !== null && f.maxOrders !== null && f.minOrders > f.maxOrders) {
+    errors.push('Минимальное количество заказов не может быть больше максимального');
+  }
+  
+  if (f.minCancelled !== null && f.maxCancelled !== null && f.minCancelled > f.maxCancelled) {
+    errors.push('Минимальное количество отмененных заказов не может быть больше максимального');
+  }
+  
+  if (errors.length > 0) {
+    alert(errors.join('\n'));
+    return false;
+  }
+  
+  return true;
+};
+
 const onFilterChange = () => {
+  if (!validateAllRanges()) {
+    return;
+  }
+  
   if (filterTimeout) {
     clearTimeout(filterTimeout);
   }
   
   filterTimeout = setTimeout(() => {
     loadReadersData();
-  }, 500);
+  }, 300);
 };
 
-const sortBy = (field: string) => {
+const resetSorting = () => {
+  sortField.value = 'id';
+  sortDirection.value = 'asc';
+  loadReadersData();
+};
+
+const sortBy = async (field: SortField) => {
   if (sortField.value === field) {
     sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
   } else {
     sortField.value = field;
     sortDirection.value = 'asc';
   }
-  loadReadersData();
+  await loadReadersData();
 };
 
 const clearAllFilters = () => {
@@ -326,13 +349,11 @@ const clearAllFilters = () => {
     maxBooks: null,
     minOrders: null,
     maxOrders: null,
-    minCompleted: null,
-    maxCompleted: null,
     minCancelled: null,
     maxCancelled: null,
     status: ''
   };
-  sortField.value = '';
+  sortField.value = 'id';
   loadReadersData();
 };
 
@@ -421,18 +442,12 @@ const getMockDataWithFilters = (params: any) => {
     if (params.fullname && !reader.user.fullname.toLowerCase().includes(params.fullname.toLowerCase())) {
       return false;
     }
-    if (params.min_books && reader.total_books_ordered < params.min_books) return false;
-    if (params.max_books && reader.total_books_ordered > params.max_books) return false;
-    if (params.min_orders && reader.total_orders < params.min_orders) return false;
-    if (params.max_orders && reader.total_orders > params.max_orders) return false;
-    if (params.min_completed && reader.completed_orders < params.min_completed) return false;
-    if (params.max_completed && reader.completed_orders > params.max_completed) return false;
-    if (params.min_cancelled && reader.cancelled_orders < params.min_cancelled) return false;
-    if (params.max_cancelled && reader.cancelled_orders > params.max_cancelled) return false;
-    
-    if (params.status === 'withCard' && !reader.user.library_card) return false;
-    if (params.status === 'withoutCard' && reader.user.library_card) return false;
-    if (params.status === 'problematic' && reader.cancelled_orders <= 1) return false;
+    if (params.min_books !== null && reader.total_books_ordered < params.min_books) return false;
+    if (params.max_books !== null && reader.total_books_ordered > params.max_books) return false;
+    if (params.min_orders !== null && reader.total_orders < params.min_orders) return false;
+    if (params.max_orders !== null && reader.total_orders > params.max_orders) return false;
+    if (params.min_cancelled !== null && reader.cancelled_orders < params.min_cancelled) return false;
+    if (params.max_cancelled !== null && reader.cancelled_orders > params.max_cancelled) return false;
     
     return true;
   });
@@ -440,6 +455,12 @@ const getMockDataWithFilters = (params: any) => {
 
 onMounted(async () => {
   loadReadersData();
+});
+
+onUnmounted(() => {
+  if (filterTimeout) {
+    clearTimeout(filterTimeout);
+  }
 });
 
 useAuthentication((isAuthenticated) => {
@@ -451,7 +472,6 @@ useAuthentication((isAuthenticated) => {
 
 <style scoped lang="scss">
 .readers-page {
-  flex: 1;
   padding: 16px;
 }
 
@@ -595,6 +615,50 @@ td {
 
 tr {
   border-bottom: 1px solid var(--color-text-200);
+}
+
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--color-background-200);
+
+    .th-icon {
+      opacity: 1;
+    }
+  }
+
+  &[aria-sort="ascending"],
+  &[aria-sort="descending"] {
+    .th-icon {
+      opacity: 1;
+      font-weight: bold;
+    }
+  }
+}
+
+.th-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.th-icon {
+  font-size: 0.9em;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+}
+
+.direction-icon {
+  font-weight: bold;
+  color: var(--color-primary-500);
 }
 
 .empty-state {
