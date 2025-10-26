@@ -1,4 +1,3 @@
-<!-- StatsPage.vue -->
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useStatsStore } from "../store/stats";
@@ -36,7 +35,7 @@ onMounted(async () => {
     <div class="page-content">
       <section class="stats-section">
         <div class="section-header">
-          <h2 class="section-title">Текущая статистика</h2>
+          <h2 class="section-title">Сегодня</h2>
           <div class="section-actions"></div>
         </div>
 

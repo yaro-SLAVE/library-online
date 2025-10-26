@@ -1,35 +1,45 @@
+from django.db.models import Count, Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
-
+from django.db.models import Subquery, OuterRef
 from library_service.models import Order, OrderHistory
 from library_service.serializers.stats import LiveStatsSerializer
-class StatsViewset(
-    viewsets.ViewSet
-):
+
+class StatsViewset(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def live(self, request):
-        new_order_ids = OrderHistory.objects.filter(
-            status='new'
-        ).values_list('order_id', flat=True).distinct()
+        latest_status_subquery = OrderHistory.objects.filter(
+            order=OuterRef('pk')
+        ).order_by('-date').values('status')[:1]
 
-        processing_order_ids = OrderHistory.objects.filter(
-            status='processing'
-        ).values_list('order_id', flat=True).distinct()
+        orders = Order.objects.annotate(
+            last_status=Subquery(latest_status_subquery)
+        )
 
-        ready_order_ids = OrderHistory.objects.filter(
-            status='ready'  
-        ).values_list('order_id', flat=True).distinct()
+        
+        stats = orders.aggregate(
+            total=Count('id'),
+            new=Count('id', filter=Q(last_status=OrderHistory.Status.NEW)),
+            processing=Count('id', filter=Q(last_status=OrderHistory.Status.PROCESSING)),
+            ready=Count('id', filter=Q(last_status=OrderHistory.Status.READY)),
+            done=Count('id', filter=Q(last_status=OrderHistory.Status.DONE)),
+        )
+
+        done_today = OrderHistory.objects.filter(
+            status=OrderHistory.Status.DONE,
+            date__date=timezone.now().date()
+        ).values('order').distinct().count()
 
         data = {
             'timestamp': timezone.now(),
-            'total_orders': Order.objects.count(),
-            'new_orders': len(new_order_ids),
-            'orders_in_work': len(processing_order_ids),
-            'orders_in_waiting': len(ready_order_ids),
+            'total_orders': stats['total'],
+            'new_orders': stats['new'],
+            'orders_in_work': stats['processing'],
+            'orders_in_waiting': stats['ready'],
+            'done_today': done_today,
         }
 
         serializer = LiveStatsSerializer(data)
         return Response(serializer.data)
-

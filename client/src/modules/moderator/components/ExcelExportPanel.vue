@@ -1,4 +1,3 @@
-<!-- ExcelExportPanel.vue -->
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { 
@@ -20,7 +19,6 @@ interface ColumnItem {
 
 const emit = defineEmits(['export']);
 
-// Группы колонок для экспорта
 const columnGroups = ref<ColumnGroup[]>([
   {
     name: 'Заказы',
@@ -70,7 +68,6 @@ const selectedColumns = ref<Set<string>>(new Set());
 const isExporting = ref(false);
 const exportStatus = ref<'idle' | 'success' | 'error'>('idle');
 
-// Статистика выбора
 const selectionStats = computed(() => {
   const total = columnGroups.value.reduce((acc, group) => {
     let count = 0;
@@ -90,7 +87,6 @@ const selectionStats = computed(() => {
   };
 });
 
-// Методы
 const toggleColumn = (value: string) => {
   if (selectedColumns.value.has(value)) {
     selectedColumns.value.delete(value);
@@ -134,7 +130,6 @@ const handleExport = async () => {
     await emit('export', Array.from(selectedColumns.value));
     exportStatus.value = 'success';
     
-    // Сбросить статус через 3 секунды
     setTimeout(() => {
       exportStatus.value = 'idle';
     }, 3000);
@@ -179,7 +174,6 @@ const handleExport = async () => {
       </button>
     </div>
 
-    <!-- Выбор колонок -->
     <div class="columns-selection">
       <div 
         v-for="group in columnGroups" 
@@ -220,7 +214,6 @@ const handleExport = async () => {
               <span class="checkbox-text">{{ item.label }}</span>
             </label>
             
-            <!-- Вложенные элементы -->
             <div v-if="item.children" class="nested-items">
               <label
                 v-for="child in item.children"
@@ -241,7 +234,6 @@ const handleExport = async () => {
       </div>
     </div>
 
-    <!-- Кнопка экспорта -->
     <div class="export-actions">
       <div class="export-status" v-if="exportStatus !== 'idle'">
         <CheckCircleIcon 
@@ -638,7 +630,6 @@ input[type="checkbox"] {
   100% { transform: rotate(360deg); }
 }
 
-/* Кастомный скроллбар */
 .columns-selection::-webkit-scrollbar {
   width: 8px;
 }

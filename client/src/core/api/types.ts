@@ -142,4 +142,5 @@ export type LiveStats = {
   new_orders: number;
   orders_in_work: number;
   orders_in_waiting: number;
+  done_today: number;
 };

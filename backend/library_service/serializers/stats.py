@@ -6,3 +6,4 @@ class LiveStatsSerializer(serializers.Serializer):
     new_orders = serializers.IntegerField()
     orders_in_work = serializers.IntegerField()
     orders_in_waiting = serializers.IntegerField()
+    done_today = serializers.IntegerField()

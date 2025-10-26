@@ -26,7 +26,7 @@ const statsConfig = [
     gradient: "linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700))",
   },
   {
-    key: "total_orders",
+    key: "done_today",
     label: "Собрали сегодня",
     color: "var(--color-primary-700)",
     icon: CheckIcon,
