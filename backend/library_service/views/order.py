@@ -21,7 +21,7 @@ from library_service.mixins import (
 )
 from library_service.models.order import Order, OrderHistory, OrderItem
 
-from library_service.serializers.order import BorrowedBookSerializer, CreateUpdateOrderSerializer, OrderSerializer, EternalOrderSerializer
+from library_service.serializers.order import BorrowedBookSerializer, CreateUpdateOrderSerializer, OrderSerializer, ExternalOrderSerializer
 
 from library_service.emails import send_new_order_notification
 
@@ -102,9 +102,9 @@ class BorrowedViewset(SessionListModelMixin, AsyncGenericViewSet):
     def get_queryset(self):
         return super().get_queryset().filter(order__user=self.request.user, status=OrderItem.Status.HANDED)
     
-class EternalOrderViewset(SessionListModelMixin, AsyncGenericViewSet):
+class ExternalOrderViewset(SessionListModelMixin, AsyncGenericViewSet):
     queryset = Order.objects.all()
-    serializer_class = EternalOrderSerializer
+    serializer_class = ExternalOrderSerializer
             
     @action(detail=False, methods=["GET"], url_path="order")
     async def get_orders(self, request):

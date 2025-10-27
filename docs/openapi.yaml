@@ -19,7 +19,7 @@ tags:
     description: Методы, связанные с параметрами системы
   - name: staff
     description: Методы связанные с работой сотрудников
-  - name: eternal
+  - name: external
     description: Методы для внешних сервисов
 
 paths:
@@ -865,10 +865,10 @@ paths:
         '404':
           description: Not Found
 
-  /api/eternal/order:
+  /api/external/order:
     get:
       tags:
-        - eternal
+        - external
       security:
         - bearer: []
       summary: Получение списка заказов пользователя
