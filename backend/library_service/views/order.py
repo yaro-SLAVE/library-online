@@ -6,6 +6,12 @@ from rest_framework import status
 from adrf.viewsets import GenericViewSet as AsyncGenericViewSet
 from asgiref.sync import sync_to_async
 
+from aiohttp import ClientSession, ClientResponseError
+
+from rest_framework.decorators import action
+
+from library_service.opac.api.login import get_login_info, AuthResponse, UserInfo
+
 from library_service.mixins import (
     LockUserMixin,
     SessionCreateModelMixin,
@@ -15,7 +21,7 @@ from library_service.mixins import (
 )
 from library_service.models.order import Order, OrderHistory, OrderItem
 
-from library_service.serializers.order import BorrowedBookSerializer, CreateUpdateOrderSerializer, OrderSerializer
+from library_service.serializers.order import BorrowedBookSerializer, CreateUpdateOrderSerializer, OrderSerializer, EternalOrderSerializer
 
 from library_service.emails import send_new_order_notification
 
@@ -25,6 +31,12 @@ ACCEPTABLE_STATUSES = [
     OrderHistory.Status.READY,
     OrderHistory.Status.DONE,
 ]
+
+from django.contrib.auth import get_user_model
+
+from library_service.models.user import UserProfile
+
+User = get_user_model()
 
 
 class OrderViewset(
@@ -89,3 +101,27 @@ class BorrowedViewset(SessionListModelMixin, AsyncGenericViewSet):
 
     def get_queryset(self):
         return super().get_queryset().filter(order__user=self.request.user, status=OrderItem.Status.HANDED)
+    
+class EternalOrderViewset(SessionListModelMixin, AsyncGenericViewSet):
+    queryset = Order.objects.all()
+    serializer_class = EternalOrderSerializer
+            
+    @action(detail=False, methods=["GET"], url_path="order")
+    async def get_orders(self, request):
+        authorization = self.request.headers.get('Authorization-eternal')
+
+        async with ClientSession() as client:
+            info: UserInfo = await get_login_info(client, authorization.split(' ')[1])
+            userprofile = await UserProfile.objects.filter(library_card = info.ticket).aget()
+
+            if userprofile:
+                orders = await self.get_data(userprofile)
+                return Response(orders)
+            else:
+                return Response([])
+
+    @sync_to_async    
+    def get_data(self, userprofile):
+        orders =  Order.objects.filter(user = userprofile.user).all()
+        serializer = self.get_serializer(orders, many=True)
+        return serializer.data

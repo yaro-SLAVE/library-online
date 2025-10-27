@@ -190,3 +190,12 @@ class BorrowedBookSerializer(aserializers.ModelSerializer):
 
     async def get_book(self, obj: OrderItem):
         return BookSerializer(await book_retrieve(self.context["client_session"], obj.book_id)).data
+    
+class EternalOrderSerializer(aserializers.ModelSerializer):
+    library = LibrarySerializer()
+    statuses = OrderStatusSerializer(many=True)
+
+    class Meta:
+        model = Order
+        fields = ["id", "library", "statuses"]
+        list_serializer_class = ParallelListSerializer

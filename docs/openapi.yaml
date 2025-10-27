@@ -19,6 +19,8 @@ tags:
     description: Методы, связанные с параметрами системы
   - name: staff
     description: Методы связанные с работой сотрудников
+  - name: eternal
+    description: Методы для внешних сервисов
 
 paths:
   /api/auth/login/:
@@ -862,6 +864,38 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+
+  /api/eternal/order:
+    get:
+      tags:
+        - eternal
+      security:
+        - bearer: []
+      summary: Получение списка заказов пользователя
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:        
+                      $ref: "#/components/schemas/OrderId"
+                    library:
+                      $ref: "#/components/schemas/Library"
+                    statuses:
+                      description: Список статусов
+                      type: array
+                      items:
+                        $ref: "#/components/schemas/OrderStatus"
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+
 
 components:
   securitySchemes:
