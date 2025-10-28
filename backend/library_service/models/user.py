@@ -11,8 +11,8 @@ class UserProfile(models.Model):
     mira_id = models.CharField(verbose_name="ID mira", max_length=255, null=True, blank=True)
     fullname = models.CharField(verbose_name="ФИО", max_length=255, null=True, blank=True)
     department = models.CharField(verbose_name="Отдел или Институт", max_length=511, null=True, blank=True)
-    banned_status_our = models.BooleanField(verbose_name="Статус бана в нашей системе", default=False, blank=True, null=False)
-    banned_status_external = models.BooleanField(verbose_name="Статус бана во внешней системе", default=False, blank=True, null=False)
+    banned_status_our = models.BooleanField(verbose_name="Статус бана в нашей системе", default=False)
+    #banned_status_external = models.BooleanField(verbose_name="Статус бана во внешней системе", default=False)
 
     class Meta:
         verbose_name = "Профиль"
