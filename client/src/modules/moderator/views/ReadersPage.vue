@@ -124,7 +124,7 @@
                 #
                 <span class="th-icon">
                   <span v-if="sortField === 'id'" class="direction-icon">
-                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                    {{ sortDirection === 'asc' ? "↓" : "↑" }}
                   </span>
                   <span v-else>⇅</span>
                 </span>
@@ -149,7 +149,7 @@
                 ФИО читателя
                 <span class="th-icon">
                   <span v-if="sortField === 'fullname'" class="direction-icon">
-                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                    {{ sortDirection === 'asc' ? "↓" : "↑" }}
                   </span>
                   <span v-else>⇅</span>
                 </span>
@@ -179,7 +179,7 @@
                 Количество заказанных книг
                 <span class="th-icon">
                   <span v-if="sortField === 'total_books_ordered'" class="direction-icon">
-                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                    {{ sortDirection === 'asc' ? "↓" : "↑" }}
                   </span>
                   <span v-else>⇅</span>
                 </span>
@@ -204,7 +204,7 @@
                 Количество заказов
                 <span class="th-icon">
                   <span v-if="sortField === 'total_orders'" class="direction-icon">
-                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                    {{ sortDirection === 'asc' ? "↓" : "↑" }}
                   </span>
                   <span v-else>⇅</span>
                 </span>
@@ -229,7 +229,7 @@
                 Количество отмененных заказов
                 <span class="th-icon">
                   <span v-if="sortField === 'cancelled_orders'" class="direction-icon">
-                    {{ sortDirection === 'asc' ? "↑" : "↓" }}
+                    {{ sortDirection === 'asc' ? "↓" : "↑" }}
                   </span>
                   <span v-else>⇅</span>
                 </span>
@@ -307,7 +307,6 @@ const loading = ref(false);
 const router = useRouter();
 const dateError = ref('');
 
-// Локальные фильтры для формы
 const localFilters = ref({
   fullname: '',
   department: '',
@@ -317,7 +316,6 @@ const localFilters = ref({
   lastOrderDateTo: '',
 });
 
-// Активные фильтры, применяемые к API
 const activeFilters = ref({
   fullname: '',
   department: '',
@@ -340,12 +338,10 @@ const sortDirection = ref<'asc' | 'desc'>('asc');
 
 let abortController: AbortController | null = null;
 
-// Проверяем, есть ли изменения в фильтрах
 const hasFilterChanges = computed(() => {
   return JSON.stringify(localFilters.value) !== JSON.stringify(activeFilters.value);
 });
 
-// Проверяем, есть ли активные фильтры
 const hasActiveFilters = computed(() => {
   const f = activeFilters.value;
   return f.fullname !== '' || f.department !== '' || 
@@ -419,7 +415,6 @@ const loadReadersData = async () => {
     readersData.value = response.results;
     pagination.value.total = response.count;
   } catch (error: any) {
-    // Игнорируем ошибки отмены запроса
     if (error.name !== 'AbortError') {
       console.error('Ошибка загрузки данных:', error);
       if (error.response?.status === 400) {
@@ -434,18 +429,14 @@ const loadReadersData = async () => {
   }
 };
 
-// Применение фильтров по кнопке
 const applyFilters = () => {
   if (!validateDates()) return;
   
-  // Копируем локальные фильтры в активные
   activeFilters.value = { ...localFilters.value };
-  pagination.value.page = 1; // Сбрасываем на первую страницу
+  pagination.value.page = 1;
   loadReadersData();
 };
 
-// Удаляем автоматические watch'еры для фильтров
-// Оставляем только для пагинации и сортировки
 watch(
   () => pagination.value.page,
   () => {
@@ -476,7 +467,6 @@ const sortBy = (field: SortField) => {
 };
 
 const clearAllFilters = () => {
-  // Очищаем и локальные и активные фильтры
   localFilters.value = {
     fullname: '',
     department: '',
@@ -541,26 +531,6 @@ useAuthentication((isAuthenticated) => {
   }
 }
 
-.clear-filters-btn {
-  background: var(--color-primary-500);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  
-  &:hover:not(:disabled) {
-    background: var(--color-primary-600);
-  }
-  
-  &:disabled {
-    background: var(--color-text-300);
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-}
-
 .filters-section {
   background: var(--color-background-200);
   padding: 1rem;
@@ -571,7 +541,7 @@ useAuthentication((isAuthenticated) => {
 
 .filters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   align-items: end;
 }
@@ -607,10 +577,6 @@ useAuthentication((isAuthenticated) => {
     cursor: not-allowed;
     opacity: 0.6;
   }
-  
-  &.date {
-    min-width: 120px;
-  }
 }
 
 .date-inputs {
@@ -630,7 +596,6 @@ useAuthentication((isAuthenticated) => {
   display: flex;
   gap: 0.5rem;
   align-items: end;
-  height: 2.25rem;
 }
 
 .apply-filters-btn {
@@ -641,9 +606,6 @@ useAuthentication((isAuthenticated) => {
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
-  font-weight: 500;
-  height: 2.25rem;
-  white-space: nowrap;
   
   &:hover:not(:disabled) {
     background: var(--color-primary-600);
@@ -656,25 +618,23 @@ useAuthentication((isAuthenticated) => {
   }
 }
 
-.clear-filters-btn.secondary {
-  background: transparent;
-  color: var(--color-text-600);
-  border: 1px solid var(--color-text-300);
+.clear-filters-btn {
+  background: var(--color-primary-500);
+  color: white;
+  border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
-  height: 2.25rem;
-  white-space: nowrap;
   
   &:hover:not(:disabled) {
-    background: var(--color-background-300);
-    border-color: var(--color-text-400);
+    background: var(--color-primary-600);
   }
   
   &:disabled {
-    opacity: 0.6;
+    background: var(--color-text-300);
     cursor: not-allowed;
+    opacity: 0.6;
   }
 }
 
