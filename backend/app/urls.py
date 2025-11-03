@@ -33,7 +33,7 @@ from library_service.views.bitrix import BitrixAuthView
 from library_service.views.catalog import BookViewset, LibraryViewset, ScenarioViewset
 from library_service.views.library_settings import LibrarySettingsViewSet
 from library_service.views.order import BorrowedViewset, OrderViewset
-from library_service.views.profile import ProfileViewset
+from library_service.views.profile import ProfileViewset, ProfileBannedViewset
 from library_service.views.staff_order import StaffOrderViewset, StaffOrderGetUpdateViewset, StaffBorrowedViewset
 from library_service.views.comments import OrderCommentViewset, OrderItemCommentViewset
 from library_service.views.auth import AuthViewset, AuthThirdPartyViewset
@@ -44,6 +44,7 @@ router.register("library", LibraryViewset, basename="library")
 router.register("scenario", ScenarioViewset, basename="scenario")
 router.register("basket", BasketViewset, basename="basket")
 router.register("profile", ProfileViewset, basename="profile")
+router.register("profile/banned", ProfileBannedViewset, basename="profile-banned")
 router.register("order", OrderViewset, basename="order")
 router.register("borrowed", BorrowedViewset, basename="borrowed")
 router.register("library-settings", LibrarySettingsViewSet, basename="library-settings")
