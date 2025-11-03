@@ -4,8 +4,6 @@ from library_service.models.user import UserProfile
 
 class ReaderStatsSerializer(aserializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
-    first_name = serializers.CharField(source="user.first_name", read_only=True)
-    last_name = serializers.CharField(source="user.last_name", read_only=True)
     fullname = serializers.CharField(read_only=True)
     department = serializers.CharField(read_only=True)
     library_card = serializers.CharField(read_only=True)
@@ -25,8 +23,6 @@ class ReaderStatsSerializer(aserializers.ModelSerializer):
         fields = [
             "id",
             "username", 
-            "first_name", 
-            "last_name", 
             "fullname",
             "department",
             "library_card",

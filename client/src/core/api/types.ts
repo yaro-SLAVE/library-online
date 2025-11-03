@@ -162,12 +162,7 @@ export type PaginatedReaders = {
 
 export type ReadersFilters = {
   fullname?: string;
-  min_books?: number;
-  max_books?: number;
-  min_orders?: number;
-  max_orders?: number;
-  min_cancelled?: number;
-  max_cancelled?: number;
+  department?: string;
   registration_date_from?: string;
   registration_date_to?: string;
   last_order_date_from?: string;
@@ -175,7 +170,7 @@ export type ReadersFilters = {
   has_active_orders?: boolean;
   has_overdue_books?: boolean;
   current_order_statuses?: OrderStatusEnum[];
-  sort_by?: 'id' | 'fullname' | 'total_orders' | 'total_books_ordered' | 'cancelled_orders';
+  sort_by?: 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
   sort_order?: 'asc' | 'desc';
   page?: number;
   page_size?: number;
