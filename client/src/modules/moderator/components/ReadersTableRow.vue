@@ -1,5 +1,5 @@
 <template>
-  <tr :class="{ 'highlight-blue': shouldHighlight }">
+  <tr>
     <td>{{ reader.id }}</td>
     <td>{{ reader.fullname }}</td>
     <td>{{ reader.department }}</td>
@@ -15,8 +15,6 @@ import { computed } from "vue";
 interface ReaderData {
   id: number;
   username: string;
-  first_name: string;
-  last_name: string;
   fullname: string;
   department: string;
   library_card: string | null;
@@ -34,20 +32,8 @@ const props = defineProps<{
   reader: ReaderData;
 }>();
 
-const shouldHighlight = computed<boolean>(() => {
-  // подсвечиваем читателей с большим количеством отмененных заказов
-  // или с просроченными книгами (если бы была такая информация)
-  return props.reader.cancelled_orders > 1 || props.reader.active_orders > 3;
-});
 </script>
 
 <style scoped>
-.highlight-blue {
-  background-color: var(--color-primary-100);
-  
-  td {
-    background-color: var(--color-primary-100);
-    border-bottom: 1px solid var(--color-primary-300);
-  }
-}
+
 </style>
