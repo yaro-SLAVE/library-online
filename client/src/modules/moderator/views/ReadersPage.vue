@@ -28,6 +28,12 @@
       @prev-page="prevPage"
       @next-page="nextPage"
       @clear-filters="clearAllFilters"
+      @row-click="showReaderOrders"
+    />
+
+    <ReaderOrdersModal
+      v-model:isOpen="isOrdersModalOpen"
+      :reader="selectedReader"
     />
 
     <LoadingModal v-model="loading" />
@@ -38,6 +44,7 @@
 import FiltersSection from "@modules/moderator/components/FiltersSection.vue";
 import ReadersTable from "@modules/moderator/components/ReadersTable.vue";
 import LoadingModal from "@components/LoadingModal.vue";
+import ReaderOrdersModal from "@modules/moderator/components/ReaderOrdersModal.vue";
 
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useAuthentication } from "@core/composables/auth";
@@ -78,6 +85,14 @@ type SortField = 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'tot
 
 const sortField = ref<SortField>('id');
 const sortDirection = ref<'asc' | 'desc'>('asc');
+
+const isOrdersModalOpen = ref(false);
+const selectedReader = ref<ReaderStats | null>(null);
+
+const showReaderOrders = (reader: ReaderStats) => {
+  selectedReader.value = reader;
+  isOrdersModalOpen.value = true;
+};
 
 let abortController: AbortController | null = null;
 

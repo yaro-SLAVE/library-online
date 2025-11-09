@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr class="reader-row" @click="handleRowClick">
     <td>{{ reader.id }}</td>
     <td>{{ reader.fullname }}</td>
     <td>{{ reader.department }}</td>
@@ -10,30 +10,40 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import type { ReaderStats } from "@api/types";
 
-interface ReaderData {
-  id: number;
-  username: string;
-  fullname: string;
-  department: string;
-  library_card: string | null;
-  campus_id: string | null;
-  mira_id: string | null;
-  total_books_ordered: number;
-  total_orders: number;
-  completed_orders: number;
-  cancelled_orders: number;
-  active_orders: number;
-  last_order_date: string | null;
+interface Props {
+  reader: ReaderStats;
 }
 
-const props = defineProps<{
-  reader: ReaderData;
-}>();
+interface Emits {
+  (e: 'row-click', reader: ReaderStats): void;
+}
 
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
+
+const handleRowClick = () => {
+  emit('row-click', props.reader);
+};
 </script>
 
-<style scoped>
-
+<style scoped lang="scss">
+.reader-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background-color: var(--color-background-100);
+  
+  &:hover {
+    background-color: var(--color-background-200);
+  }
+  
+  td {
+    padding: 12px;
+    text-align: left;
+    color: var(--color-text-800);
+    border-bottom: 1px solid var(--color-text-200);
+    background-color: transparent;
+  }
+}
 </style>

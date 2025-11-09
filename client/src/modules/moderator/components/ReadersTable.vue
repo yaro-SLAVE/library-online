@@ -65,6 +65,7 @@
           v-for="reader in readersData" 
           :key="reader.id" 
           :reader="reader" 
+          @row-click="$emit('row-click', $event)"
         />
       </tbody>
     </table>
@@ -113,6 +114,7 @@ interface Emits {
   (e: 'prev-page'): void;
   (e: 'next-page'): void;
   (e: 'clear-filters'): void;
+  (e: 'row-click', reader: ReaderStats): void;
 }
 
 const props = defineProps<Props>();
@@ -145,8 +147,7 @@ const nextPage = () => {
   border-collapse: collapse;
 }
 
-th,
-td {
+th {
   padding: 12px;
   text-align: left;
   color: var(--color-text-800);
