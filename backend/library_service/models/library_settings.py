@@ -8,7 +8,7 @@ class LibrarySettings(models.Model):
     max_books_per_reader = models.PositiveIntegerField(verbose_name="Максимальное количество книг на руках", default=15)
     max_borrow_days = models.PositiveIntegerField(verbose_name="Максимальное количество дней на выдачу", default=2)
     holidays = models.JSONField(verbose_name="Список календарных выходных", default=list)
-    logo = models.FileField(verbose_name="Логотип на сервисе", null=True, blank=True)
+    logo = models.FileField(upload_to="logo/", verbose_name="Логотип на сервисе", null=True, blank=True)
     new_order_wait = models.FloatField(verbose_name="Срок ожидания нового заказа (в часах)", default=1)
     processing_order_wait = models.FloatField(verbose_name="Срок задержки исполнения заказа (в часах)", default=0.5)
 

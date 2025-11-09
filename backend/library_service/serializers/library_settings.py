@@ -14,7 +14,7 @@ class LibrarySettingsUpdateSerializer(aserializers.Serializer):
     max_books_per_order = serializers.IntegerField(required=False)
     max_books_per_reader = serializers.IntegerField(required=False)
     max_borrow_days = serializers.IntegerField(required=False)
-    holidays = serializers.ListField(child=serializers.DateField, required=False)
+    holidays = serializers.ListField(required=False)
     logo = serializers.ImageField()
     new_order_wait = serializers.FloatField(required=False)
     processing_order_wait = serializers.FloatField(required=False)
