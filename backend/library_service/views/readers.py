@@ -178,7 +178,7 @@ class ReadersViewset(AsyncGenericViewSet):
         sort_by = request.query_params.get('sort_by', 'id')
         sort_order = request.query_params.get('sort_order', 'asc')
         page = int(request.query_params.get('page', 1))
-        page_size = int(request.query_params.get('page_size', 20))
+        page_size = int(request.query_params.get('page_size', 10))
 
         print("=" * 60)
         print("[DEBUG] === НАЧАЛО ОБРАБОТКИ ЗАПРОСА ЧИТАТЕЛЕЙ ===")
