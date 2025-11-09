@@ -4,14 +4,13 @@ from django.db import models
 
 class LibrarySettings(models.Model):
     lock = models.CharField(max_length=1, null=False, primary_key=True, default="X")
-    max_books_per_order = models.PositiveIntegerField(verbose_name="Максимальное количество книг в заказе", default=5)
-    max_books_per_reader = models.PositiveIntegerField(verbose_name="Максимальное количество книг на руках", default=10)
-    max_borrow_days = models.PositiveIntegerField(verbose_name="Максимальное количество дней на выдачу", default=14)
-    max_extensions = models.PositiveIntegerField(verbose_name="Максимальное количество продлений", default=2)
-    overdue_fine_per_day = models.DecimalField(
-        verbose_name="Штраф за просрочку (в день)", max_digits=6, decimal_places=2, default=10.00
-    )
+    max_books_per_order = models.PositiveIntegerField(verbose_name="Максимальное количество книг в заказе", default=7)
+    max_books_per_reader = models.PositiveIntegerField(verbose_name="Максимальное количество книг на руках", default=15)
+    max_borrow_days = models.PositiveIntegerField(verbose_name="Максимальное количество дней на выдачу", default=2)
     holidays = models.JSONField(verbose_name="Список календарных выходных", default=list)
+    logo = models.FileField(verbose_name="Логотип на сервисе", null=True, blank=True)
+    new_order_wait = models.FloatField(verbose_name="Срок ожидания нового заказа (в часах)", default=1)
+    processing_order_wait = models.FloatField(verbose_name="Срок задержки исполнения заказа (в часах)", default=0.5)
 
     def save(self, *args, **kwargs):
         self.pk = "X"
