@@ -37,7 +37,7 @@ from library_service.views.profile import ProfileViewset
 from library_service.views.staff_order import StaffOrderViewset, StaffOrderGetUpdateViewset, StaffBorrowedViewset
 from library_service.views.comments import OrderCommentViewset, OrderItemCommentViewset
 from library_service.views.auth import AuthViewset, AuthThirdPartyViewset
-from library_service.views.readers import ReadersViewset
+from library_service.views.moderator import ReadersViewset
 
 router = AsyncDefaultRouter()
 router.register("book", BookViewset, basename="book")

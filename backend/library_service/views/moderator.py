@@ -1,5 +1,5 @@
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.db.models import Count, Q, Subquery, OuterRef
 from django.utils import timezone
@@ -11,7 +11,7 @@ from asgiref.sync import sync_to_async
 
 from library_service.models.user import UserProfile
 from library_service.models.order import Order, OrderHistory, OrderItem
-from library_service.serializers.readers import ReaderStatsSerializer
+from library_service.serializers.moderator import ReaderStatsSerializer, ModeratorOrderSerializer
 
 
 class ReadersViewset(AsyncGenericViewSet):
@@ -272,3 +272,8 @@ class ReadersViewset(AsyncGenericViewSet):
         serializer = UserOrderSerializer(orders, many=True, context=self.get_serializer_context())
         data = await serializer.adata
         return Response(data)
+    
+class ModeratorOrderViewset(AsyncGenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ModeratorOrderSerializer
+    queryset = Order.objects.all()
