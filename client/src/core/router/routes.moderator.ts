@@ -25,7 +25,7 @@ export const moderatorRoutes = [
       {
         path: "settings",
         name: "settings",
-        component: () => import("@modules/staff/views/SettingsPage.vue"),
+        component: () => import("@modules/moderator/views/SettingsPage.vue"),
         meta: { roles: ["Admin"], requiresAuth: true },
       },
     ],

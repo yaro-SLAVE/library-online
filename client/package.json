@@ -32,6 +32,7 @@
     "pinia-plugin-persistedstate": "^4.5.0",
     "qrcode": "^1.5.4",
     "qrcode.vue": "^3.6.0",
+    "v-calendar": "^3.0.0-alpha.6",
     "vue": "^3.5.12",
     "vue-cookie": "^1.1.4",
     "vue-html-to-paper": "^2.0.3",
