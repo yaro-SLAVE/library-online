@@ -15,7 +15,7 @@
 ```mermaid
 graph TD
     client(Клиент) <--> nginx(nginx)
-    nginx <--> static(Статичные файлы)
+    nginx <--> staticF(Статичные файлы)
     nginx <--> handler(Обработчик запросов)
     psql(PostgreSQL) <--> handler
 
@@ -209,6 +209,16 @@ python manage.py runserver --settings local_settings
 ```
 
 Это, в частности, необходимо сделать, если нужно протестировать работу oauth. Тогда в файле `local_settings.py` нужно заполнить поля `OAUTH_CLIENT_ID` и `OAUTH_CLIENT_SECRET`.
+
+Можно сгенерировать тестовые данные
+```
+python manage.py generate_test_data
+```
+можно добавить --flush, чтобы почистить старые
+```
+python manage.py generate_test_data --flush
+```
+
 
 ### Запуск на проде
 
