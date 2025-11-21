@@ -9,6 +9,9 @@ from library_service.serializers.profile import ProfileSerializer
 
 from asgiref.sync import sync_to_async
 
+from datetime import datetime, timedelta
+from django.db.models import OuterRef, Exists
+
 class ProfileViewset(AsyncGenericViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -108,4 +111,46 @@ class ProfileBannedViewset(ModelViewSet):
             return Response({"error": f"User with id {user_id} not found"}, status=status.HTTP_404_NOT_FOUND)
         except ValueError:
             return Response({"error": "Invalid user_id format"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    # GET /api/profile/candidates_for_ban/<YYYY-MM-DD>/ - список пользователей - кандидатов попадания в список блокировки
+    @action(detail=False, methods=['get'], url_path='candidates_for_ban/(?P<current_date>[^/.]+)')
+    def candidates_for_ban(self, request, current_date=None, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+        
+        if not current_date:
+            return Response({"error": "current_date is required in URL"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            current_date_obj = datetime.strptime(current_date, '%Y-%m-%d').date()
+            three_days_ago = current_date_obj - timedelta(days=3)
+        except ValueError:
+            return Response({"error": "Invalid date format. Use YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        from library_service.models.order import OrderHistory
+        
+        # Находим ID пользователей, у которых есть заказы со статусом READY старше 3 дней
+        user_ids_with_old_orders = OrderHistory.objects.filter(
+            status='READY',
+            date__date__lt=three_days_ago
+        ).values_list('order__user_id', flat=True).distinct()
+        
+        # Находим профили этих пользователей, которые не забанены
+        candidate_profiles = UserProfile.objects.filter(
+            user_id__in=user_ids_with_old_orders,
+            banned_status_our=False
+        ).select_related('user')
+        
+        candidates_data = [
+            {
+                'user_id': profile.user.id,
+                'username': profile.user.username
+            }
+            for profile in candidate_profiles
+        ]
+        
+        return Response({
+            'ban_candidates': candidates_data
+        })
 
