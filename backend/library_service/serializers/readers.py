@@ -10,7 +10,6 @@ class ReaderStatsSerializer(aserializers.ModelSerializer):
     campus_id = serializers.CharField(read_only=True)
     mira_id = serializers.CharField(read_only=True)
     
-    # Статистика
     total_books_ordered = serializers.IntegerField(read_only=True)
     total_orders = serializers.IntegerField(read_only=True)
     completed_orders = serializers.IntegerField(read_only=True)

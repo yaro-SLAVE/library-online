@@ -25,7 +25,7 @@
 
           <th role="columnheader" :class="{ 'sort-loading': loading }">
             <span class="th-content">
-              Институт
+              Подразделение
             </span>
           </th>
 

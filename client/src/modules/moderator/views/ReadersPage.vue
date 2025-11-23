@@ -87,7 +87,7 @@ const sortField = ref<SortField>('id');
 const sortDirection = ref<'asc' | 'desc'>('asc');
 
 const isOrdersModalOpen = ref(false);
-const selectedReader = ref<ReaderStats | null>(null);
+const selectedReader = ref<ReaderStats>();
 
 const showReaderOrders = (reader: ReaderStats) => {
   selectedReader.value = reader;

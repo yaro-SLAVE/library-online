@@ -13,13 +13,16 @@
           <strong>ФИО:</strong> {{ reader.fullname }}
         </div>
         <div class="reader-info-item">
-          <strong>Институт:</strong> {{ reader.department }}
+          <strong>Подразделение:</strong> {{ reader.department }}
         </div>
         <div class="reader-info-item">
           <strong>Всего заказов:</strong> {{ reader.total_orders }}
         </div>
         <div class="reader-info-item">
           <strong>Заказано книг:</strong> {{ reader.total_books_ordered }}
+        </div>
+        <div class="reader-info-item">
+          <strong>Активные заказы:</strong> {{ reader.active_orders }}
         </div>
         <div class="reader-info-item">
           <strong>Отмененные заказы:</strong> {{ reader.cancelled_orders }}
@@ -29,39 +32,53 @@
       <div class="orders-section">
         <h4>История заказов</h4>
         
-        <div class="table-container">
+        <div v-if="loading" class="loading-state">
+          Загрузка заказов...
+        </div>
+        
+        <div v-else class="table-container">
           <table class="orders-table">
             <thead>
               <tr>
-                <th>№ заказа</th>
-                <th>Итоговый статус</th>
-                <th>Дата и время создания</th>
-                <th>Собран</th>
-                <th>Готов к выдаче</th>
-                <th>Выдан</th>
+                <th>ID заказа</th>
+                <th>Библиотека</th>
+                <th>Текущий статус</th>
+                <th>Дата создания</th>
+                <th>Количество книг</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
-                <td>{{ order.id }}</td>
+              <tr 
+                v-for="order in orders" 
+                :key="order.id"
+                class="order-row"
+                @click="showOrderDetails(order)"
+              >
+                <td>#{{ order.id }}</td>
+                <td>{{ order.library.description }}</td>
                 <td>
-                  <span class="status-badge" :class="getStatusClass(order.final_status)">
-                    {{ getStatusText(order.final_status) }}
+                  <span class="status-badge" :class="getStatusClass(currentStatus(order))">
+                    {{ getStatusText(currentStatus(order)) }}
                   </span>
                 </td>
-                <td>{{ formatDateTime(order.created_at) }}</td>
-                <td>{{ formatDateTime(order.collected_at) }}</td>
-                <td>{{ formatDateTime(order.ready_at) }}</td>
-                <td>{{ formatDateTime(order.issued_at) }}</td>
+                <td>{{ formatDate(order.statuses[0]?.date) }}</td>
+                <td>{{ getBooksCount(order) }}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div v-if="orders.length === 0" class="empty-orders">
-          Нет данных о заказах
+        <div v-if="!loading && orders.length === 0" class="empty-orders">
+          У читателя нет заказов
         </div>
       </div>
+
+      <OrderDetailsModal
+        v-if="selectedOrder"
+        :order="selectedOrder"
+        :reader="reader"
+        @close="selectedOrder = null"
+      />
 
       <div class="modal-footer">
         <button class="close-modal-btn" @click="close">
@@ -73,21 +90,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import type { ReaderStats } from "@api/types";
-
-interface Order {
-  id: number;
-  final_status: string;
-  created_at: string;
-  collected_at: string | null;
-  ready_at: string | null;
-  issued_at: string | null;
-}
+import { ref, watch, onUnmounted, nextTick } from 'vue';
+import type { ReaderStats, UserOrder, Order } from "@api/types";
+import { getReaderOrders, getReaderOrderDetail } from "@api/readers";
+import OrderDetailsModal from '@modules/moderator/components/OrderDetailsModal.vue';
 
 interface Props {
   isOpen: boolean;
-  reader: ReaderStats | null;
+  reader: ReaderStats;
 }
 
 interface Emits {
@@ -97,78 +107,106 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const orders = ref<Order[]>([]);
+const orders = ref<UserOrder[]>([]);
 const loading = ref(false);
+const selectedOrder = ref<Order | null>(null);
+let abortController: AbortController | null = null;
+let isInitialLoad = true;
 
 const close = () => {
   emit('update:isOpen', false);
 };
 
+const currentStatus = (order: UserOrder): string => {
+  if (!order.statuses || order.statuses.length === 0) return 'unknown';
+  return order.statuses[order.statuses.length - 1].status;
+};
+
 const getStatusClass = (status: string) => {
   const statusMap: { [key: string]: string } = {
-    'created': 'status-created',
-    'collected': 'status-collected',
+    'new': 'status-new',
+    'processing': 'status-processing',
     'ready': 'status-ready',
-    'issued': 'status-issued',
-    'cancelled': 'status-cancelled'
+    'done': 'status-done',
+    'cancelled': 'status-cancelled',
+    'error': 'status-error',
+    'archived': 'status-archived'
   };
   return statusMap[status] || 'status-unknown';
 };
 
 const getStatusText = (status: string) => {
   const statusMap: { [key: string]: string } = {
-    'created': 'Создан',
-    'collected': 'Собран',
+    'new': 'Новый',
+    'processing': 'В обработке',
     'ready': 'Готов к выдаче',
-    'issued': 'Выдан',
-    'cancelled': 'Отменен'
+    'done': 'Выдан',
+    'cancelled': 'Отменен',
+    'error': 'Ошибка',
+    'archived': 'Архивирован'
   };
   return statusMap[status] || status;
 };
 
-const formatDateTime = (dateTime: string | null) => {
-  if (!dateTime) return '-';
-  return new Date(dateTime).toLocaleString('ru-RU');
+const getBooksCount = (order: UserOrder): number => {
+  return order.books?.length || 0;
 };
 
-// Заглушка данных для демонстрации
-const generateMockOrders = (readerId: number): Order[] => {
-  const baseDate = new Date('2024-01-15');
-  const statuses = ['created', 'collected', 'ready', 'issued', 'cancelled'];
+const formatDate = (dateString: string | undefined) => {
+  if (!dateString) return '-';
+  return new Date(dateString).toLocaleDateString('ru-RU');
+};
+
+const loadReaderOrders = async () => {
+  if (!props.reader) return;
   
-  return Array.from({ length: 8 }, (_, index) => {
-    const status = statuses[index % statuses.length];
-    const orderDate = new Date(baseDate);
-    orderDate.setDate(orderDate.getDate() + index);
-    
-    return {
-      id: readerId * 1000 + index + 1,
-      final_status: status,
-      created_at: new Date(orderDate.setHours(10, 0, 0)).toISOString(),
-      collected_at: status !== 'created' && status !== 'cancelled' 
-        ? new Date(orderDate.setHours(11, 0, 0)).toISOString() 
-        : null,
-      ready_at: status === 'ready' || status === 'issued' 
-        ? new Date(orderDate.setHours(11, 30, 0)).toISOString() 
-        : null,
-      issued_at: status === 'issued' 
-        ? new Date(orderDate.setHours(12, 0, 0)).toISOString() 
-        : null
-    };
-  });
+  if (abortController) {
+    abortController.abort();
+  }
+  
+  abortController = new AbortController();
+  loading.value = true;
+  
+  try {
+    const readerOrders = await getReaderOrders(props.reader.id);
+    orders.value = readerOrders;
+  } catch (error: any) {
+    if (error.name !== 'AbortError') {
+      console.error('Ошибка загрузки заказов читателя:', error);
+    }
+  } finally {
+    loading.value = false;
+    abortController = null;
+  }
 };
 
-// Загрузка заглушечных данных при открытии модального окна
-watch(() => props.isOpen, (isOpen) => {
+const showOrderDetails = async (order: UserOrder) => {
+  try {
+    const orderDetail = await getReaderOrderDetail(props.reader.id, order.id);
+    selectedOrder.value = orderDetail;
+  } catch (error) {
+    console.error('Ошибка загрузки деталей заказа:', error);
+  }
+};
+
+watch(() => props.isOpen, async (isOpen) => {
   if (isOpen && props.reader) {
-    loading.value = true;
-    // Имитация загрузки данных
-    setTimeout(() => {
-      orders.value = generateMockOrders(props.reader!.id);
-      loading.value = false;
-    }, 300);
+    await nextTick();
+    
+    if (isInitialLoad || orders.value.length === 0) {
+      await loadReaderOrders();
+      isInitialLoad = false;
+    }
   } else {
     orders.value = [];
+    selectedOrder.value = null;
+    isInitialLoad = true;
+  }
+}, { immediate: true });
+
+onUnmounted(() => {
+  if (abortController) {
+    abortController.abort();
   }
 });
 </script>
@@ -191,7 +229,7 @@ watch(() => props.isOpen, (isOpen) => {
   background: white;
   border-radius: 8px;
   width: 90%;
-  max-width: 1200px;
+  max-width: 1000px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -244,10 +282,6 @@ watch(() => props.isOpen, (isOpen) => {
       margin-bottom: 0.25rem;
       font-size: 0.875rem;
     }
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
   }
 }
 
@@ -258,6 +292,12 @@ watch(() => props.isOpen, (isOpen) => {
     margin: 0 0 1rem 0;
     color: var(--color-text-800);
   }
+}
+
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-600);
 }
 
 .table-container {
@@ -294,6 +334,15 @@ watch(() => props.isOpen, (isOpen) => {
   }
 }
 
+.order-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: var(--color-background-100);
+  }
+}
+
 .status-badge {
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -301,12 +350,12 @@ watch(() => props.isOpen, (isOpen) => {
   font-weight: 500;
   white-space: nowrap;
   
-  &.status-created {
+  &.status-new {
     background: var(--color-info-100);
     color: var(--color-info-700);
   }
   
-  &.status-collected {
+  &.status-processing {
     background: var(--color-warning-100);
     color: var(--color-warning-700);
   }
@@ -316,7 +365,7 @@ watch(() => props.isOpen, (isOpen) => {
     color: var(--color-success-700);
   }
   
-  &.status-issued {
+  &.status-done {
     background: var(--color-primary-100);
     color: var(--color-primary-700);
   }
@@ -324,6 +373,16 @@ watch(() => props.isOpen, (isOpen) => {
   &.status-cancelled {
     background: var(--color-error-100);
     color: var(--color-error-700);
+  }
+  
+  &.status-error {
+    background: var(--color-error-100);
+    color: var(--color-error-700);
+  }
+  
+  &.status-archived {
+    background: var(--color-text-100);
+    color: var(--color-text-600);
   }
   
   &.status-unknown {

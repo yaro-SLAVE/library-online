@@ -1,7 +1,8 @@
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Count, Q, Subquery, OuterRef
+from rest_framework import status
+from django.db.models import Count, Q, Subquery, OuterRef, Min
 from django.utils import timezone
 
 from django.contrib.auth.models import User
@@ -12,6 +13,8 @@ from asgiref.sync import sync_to_async
 from library_service.models.user import UserProfile
 from library_service.models.order import Order, OrderHistory, OrderItem
 from library_service.serializers.readers import ReaderStatsSerializer
+from library_service.serializers.order import UserOrderSerializer
+from library_service.serializers.order import OrderSerializer
 
 
 class ReadersViewset(AsyncGenericViewSet):
@@ -25,8 +28,6 @@ class ReadersViewset(AsyncGenericViewSet):
         last_order_subquery = OrderHistory.objects.filter(
             order__user=OuterRef("user")
         ).order_by("-date").values("date")[:1]
-        
-        print("[DEBUG] Создание аннотаций для статистики читателей")
         
         total_orders = Count("user__order", distinct=True)
         
@@ -66,18 +67,13 @@ class ReadersViewset(AsyncGenericViewSet):
             last_order_date=Subquery(last_order_subquery)
         )
         
-        print("[DEBUG] Аннотации применены к queryset")
         return queryset
 
     def _apply_text_filters(self, queryset, fullname, department):
-        print(f"[DEBUG] Применение текстовых фильтров: fullname='{fullname}', department='{department}'")
-        
         if fullname:
-            print(f"[DEBUG] Фильтрация по ФИО: '{fullname}'")
             queryset = queryset.filter(fullname__icontains=fullname)
                     
         if department:
-            print(f"[DEBUG] Фильтрация по институту: '{department}'")
             queryset = queryset.filter(department__icontains=department)
                     
         return queryset
@@ -87,12 +83,6 @@ class ReadersViewset(AsyncGenericViewSet):
         registration_date_to = filters.get('registration_date_to')
         last_order_date_from = filters.get('last_order_date_from')
         last_order_date_to = filters.get('last_order_date_to')
-        
-        print(f"[DEBUG] Применение фильтров по датам:")
-        print(f"[DEBUG]   registration_date_from: {registration_date_from}")
-        print(f"[DEBUG]   registration_date_to: {registration_date_to}")
-        print(f"[DEBUG]   last_order_date_from: {last_order_date_from}")
-        print(f"[DEBUG]   last_order_date_to: {last_order_date_to}")
         
         if registration_date_from:
             queryset = queryset.filter(user__date_joined__gte=registration_date_from)
@@ -109,11 +99,6 @@ class ReadersViewset(AsyncGenericViewSet):
         has_active_orders = filters.get('has_active_orders')
         has_overdue_books = filters.get('has_overdue_books')
         current_order_statuses = filters.get('current_order_statuses')
-        
-        print(f"[DEBUG] Применение булевых фильтров:")
-        print(f"[DEBUG]   has_active_orders: {has_active_orders}")
-        print(f"[DEBUG]   has_overdue_books: {has_overdue_books}")
-        print(f"[DEBUG]   current_order_statuses: {current_order_statuses}")
         
         if has_active_orders:
             if has_active_orders.lower() == 'true':
@@ -140,10 +125,9 @@ class ReadersViewset(AsyncGenericViewSet):
                 status for status in current_order_statuses 
                 if status in ['new', 'processing', 'ready', 'done', 'cancelled', 'error', 'archived']
             ]
-            print(f"[DEBUG] Валидные статусы для фильтрации: {valid_statuses}")
             if valid_statuses:
                 status_users = User.objects.filter(
-                    user__order__statuses__status=valid_statuses
+                    order__statuses__status__in=valid_statuses
                 ).distinct().values_list('id', flat=True)
                 queryset = queryset.filter(user_id__in=status_users)
             
@@ -180,14 +164,6 @@ class ReadersViewset(AsyncGenericViewSet):
         page = int(request.query_params.get('page', 1))
         page_size = int(request.query_params.get('page_size', 10))
 
-        print("=" * 60)
-        print("[DEBUG] === НАЧАЛО ОБРАБОТКИ ЗАПРОСА ЧИТАТЕЛЕЙ ===")
-        print(f"[DEBUG] Параметры запроса:")
-        print(f"[DEBUG]   Фильтры: {filters}")
-        print(f"[DEBUG]   Сортировка: {sort_by} ({sort_order})")
-        print(f"[DEBUG]   Пагинация: стр. {page}, размер {page_size}")
-        print("=" * 60)
-
         try:
             queryset = self.get_annotated_queryset()
 
@@ -202,17 +178,6 @@ class ReadersViewset(AsyncGenericViewSet):
             
             total_count = await sync_to_async(queryset.count)()
             readers = await sync_to_async(list)(queryset[start_index:end_index])
-            
-            print(f"[DEBUG] Пагинация: записи {start_index}-{end_index} из {total_count}")
-            print(f"[DEBUG] Получено {len(readers)} записей для страницы {page}")
-
-            if readers:
-                print(f"[DEBUG] === ДИАГНОСТИКА ДАННЫХ ===")
-                for i, reader in enumerate(readers[:3]):
-                    print(f"[DEBUG] Запись {i+1}: ID={reader.id}, ФИО='{reader.fullname}'")
-                    print(f"[DEBUG]   Статистика: заказы={getattr(reader, 'total_orders', 0)}, "
-                        f"книги={getattr(reader, 'total_books_ordered', 0)}, "
-                        f"активные={getattr(reader, 'active_orders', 0)}")
             
             serializer = self.get_serializer(readers, many=True)
             data = await serializer.adata
@@ -230,13 +195,6 @@ class ReadersViewset(AsyncGenericViewSet):
             if page > 1:
                 query_params['page'] = page - 1
                 previous_page = f"{base_url}?{query_params.urlencode()}"
-            
-            print(f"[DEBUG] === РЕЗУЛЬТАТЫ ===")
-            print(f"[DEBUG] Всего записей: {total_count}")
-            print(f"[DEBUG] Возвращено: {len(data)} записей")
-            print(f"[DEBUG] Следующая страница: {next_page is not None}")
-            print(f"[DEBUG] Предыдущая страница: {previous_page is not None}")
-            print("=" * 60)
 
             return Response({
                 "count": total_count,
@@ -246,29 +204,90 @@ class ReadersViewset(AsyncGenericViewSet):
             })
 
         except Exception as e:
-            print(f"[ERROR] Ошибка при обработке запроса: {str(e)}")
-            print(f"[ERROR] Тип ошибки: {type(e).__name__}")
-            import traceback
-            print(f"[ERROR] Traceback: {traceback.format_exc()}")
             return Response({"error": "Внутренняя ошибка сервера"}, status=500)
 
-    # Детальная информация о читателе
-    @action(detail=True, methods=['get'], url_path='details')
-    async def reader_details(self):
-        reader = await self.aget_object()
-        serializer = self.get_serializer(reader)
-        return Response(await serializer.adata)
-
-    # Заказы конкретного читателя
     @action(detail=True, methods=['get'], url_path='orders')
-    async def reader_orders(self):
-        reader = await self.aget_object()
-        orders = Order.objects.filter(user=reader.user).prefetch_related(
-            'library', 'statuses', 'books'
-        )
-        
-        from library_service.serializers.order import UserOrderSerializer
-        
-        serializer = UserOrderSerializer(orders, many=True, context=self.get_serializer_context())
-        data = await serializer.adata
-        return Response(data)
+    async def reader_orders(self, request, pk=None):
+        try:
+            reader = await self.aget_object()
+
+            @sync_to_async
+            def get_orders_for_user(user_id):
+                orders = Order.objects.filter(user_id=user_id).annotate(
+                    first_status_date=Min('statuses__date')
+                ).prefetch_related(
+                    'library', 'statuses', 'books'
+                ).order_by('-first_status_date')
+                
+                return list(orders)
+            
+            orders = await get_orders_for_user(reader.user_id)
+            
+            @sync_to_async
+            def serialize_orders(orders_data, context):
+                serializer = UserOrderSerializer(
+                    orders_data, 
+                    many=True, 
+                    context=context
+                )
+                return serializer.data
+            
+            data = await serialize_orders(orders, self.get_serializer_context())
+            
+            return Response(data)
+            
+        except Exception as e:
+            return Response(
+                {"error": "Ошибка при получении заказов читателя"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    @action(detail=True, methods=['get'], url_path='orders/(?P<order_id>[^/.]+)')
+    async def reader_order_detail(self, request, pk=None, order_id=None):
+        try:
+            reader = await self.aget_object()
+
+            @sync_to_async
+            def get_order_detail(user_id, order_id):
+                try:
+                    order = Order.objects.select_related(
+                        'library'
+                    ).prefetch_related(
+                        'statuses', 'books'
+                    ).get(
+                        id=order_id, 
+                        user_id=user_id
+                    )
+                    return order
+                except Order.DoesNotExist:
+                    return None
+                except Exception as e:
+                    return None
+            
+            order = await get_order_detail(reader.user_id, order_id)
+            
+            if not order:
+                return Response(
+                    {"error": "Заказ не найден или не принадлежит данному читателю"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            
+            from aiohttp import ClientSession
+            
+            async with ClientSession() as client_session:
+                context = self.get_serializer_context()
+                context['client_session'] = client_session
+                
+                serializer = OrderSerializer(
+                    order, 
+                    context=context
+                )
+                data = await serializer.adata
+                
+                return Response(data)
+            
+        except Exception as e:
+            return Response(
+                {"error": "Ошибка при получении деталей заказа"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
