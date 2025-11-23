@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from adrf import serializers as aserializers
 from library_service.models.user import UserProfile
+from library_service.models.order import Order, OrderHistory
 
 class ReaderStatsSerializer(aserializers.ModelSerializer):
     username = serializers.CharField(source="user.username", read_only=True)
@@ -34,3 +35,9 @@ class ReaderStatsSerializer(aserializers.ModelSerializer):
             "active_orders",
             "last_order_date"
         ]
+
+class ModeratorOrderSerializer(aserializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = []

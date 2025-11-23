@@ -1,5 +1,5 @@
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Count, Q, Subquery, OuterRef, Min
@@ -12,9 +12,9 @@ from asgiref.sync import sync_to_async
 
 from library_service.models.user import UserProfile
 from library_service.models.order import Order, OrderHistory, OrderItem
-from library_service.serializers.readers import ReaderStatsSerializer
 from library_service.serializers.order import UserOrderSerializer
 from library_service.serializers.order import OrderSerializer
+from library_service.serializers.moderator import ReaderStatsSerializer, ModeratorOrderSerializer
 
 
 class ReadersViewset(AsyncGenericViewSet):
@@ -291,3 +291,19 @@ class ReadersViewset(AsyncGenericViewSet):
                 {"error": "Ошибка при получении деталей заказа"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+    async def reader_orders(self):
+        reader = await self.aget_object()
+        orders = Order.objects.filter(user=reader.user).prefetch_related(
+            'library', 'statuses', 'books'
+        )
+        
+        from library_service.serializers.order import UserOrderSerializer
+        
+        serializer = UserOrderSerializer(orders, many=True, context=self.get_serializer_context())
+        data = await serializer.adata
+        return Response(data)
+    
+class ModeratorOrderViewset(AsyncGenericViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ModeratorOrderSerializer
+    queryset = Order.objects.all()
