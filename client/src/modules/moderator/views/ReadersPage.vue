@@ -60,19 +60,17 @@ const dateError = ref('');
 const localFilters = ref({
   fullname: '',
   department: '',
-  registrationDateFrom: '',
-  registrationDateTo: '',
   lastOrderDateFrom: '',
   lastOrderDateTo: '',
+  currentOrderStatuses: [],
 });
 
 const activeFilters = ref({
   fullname: '',
   department: '',
-  registrationDateFrom: '',
-  registrationDateTo: '',
   lastOrderDateFrom: '',
   lastOrderDateTo: '',
+  currentOrderStatuses: [],
 });
 
 const pagination = ref({
@@ -103,8 +101,8 @@ const hasFilterChanges = computed(() => {
 const hasActiveFilters = computed(() => {
   const f = activeFilters.value;
   return f.fullname !== '' || f.department !== '' || 
-         f.registrationDateFrom !== '' || f.registrationDateTo !== '' ||
-         f.lastOrderDateFrom !== '' || f.lastOrderDateTo !== '';
+         f.lastOrderDateFrom !== '' || f.lastOrderDateTo !== '' ||
+         f.currentOrderStatuses.length > 0;
 });
 
 const totalPages = computed(() => 
@@ -119,10 +117,11 @@ const requestParams = computed((): ReadersFilters => {
   
   if (activeFilters.value.fullname) params.fullname = activeFilters.value.fullname;
   if (activeFilters.value.department) params.department = activeFilters.value.department;
-  if (activeFilters.value.registrationDateFrom) params.registration_date_from = activeFilters.value.registrationDateFrom;
-  if (activeFilters.value.registrationDateTo) params.registration_date_to = activeFilters.value.registrationDateTo;
   if (activeFilters.value.lastOrderDateFrom) params.last_order_date_from = activeFilters.value.lastOrderDateFrom;
   if (activeFilters.value.lastOrderDateTo) params.last_order_date_to = activeFilters.value.lastOrderDateTo;
+  if (activeFilters.value.currentOrderStatuses && activeFilters.value.currentOrderStatuses.length > 0) {
+    params.current_order_statuses = activeFilters.value.currentOrderStatuses;
+  }
   
   if (sortField.value) {
     params.sort_by = sortField.value;
@@ -134,11 +133,6 @@ const requestParams = computed((): ReadersFilters => {
 
 const validateDates = (): boolean => {
   dateError.value = '';
-  
-  if (!validateDateRange(localFilters.value.registrationDateFrom, localFilters.value.registrationDateTo)) {
-    dateError.value = 'Дата начала регистрации не может быть больше даты окончания';
-    return false;
-  }
   
   if (!validateDateRange(localFilters.value.lastOrderDateFrom, localFilters.value.lastOrderDateTo)) {
     dateError.value = 'Дата начала последнего заказа не может быть больше даты окончания';
@@ -201,10 +195,9 @@ const clearAllFilters = () => {
   localFilters.value = {
     fullname: '',
     department: '',
-    registrationDateFrom: '',
-    registrationDateTo: '',
     lastOrderDateFrom: '',
     lastOrderDateTo: '',
+    currentOrderStatuses: [],
   };
   activeFilters.value = { ...localFilters.value };
   pagination.value.page = 1;

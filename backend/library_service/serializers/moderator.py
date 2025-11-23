@@ -13,9 +13,7 @@ class ReaderStatsSerializer(aserializers.ModelSerializer):
     
     total_books_ordered = serializers.IntegerField(read_only=True)
     total_orders = serializers.IntegerField(read_only=True)
-    completed_orders = serializers.IntegerField(read_only=True)
     cancelled_orders = serializers.IntegerField(read_only=True)
-    active_orders = serializers.IntegerField(read_only=True)
     last_order_date = serializers.DateTimeField(read_only=True)
     
     class Meta:
@@ -30,9 +28,7 @@ class ReaderStatsSerializer(aserializers.ModelSerializer):
             "mira_id",
             "total_books_ordered",
             "total_orders", 
-            "completed_orders",
             "cancelled_orders",
-            "active_orders",
             "last_order_date"
         ]
 

@@ -23,11 +23,15 @@
             ФИО читателя
           </SortableHeader>
 
-          <th role="columnheader" :class="{ 'sort-loading': loading }">
-            <span class="th-content">
-              Подразделение
-            </span>
-          </th>
+          <SortableHeader
+            field="department"
+            :current-field="sortField"
+            :direction="sortDirection"
+            :loading="loading"
+            @sort="onSort"
+          >
+            Подразделение
+          </SortableHeader>
 
           <SortableHeader
             field="total_books_ordered"

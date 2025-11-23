@@ -22,10 +22,9 @@
           id="department-filter"
         />
 
-        <DateRangeFilter
-          v-model:from="localFilters.registrationDateFrom"
-          v-model:to="localFilters.registrationDateTo"
-          label="Дата регистрации"
+        <StatusFilter
+          v-model="localFilters.currentOrderStatuses"
+          label="Статусы заказов"
           :disabled="loading"
         />
 
@@ -64,6 +63,7 @@
 import { computed } from 'vue';
 import FilterInput from '@modules/moderator/components/FilterInput.vue';
 import DateRangeFilter from '@modules/moderator/components/DateRangeFilter.vue';
+import StatusFilter from '@modules/moderator/components/StatusFilter.vue';
 
 interface Props {
   filters: any;

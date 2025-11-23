@@ -30,25 +30,9 @@ class ReadersViewset(AsyncGenericViewSet):
         
         total_orders = Count("user__order", distinct=True)
         
-        completed_orders = Count(
-            "user__order",
-            filter=Q(user__order__statuses__status="done"),
-            distinct=True
-        )
-        
         cancelled_orders = Count(
             "user__order", 
             filter=Q(user__order__statuses__status="cancelled"),
-            distinct=True
-        )
-        
-        active_orders = Count(
-            "user__order",
-            filter=Q(
-                user__order__statuses__status__in=[
-                    "new", "processing", "ready"
-                ]
-            ),
             distinct=True
         )
         
@@ -59,9 +43,7 @@ class ReadersViewset(AsyncGenericViewSet):
 
         queryset = queryset.annotate(
             total_orders=total_orders,
-            completed_orders=completed_orders,
             cancelled_orders=cancelled_orders,
-            active_orders=active_orders,
             total_books_ordered=total_books_ordered,
             last_order_date=Subquery(last_order_subquery)
         )
@@ -78,57 +60,37 @@ class ReadersViewset(AsyncGenericViewSet):
         return queryset
 
     def _apply_date_filters(self, queryset, filters):
-        registration_date_from = filters.get('registration_date_from')
-        registration_date_to = filters.get('registration_date_to')
         last_order_date_from = filters.get('last_order_date_from')
         last_order_date_to = filters.get('last_order_date_to')
         
-        if registration_date_from:
-            queryset = queryset.filter(user__date_joined__gte=registration_date_from)
-        if registration_date_to:
-            queryset = queryset.filter(user__date_joined__lte=registration_date_to)
         if last_order_date_from:
             queryset = queryset.filter(last_order_date__gte=last_order_date_from)
         if last_order_date_to:
             queryset = queryset.filter(last_order_date__lte=last_order_date_to)
             
         return queryset
-
-    def _apply_boolean_filters(self, queryset, filters):
-        has_active_orders = filters.get('has_active_orders')
-        has_overdue_books = filters.get('has_overdue_books')
-        current_order_statuses = filters.get('current_order_statuses')
+    
+    def _apply_status_filters(self, queryset, current_order_statuses):
+        if not current_order_statuses:
+            return queryset
+            
+        valid_statuses = [
+            status for status in current_order_statuses 
+            if status in ['new', 'processing', 'ready', 'done', 'cancelled', 'error', 'archived']
+        ]
         
-        if has_active_orders:
-            if has_active_orders.lower() == 'true':
-                queryset = queryset.filter(active_orders__gt=0)
-            elif has_active_orders.lower() == 'false':
-                queryset = queryset.filter(active_orders=0)
-            
-        if has_overdue_books:
-            if has_overdue_books.lower() == 'true':
-                overdue_users = User.objects.filter(
-                    order__books__status="handed",
-                    order__books__to_return_date__lt=timezone.now().date()
-                ).distinct().values_list('id', flat=True)
-                queryset = queryset.filter(user_id__in=overdue_users)
-            elif has_overdue_books.lower() == 'false':
-                overdue_users = User.objects.filter(
-                    order__books__status="handed",
-                    order__books__to_return_date__lt=timezone.now().date()
-                ).distinct().values_list('id', flat=True)
-                queryset = queryset.exclude(user_id__in=overdue_users)
-            
-        if current_order_statuses:
-            valid_statuses = [
-                status for status in current_order_statuses 
-                if status in ['new', 'processing', 'ready', 'done', 'cancelled', 'error', 'archived']
-            ]
-            if valid_statuses:
-                status_users = User.objects.filter(
-                    order__statuses__status__in=valid_statuses
-                ).distinct().values_list('id', flat=True)
-                queryset = queryset.filter(user_id__in=status_users)
+        if not valid_statuses:
+            return queryset
+        
+        # Находим пользователей, у которых есть заказы с указанными статусами
+        from django.db.models import Exists, OuterRef
+        
+        orders_with_status = Order.objects.filter(
+            user=OuterRef('user'),
+            statuses__status__in=valid_statuses
+        )
+        
+        queryset = queryset.filter(Exists(orders_with_status))
             
         return queryset
 
@@ -149,12 +111,8 @@ class ReadersViewset(AsyncGenericViewSet):
         filters = {
             'fullname': request.query_params.get('fullname', '').strip(),
             'department': request.query_params.get('department', '').strip(),
-            'registration_date_from': request.query_params.get('registration_date_from'),
-            'registration_date_to': request.query_params.get('registration_date_to'),
             'last_order_date_from': request.query_params.get('last_order_date_from'),
             'last_order_date_to': request.query_params.get('last_order_date_to'),
-            'has_active_orders': request.query_params.get('has_active_orders'),
-            'has_overdue_books': request.query_params.get('has_overdue_books'),
             'current_order_statuses': request.query_params.getlist('current_order_statuses[]'),
         }
         
@@ -168,7 +126,7 @@ class ReadersViewset(AsyncGenericViewSet):
 
             queryset = self._apply_text_filters(queryset, filters['fullname'], filters['department'])
             queryset = self._apply_date_filters(queryset, filters)
-            queryset = self._apply_boolean_filters(queryset, filters)
+            queryset = self._apply_status_filters(queryset, filters['current_order_statuses'])
 
             queryset = self._apply_ordering(queryset, sort_by, sort_order)
 
