@@ -95,25 +95,25 @@ const tabs = ref<TabConfig[]>([
   {
     label: "Новые",
     fetchFn: fetchNewOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "В работе",
     fetchFn: fetchProcessingOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "Готовые",
     fetchFn: fetchReadyOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "Архив",
     fetchFn: fetchArchiveOrders,
-    interval: 10000,
+    interval: 15000,
     data: [],
   },
 ]);
