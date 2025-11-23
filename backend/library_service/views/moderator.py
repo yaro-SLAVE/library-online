@@ -11,9 +11,8 @@ from adrf.viewsets import GenericViewSet as AsyncGenericViewSet
 from asgiref.sync import sync_to_async
 
 from library_service.models.user import UserProfile
-from library_service.models.order import Order, OrderHistory, OrderItem
-from library_service.serializers.order import UserOrderSerializer
-from library_service.serializers.order import OrderSerializer
+from library_service.models.order import Order, OrderHistory
+from library_service.serializers.order import UserOrderSerializer, OrderSerializer
 from library_service.serializers.moderator import ReaderStatsSerializer, ModeratorOrderSerializer
 
 
@@ -261,8 +260,6 @@ class ReadersViewset(AsyncGenericViewSet):
                     return order
                 except Order.DoesNotExist:
                     return None
-                except Exception as e:
-                    return None
             
             order = await get_order_detail(reader.user_id, order_id)
             
@@ -291,17 +288,6 @@ class ReadersViewset(AsyncGenericViewSet):
                 {"error": "Ошибка при получении деталей заказа"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-    async def reader_orders(self):
-        reader = await self.aget_object()
-        orders = Order.objects.filter(user=reader.user).prefetch_related(
-            'library', 'statuses', 'books'
-        )
-        
-        from library_service.serializers.order import UserOrderSerializer
-        
-        serializer = UserOrderSerializer(orders, many=True, context=self.get_serializer_context())
-        data = await serializer.adata
-        return Response(data)
     
 class ModeratorOrderViewset(AsyncGenericViewSet):
     permission_classes = [IsAuthenticated]
