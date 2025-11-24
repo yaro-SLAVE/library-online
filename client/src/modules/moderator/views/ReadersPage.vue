@@ -50,7 +50,7 @@ import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useAuthentication } from "@core/composables/auth";
 import { useRouter } from "vue-router";
 import { getReaders } from "@api/readers";
-import type { ReaderStats, ReadersFilters } from "@api/types";
+import type { ReaderStats, ReadersFilters, OrderStatusEnum } from "@api/types";
 
 const readersData = ref<ReaderStats[]>([]);
 const loading = ref(false);
@@ -62,7 +62,7 @@ const localFilters = ref({
   department: '',
   lastOrderDateFrom: '',
   lastOrderDateTo: '',
-  currentOrderStatuses: [],
+  currentOrderStatuses: [] as OrderStatusEnum[],
 });
 
 const activeFilters = ref({
@@ -70,7 +70,7 @@ const activeFilters = ref({
   department: '',
   lastOrderDateFrom: '',
   lastOrderDateTo: '',
-  currentOrderStatuses: [],
+  currentOrderStatuses: [] as OrderStatusEnum[],
 });
 
 const pagination = ref({

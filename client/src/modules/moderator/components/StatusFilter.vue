@@ -28,15 +28,16 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { orderStatuses, type OrderStatusEnum } from '@api/types';
 
 interface Props {
-  modelValue: string[];
+  modelValue: OrderStatusEnum[];
   label: string;
   disabled?: boolean;
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: string[]): void;
+  (e: 'update:modelValue', value: OrderStatusEnum[]): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -50,20 +51,17 @@ const localValue = computed({
   set: (value) => emit('update:modelValue', value)
 });
 
-const statusOptions = [
-  { value: 'new', label: 'Новый' },
-  { value: 'processing', label: 'В обработке' },
-  { value: 'ready', label: 'Готов к выдаче' },
-  { value: 'done', label: 'Выдан' },
-  { value: 'cancelled', label: 'Отменен' },
-  { value: 'error', label: 'Ошибка' },
-  { value: 'archived', label: 'Архивирован' }
-];
+const statusOptions = computed(() => {
+  return Object.entries(orderStatuses).map(([value, label]) => ({
+    value: value as OrderStatusEnum,
+    label
+  }));
+});
 
 const selectedStatuses = computed(() => {
   const currentValue = localValue.value || [];
   return currentValue.map(statusValue => {
-    const status = statusOptions.find(s => s.value === statusValue);
+    const status = statusOptions.value.find(s => s.value === statusValue);
     return status ? status.label : statusValue;
   });
 });

@@ -147,9 +147,7 @@ export type ReaderStats = {
   mira_id: string | null;
   total_books_ordered: number;
   total_orders: number;
-  completed_orders: number;
   cancelled_orders: number;
-  active_orders: number;
   last_order_date: string | null;
 };
 
@@ -163,12 +161,8 @@ export type PaginatedReaders = {
 export type ReadersFilters = {
   fullname?: string;
   department?: string;
-  registration_date_from?: string;
-  registration_date_to?: string;
   last_order_date_from?: string;
   last_order_date_to?: string;
-  has_active_orders?: boolean;
-  has_overdue_books?: boolean;
   current_order_statuses?: OrderStatusEnum[];
   sort_by?: 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
   sort_order?: 'asc' | 'desc';
