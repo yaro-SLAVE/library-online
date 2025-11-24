@@ -13,7 +13,7 @@
         </div>
         <div class="section">
           <h3>Книги ({{ selectedOrder.books.length }})</h3>
-          <div class="books-container" v-if="(['new', 'proccesing']).includes(currentStatus)">
+          <div class="books-container" v-if="(['new', 'processing']).includes(currentStatus)">
             <template v-for="orderBook in selectedOrder.books" :key="orderBook.id">
               <div
                 class="book-card"
@@ -661,6 +661,10 @@ const changeToNextStatus = () => {
 }
 
 .book-ordered {
+  background-color: rgba(113, 179, 113, 0.5);
+}
+
+.book-handed {
   background-color: rgba(113, 179, 113, 0.5);
 }
 

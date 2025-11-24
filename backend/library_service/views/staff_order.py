@@ -169,8 +169,6 @@ class StaffOrderGetUpdateViewset(
                     additional_books, many=True, context=self.get_serializer_context()
                 ).data,
             }
-
-        print(response)
         return Response(response)
 
 

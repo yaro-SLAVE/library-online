@@ -128,7 +128,8 @@ export async function getOrderStaff(orderId: number): Promise<Order> {
     const { data } = await axios.get(`/api/staff/order/${orderId}/`);
     console.log(`/api/staff/order/${orderId}`, data);
 
-    if ((['ready', 'done', 'cancelled']).includes(data.statuses[data.statuses.length - 1])) {
+    if ((['ready', 'done', 'cancelled']).includes(data.statuses[data.statuses.length - 1].status)) {
+      console.log('---------------------');
       let analogous_list = [...data.books].filter(x => x.analogous_order_item !== null).map(x => x.analogous_order_item);
 
       let done_books = [...data.books].filter(x => (x.status === 'ordered' || x.status === 'handed') && !analogous_list.includes(x.id)).map(x => {
@@ -156,6 +157,8 @@ export async function getOrderStaff(orderId: number): Promise<Order> {
 
       data.books = [...done_books, ...books_with_analogous, ...cancelled_books];
     }
+
+    console.log(data);
 
     return data;
   } catch (error) {

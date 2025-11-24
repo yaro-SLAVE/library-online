@@ -201,7 +201,7 @@ class UpdateOrderSerializer(aserializers.Serializer):
                 loans_id_list.append(book.id)
                 loan.book_id = book.id
 
-            books = OrderItem.objects.prefetch_related("order").filter(order=order).all()
+            books = await self.get_order_items(order)
             found_books = []
 
             async for book in books:
@@ -215,8 +215,6 @@ class UpdateOrderSerializer(aserializers.Serializer):
                 if book.book_id not in loans_id_list:
                     notfound_books.append(book)     
 
-            print(found_books, notfound_books)
-
             for item in found_books:
                 item.status = OrderItem.Status.HANDED
                 item.handed_date = loan.date
@@ -228,9 +226,9 @@ class UpdateOrderSerializer(aserializers.Serializer):
                     item.status = OrderItem.Status.CANCELLED
                     await item.asave()
             
-            books_to_return = OrderItem.objects.filter(order_to_return = order).all()
+            books_to_return = await self.get_borroweds(order)
 
-            for book in books_to_return:
+            async for book in books_to_return:
                 if book.book_id not in loans_id_list:
                     book.status = OrderItem.Status.RETURNED
                     book.returned_date = datetime.now()
@@ -260,6 +258,15 @@ class UpdateOrderSerializer(aserializers.Serializer):
             )
 
         return validated_data
+    
+    @sync_to_async
+    def get_order_items(self, order):
+        return OrderItem.objects.prefetch_related("order").filter(order=order).all()
+    
+    @sync_to_async
+    def get_borroweds(self, order):
+        return OrderItem.objects.filter(order_to_return = order).all()
+
 
 class CheckOrderSerializer(aserializers.Serializer):
     found_books = OrderItemSerializer(many=True)
