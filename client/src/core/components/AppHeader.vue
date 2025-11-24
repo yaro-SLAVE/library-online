@@ -2,9 +2,12 @@
   <header>
     <nav class="container">
       <div class="flex flex-row items-center">
+        <a href="https://library.istu.edu/" target="_blank" style="margin-right: 20px">
+          <img :src="Logo" alt="НТБ ИРНИТУ" class="logo" />
+        </a>
+
         <RouterLink to="/" class="logo-link" active-class="active">
           <span>НТБ ИРНИТУ</span>
-          <img :src="Logo" alt="НТБ ИРНИТУ" class="logo" />
         </RouterLink>
 
         <div class="nav-links">

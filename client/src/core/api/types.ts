@@ -88,12 +88,18 @@ export type OrderBook = {
   returned_date: string | null;
 };
 
+export type CustomOrderBook = {
+  original: OrderBook;
+  analogous: OrderBook;
+}
+
 export type Order = {
   id: number;
-  books: OrderBook[];
+  books: CustomOrderBook[] | OrderBook[];
   statuses: OrderStatus[];
   library: Library;
   user: UserInfo;
+  books_to_return: OrderBook[];
 };
 
 export type BorrowedBook = {

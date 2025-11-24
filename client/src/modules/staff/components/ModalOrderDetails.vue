@@ -13,7 +13,7 @@
         </div>
         <div class="section">
           <h3>Книги ({{ selectedOrder.books.length }})</h3>
-          <div class="books-container">
+          <div class="books-container" v-if="(['new', 'processing']).includes(currentStatus)">
             <template v-for="orderBook in selectedOrder.books" :key="orderBook.id">
               <div
                 class="book-card"
@@ -77,6 +77,32 @@
                 </div>
               </div>
               <div v-else-if="isCheckFailed"></div>
+            </template>
+          </div>
+
+          <div class="books-container" v-else-if="(['ready', 'done', 'cancelled']).includes(currentStatus)">
+            <template v-for="orderBook in selectedOrder.books" :key="orderBook.original.id">
+              <div :class="'book-card book-' + orderBook.original.status">
+                <ShortBookCard :book="orderBook.original.book" />
+              </div>
+
+              <div v-if="orderBook.analogous !== null" :class="'book-card book-' + orderBook.original.status">
+                <ShortBookCard :book="orderBook.analogous.book" />
+              </div>
+
+              <div v-else></div>
+            </template>
+          </div>
+        </div>
+
+        <div class="section" v-if="selectedOrder.books_to_return.length > 0">
+          <h3 v-if="currentStatus === 'done'">Возвращенные книги ({{ selectedOrder.books_to_return.length }})</h3>
+          <h3 v-else>Книги на возврат ({{ selectedOrder.books_to_return.length }})</h3>
+          <div class="books-container">
+            <template v-for="orderBook in selectedOrder.books_to_return" :key="orderBook.id">
+              <div class="book-card" >
+                <ShortBookCard :book="orderBook.book"/>
+              </div>
             </template>
           </div>
         </div>
@@ -632,6 +658,22 @@ const changeToNextStatus = () => {
 }
 .status-cancelled {
   color: var(--color-text-700);
+}
+
+.book-ordered {
+  background-color: rgba(113, 179, 113, 0.5);
+}
+
+.book-handed {
+  background-color: rgba(113, 179, 113, 0.5);
+}
+
+.book-analogous {
+  background-color: rgb(241, 168, 59, 0.5);
+}
+
+.book-cancelled {
+  background-color: rgb(172, 52, 52, 0.5);
 }
 
 .modal-footer {
