@@ -133,13 +133,14 @@ class StaffOrderGetUpdateViewset(
             for loan in loans:
                 book = await book_retrieve_by_id(client, loan.db, loan.book)
                 loans_id_list.append(book.id)
+                loan.book_id = book.id
 
             books = OrderItem.objects.prefetch_related("order").filter(order=order).all()
             found_books = []
 
             async for book in books:
-                for loan in loans_id_list:
-                    if book.book_id == loan:
+                for loan in loans:
+                    if book.book_id == loan.book_id:
                         found_books.append(book)
                         book.handed_date = loan.date
                         book.to_return_date = loan.deadline
@@ -168,8 +169,6 @@ class StaffOrderGetUpdateViewset(
                     additional_books, many=True, context=self.get_serializer_context()
                 ).data,
             }
-
-        print(response)
         return Response(response)
 
 
