@@ -1,6 +1,7 @@
 export const groups = {
   Reader: "Читатель",
   Librarian: "Библиотекарь",
+  Admin: "Администратор",
 } as const;
 export type Group = keyof typeof groups;
 
