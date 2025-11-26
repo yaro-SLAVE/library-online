@@ -56,9 +56,9 @@ router.register("reasons/notfound", OrderItemCommentViewset, basename="reasons/n
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    #FIXME[Ilya] Эту строку раскомметировать следущую за ней удалить
-    #path("api/auth/login/", AuthViewset.as_view()),
-    path("api/auth/login/", TokenObtainPairView.as_view()),
+    #Для отладки запросов к бекенд, следующую строку закоментировать, а через одну раскомментировать
+    path("api/auth/login/", AuthViewset.as_view()),
+    #path("api/auth/login/", TokenObtainPairView.as_view()),
     path("api/auth/bitrix-login/", BitrixAuthView.as_view()),
     path("api/auth/third-party/", AuthThirdPartyViewset.as_view()),
     path("api/auth/refresh/", TokenRefreshView.as_view()),
