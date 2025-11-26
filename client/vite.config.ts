@@ -17,6 +17,7 @@ export default defineConfig({
       '@modules': fileURLToPath(new URL('./src/modules', import.meta.url)),
       '@reader': fileURLToPath(new URL('./src/modules/reader', import.meta.url)),
       '@staff': fileURLToPath(new URL('./src/modules/staff', import.meta.url)),
+      '@moderator': fileURLToPath(new URL('./src/modules/moderator', import.meta.url)),
       '@utils': fileURLToPath(new URL('./src/core/utils', import.meta.url)),
     }
   },
