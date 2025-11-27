@@ -1,9 +1,10 @@
+<!-- OrdersPage.vue (adjusted localFilters to include department to suppress warnings; assume FiltersSection uses it) -->
 <template>
-  <div class="readers-page">
+  <div class="orders-page">
     <div class="page-header">
-      <h2>Читатели</h2>
+      <h2>Заказы</h2>
       <div class="stats">
-        Всего читателей: {{ pagination.total }}
+        Всего заказов: {{ pagination.total }}
       </div>
     </div>
 
@@ -17,8 +18,8 @@
       @clear-filters="clearAllFilters"
     />
 
-    <ReadersTable
-      :readers-data="readersData"
+    <OrdersTable
+      :orders-data="ordersData"
       :loading="loading"
       :sort-field="sortField"
       :sort-direction="sortDirection"
@@ -28,13 +29,12 @@
       @prev-page="prevPage"
       @next-page="nextPage"
       @clear-filters="clearAllFilters"
-      @row-click="showReaderOrders"
+      @row-click="showOrderDetails"
     />
 
-    <ReaderOrdersModal
-    v-if="selectedReader"
-      v-model:isOpen="isOrdersModalOpen"
-      :reader="selectedReader"
+    <OrderDetailsModal
+      v-model:isOpen="isDetailsModalOpen"
+      :orderId="selectedOrderId"
     />
 
     <LoadingModal v-model="loading" />
@@ -43,32 +43,36 @@
 
 <script setup lang="ts">
 import FiltersSection from "@modules/moderator/components/FiltersSection.vue";
-import ReadersTable from "@modules/moderator/components/ReadersTable.vue";
+import OrdersTable from "@modules/moderator/components/orders/OrdersTable.vue";
 import LoadingModal from "@components/LoadingModal.vue";
-import ReaderOrdersModal from "@modules/moderator/components/ReaderOrdersModal.vue";
+import OrderDetailsModal from "@modules/moderator/components/orders/OrderDetailsModal.vue";
 
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useAuthentication } from "@core/composables/auth";
 import { useRouter } from "vue-router";
-import { getReaders } from "@api/readers";
-import type { ReaderStats, ReadersFilters, OrderStatusEnum } from "@api/types";
+import { getOrdersStats } from "@api/orders";
+import type { OrderStats, OrdersFilters, OrderStatusEnum } from "@api/types";
 
-const readersData = ref<ReaderStats[]>([]);
+const ordersData = ref<OrderStats[]>([]);
 const loading = ref(false);
 const router = useRouter();
 const dateError = ref('');
 
 const localFilters = ref({
   fullname: '',
-  department: '',
-  lastOrderDateFrom: '',
-  lastOrderDateTo: '',
-  currentOrderStatuses: [] as OrderStatusEnum[],
+  department: '',  // Added to suppress warning; perhaps map to employee_collect or ignore
+  employee_collect: '',
+  employee_issue: '',
+  lastOrderDateFrom: '',  // For dateFrom
+  lastOrderDateTo: '',    // For dateTo
+  currentOrderStatuses: [] as OrderStatusEnum[],  // For statuses
 });
 
 const activeFilters = ref({
   fullname: '',
   department: '',
+  employee_collect: '',
+  employee_issue: '',
   lastOrderDateFrom: '',
   lastOrderDateTo: '',
   currentOrderStatuses: [] as OrderStatusEnum[],
@@ -80,17 +84,17 @@ const pagination = ref({
   total: 0
 });
 
-type SortField = 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
+type SortField = 'id' | 'fullname' | 'employee_collect' | 'employee_issue' | 'status';
 
 const sortField = ref<SortField>('id');
 const sortDirection = ref<'asc' | 'desc'>('asc');
 
-const isOrdersModalOpen = ref(false);
-const selectedReader = ref<ReaderStats>();
+const isDetailsModalOpen = ref(false);
+const selectedOrderId = ref<number>();
 
-const showReaderOrders = (reader: ReaderStats) => {
-  selectedReader.value = reader;
-  isOrdersModalOpen.value = true;
+const showOrderDetails = (order: OrderStats) => {
+  selectedOrderId.value = order.id;
+  isDetailsModalOpen.value = true;
 };
 
 let abortController: AbortController | null = null;
@@ -101,7 +105,7 @@ const hasFilterChanges = computed(() => {
 
 const hasActiveFilters = computed(() => {
   const f = activeFilters.value;
-  return f.fullname !== '' || f.department !== '' || 
+  return f.fullname !== '' || f.department !== '' || f.employee_collect !== '' || f.employee_issue !== '' ||
          f.lastOrderDateFrom !== '' || f.lastOrderDateTo !== '' ||
          f.currentOrderStatuses.length > 0;
 });
@@ -110,18 +114,19 @@ const totalPages = computed(() =>
   Math.ceil(pagination.value.total / pagination.value.limit)
 );
 
-const requestParams = computed((): ReadersFilters => {
-  const params: ReadersFilters = {
+const requestParams = computed((): OrdersFilters => {
+  const params: OrdersFilters = {
     page: pagination.value.page,
     page_size: pagination.value.limit
   };
   
   if (activeFilters.value.fullname) params.fullname = activeFilters.value.fullname;
-  if (activeFilters.value.department) params.department = activeFilters.value.department;
-  if (activeFilters.value.lastOrderDateFrom) params.last_order_date_from = activeFilters.value.lastOrderDateFrom;
-  if (activeFilters.value.lastOrderDateTo) params.last_order_date_to = activeFilters.value.lastOrderDateTo;
+  if (activeFilters.value.employee_collect) params.employee_collect = activeFilters.value.employee_collect;
+  if (activeFilters.value.employee_issue) params.employee_issue = activeFilters.value.employee_issue;
+  if (activeFilters.value.lastOrderDateFrom) params.date_from = activeFilters.value.lastOrderDateFrom;
+  if (activeFilters.value.lastOrderDateTo) params.date_to = activeFilters.value.lastOrderDateTo;
   if (activeFilters.value.currentOrderStatuses && activeFilters.value.currentOrderStatuses.length > 0) {
-    params.current_order_statuses = activeFilters.value.currentOrderStatuses;
+    params.statuses = activeFilters.value.currentOrderStatuses;
   }
   
   if (sortField.value) {
@@ -136,7 +141,7 @@ const validateDates = (): boolean => {
   dateError.value = '';
   
   if (!validateDateRange(localFilters.value.lastOrderDateFrom, localFilters.value.lastOrderDateTo)) {
-    dateError.value = 'Дата начала последнего заказа не может быть больше даты окончания';
+    dateError.value = 'Дата начала не может быть больше даты окончания';
     return false;
   }
   
@@ -150,7 +155,7 @@ const validateDateRange = (from: string, to: string): boolean => {
   return true;
 };
 
-const loadReadersData = async () => {
+const loadOrdersData = async () => {
   if (!validateDates()) return;
   
   if (abortController) {
@@ -161,8 +166,8 @@ const loadReadersData = async () => {
   loading.value = true;
   
   try {
-    const response = await getReaders(requestParams.value);
-    readersData.value = response.results;
+    const response = await getOrdersStats(requestParams.value);
+    ordersData.value = response.results;
     pagination.value.total = response.count;
   } catch (error: any) {
     if (error.name !== 'AbortError') {
@@ -184,18 +189,22 @@ const applyFilters = () => {
   
   activeFilters.value = { ...localFilters.value };
   pagination.value.page = 1;
-  loadReadersData();
+  loadOrdersData();
 };
 
 const handleSort = (field: string, direction: 'asc' | 'desc') => {
   sortField.value = field as SortField;
   sortDirection.value = direction;
+  pagination.value.page = 1;
+  loadOrdersData();
 };
 
 const clearAllFilters = () => {
   localFilters.value = {
     fullname: '',
     department: '',
+    employee_collect: '',
+    employee_issue: '',
     lastOrderDateFrom: '',
     lastOrderDateTo: '',
     currentOrderStatuses: [],
@@ -204,38 +213,25 @@ const clearAllFilters = () => {
   pagination.value.page = 1;
   sortField.value = 'id';
   sortDirection.value = 'asc';
-  loadReadersData();
+  loadOrdersData();
 };
 
 const nextPage = () => {
   if (pagination.value.page < totalPages.value) {
     pagination.value.page++;
+    loadOrdersData();
   }
 };
 
 const prevPage = () => {
   if (pagination.value.page > 1) {
     pagination.value.page--;
+    loadOrdersData();
   }
 };
 
-watch(
-  () => pagination.value.page,
-  () => {
-    loadReadersData();
-  }
-);
-
-watch(
-  [() => sortField.value, () => sortDirection.value],
-  () => {
-    pagination.value.page = 1;
-    loadReadersData();
-  }
-);
-
 onMounted(async () => {
-  await loadReadersData();
+  await loadOrdersData();
 });
 
 onUnmounted(() => {
@@ -252,7 +248,7 @@ useAuthentication((isAuthenticated) => {
 </script>
 
 <style scoped lang="scss">
-.readers-page {
+.orders-page {
   padding: 16px;
 }
 

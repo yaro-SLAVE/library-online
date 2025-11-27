@@ -144,9 +144,6 @@ export type OrderCheckingInfo = {
 
 export type ReaderStats = {
   id: number;
-  username: string;
-  first_name: string;
-  last_name: string;
   fullname: string;
   department: string;
   library_card: string | null;
@@ -157,6 +154,7 @@ export type ReaderStats = {
   cancelled_orders: number;
   last_order_date: string | null;
 };
+
 
 export type PaginatedReaders = {
   count: number;
@@ -172,6 +170,36 @@ export type ReadersFilters = {
   last_order_date_to?: string;
   current_order_statuses?: OrderStatusEnum[];
   sort_by?: 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
+  sort_order?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+};
+
+
+export type OrderStats = {
+  id: number;
+  fullname: string;
+  library_card: string | null;
+  employee_collect: string;
+  employee_issue: string;
+  status: OrderStatusEnum;
+};
+
+export type PaginatedOrderStats = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: OrderStats[];
+};
+
+export type OrdersFilters = {
+  fullname?: string;
+  employee_collect?: string;
+  employee_issue?: string;
+  date_from?: string;
+  date_to?: string;
+  statuses?: OrderStatusEnum[];
+  sort_by?: 'id' | 'fullname' | 'employee_collect' | 'employee_issue' | 'status';
   sort_order?: 'asc' | 'desc';
   page?: number;
   page_size?: number;

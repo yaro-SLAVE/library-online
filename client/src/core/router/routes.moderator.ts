@@ -13,7 +13,7 @@ export const moderatorRoutes = [
       {
         path: "orders",
         name: "orders",
-        component: () => import("@modules/staff/views/ManageOrdersPage.vue"),
+        component: () => import("@modules/moderator/views/OrdersPage.vue"),
         meta: { roles: ["Admin"], requiresAuth: true },
       },
       {
