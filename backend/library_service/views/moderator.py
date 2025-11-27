@@ -37,7 +37,8 @@ class ReadersViewset(AsyncGenericViewSet):
         )
         
         total_books_ordered = Count(
-            "user__order__books"
+            "user__order__books",
+            distinct=True
         )
 
         queryset = queryset.annotate(
