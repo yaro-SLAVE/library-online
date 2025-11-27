@@ -16,8 +16,8 @@
 
         <FilterInput
           v-model="localFilters.department"
-          label="Институт"
-          placeholder="Поиск по институту..."
+          label="Подразделение"
+          placeholder="Поиск по подразделению..."
           :disabled="loading"
           id="department-filter"
         />
@@ -34,6 +34,17 @@
           label="Дата заказа"
           :disabled="loading"
         />
+
+        <div>
+          <b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
+            <b-dropdown-item>Первое действие</b-dropdown-item>
+            <b-dropdown-item>Второе действие</b-dropdown-item>
+            <b-dropdown-item>Третье действие</b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item active>Активное действие</b-dropdown-item>
+            <b-dropdown-item disabled>Отключенное действие</b-dropdown-item>
+          </b-dropdown>
+        </div>
 
         <div class="filter-actions">
           <button 
