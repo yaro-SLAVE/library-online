@@ -85,7 +85,7 @@ onBeforeMount(async() => {
 
 <template>
     <div style="display: flex; flex-direction: column; margin: 15px; align-items: center; gap: 10px">
-        <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 8px">
+        <!-- <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 8px">
             <span>Максимальное количество книг в заказе</span>
             <input type="number" v-model="settings.max_books_per_order"/>
         </div>
@@ -113,7 +113,7 @@ onBeforeMount(async() => {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
             <span>Логотип сайта</span>
             <input type="file"/>
-        </div>
+        </div> -->
 
         <!-- <div>
             <DatePicker
