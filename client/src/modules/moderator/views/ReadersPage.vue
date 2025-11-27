@@ -80,9 +80,9 @@ const pagination = ref({
   total: 0
 });
 
-type SortField = 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
+type SortField = 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
 
-const sortField = ref<SortField>('id');
+const sortField = ref<SortField>('fullname');
 const sortDirection = ref<'asc' | 'desc'>('asc');
 
 const isOrdersModalOpen = ref(false);
@@ -202,7 +202,7 @@ const clearAllFilters = () => {
   };
   activeFilters.value = { ...localFilters.value };
   pagination.value.page = 1;
-  sortField.value = 'id';
+  sortField.value = 'fullname';
   sortDirection.value = 'asc';
   loadReadersData();
 };
