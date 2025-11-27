@@ -141,6 +141,7 @@ const startAllIntervals = () => {
   });
 };
 
+//TODO: Разобраться с тем, что есть в бэке, и что есть на фронте для проверки показа только закрепленных за сотрудником заказов
 const fetchUserOrders = async (tab: TabConfig): Promise<UserOrder[]> => {
   let data = await tab.fetchFn();
   if (tab.label === "В работе") {

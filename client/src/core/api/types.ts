@@ -141,3 +141,38 @@ export type OrderCheckingInfo = {
   notfound_books: OrderBook[];
   additional_books: string[];
 };
+
+export type ReaderStats = {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  fullname: string;
+  department: string;
+  library_card: string | null;
+  campus_id: string | null;
+  mira_id: string | null;
+  total_books_ordered: number;
+  total_orders: number;
+  cancelled_orders: number;
+  last_order_date: string | null;
+};
+
+export type PaginatedReaders = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ReaderStats[];
+};
+
+export type ReadersFilters = {
+  fullname?: string;
+  department?: string;
+  last_order_date_from?: string;
+  last_order_date_to?: string;
+  current_order_statuses?: OrderStatusEnum[];
+  sort_by?: 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
+  sort_order?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+};
