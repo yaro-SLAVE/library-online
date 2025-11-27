@@ -26,6 +26,16 @@
       </div>
     </form>
   </SurfaceCard>
+
+  <ModalDialog v-model="openModal">
+    <h4 class="modal-text">Зайти как сотрудник<br />или как читатель ?</h4>
+    <div class="choice-buttons">
+      <StyledButton @click="handleUserRoleChoice('Reader')"> Читатель </StyledButton>
+      <StyledButton @click="handleUserRoleChoice('Librarian')" theme="accent">
+        Сотрудник
+      </StyledButton>
+    </div>
+  </ModalDialog>
 </template>
 
 <script setup lang="ts">
@@ -33,20 +43,46 @@ import PasswordTextField from "@components/PasswordTextField.vue";
 import StyledButton from "@components/StyledButton.vue";
 import SurfaceCard from "@components/SurfaceCard.vue";
 import TextField from "@components/TextField.vue";
+import ModalDialog from "@core/components/ModalDialog.vue";
 import { useAuthStore } from "@core/store/auth";
 import { ref } from "vue";
+import { useUserStore } from "@core/store/user";
+import { storeToRefs } from "pinia";
+import type { Group } from "@core/api/types";
 
 const OAUTH_CLIENT_ID = import.meta.env.VITE_OAUTH_CLIENT_ID;
 
 const authStore = useAuthStore();
+
+const userStore = useUserStore();
+
+const openModal = ref(false);
 
 const username = ref("");
 const password = ref("");
 async function login() {
   console.log(OAUTH_CLIENT_ID);
   // TODO: предупреждать пользователя об ошибках
-  await authStore.login(username.value, password.value);
+  const r = await authStore.login(username.value, password.value);
+  console.log(r);
+  if(r) {
+    await userStore.fetchProfile();
+    const { currentUser } = storeToRefs(userStore);
+    console.log(currentUser.value?.groups);
+    if (currentUser.value?.groups?.includes("Librarian")) {
+      openModal.value = true;
+      console.log(currentUser.value?.groups, "YES");
+    } else {
+      console.log(currentUser.value?.groups, "NO");
+      // router.push("/profile");
+    }
+  }
 }
+
+const handleUserRoleChoice = (choice: Group) => {
+  userStore.setCurrentRole(choice);
+  // router.push("/profile");
+};
 </script>
 
 <style scoped lang="scss">

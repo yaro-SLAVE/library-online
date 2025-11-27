@@ -33,10 +33,11 @@ from library_service.views.bitrix import BitrixAuthView
 from library_service.views.catalog import BookViewset, LibraryViewset, ScenarioViewset
 from library_service.views.library_settings import LibrarySettingsViewSet
 from library_service.views.order import BorrowedViewset, OrderViewset
-from library_service.views.profile import ProfileViewset
+from library_service.views.profile import ProfileViewset, ProfileBannedViewset
 from library_service.views.staff_order import StaffOrderViewset, StaffOrderGetUpdateViewset, StaffBorrowedViewset
 from library_service.views.comments import OrderCommentViewset, OrderItemCommentViewset
 from library_service.views.auth import AuthViewset, AuthThirdPartyViewset
+from library_service.views.moderator import ReadersViewset
 
 router = AsyncDefaultRouter()
 router.register("book", BookViewset, basename="book")
@@ -44,6 +45,7 @@ router.register("library", LibraryViewset, basename="library")
 router.register("scenario", ScenarioViewset, basename="scenario")
 router.register("basket", BasketViewset, basename="basket")
 router.register("profile", ProfileViewset, basename="profile")
+router.register("profile/banned", ProfileBannedViewset, basename="profile-banned")
 router.register("order", OrderViewset, basename="order")
 router.register("borrowed", BorrowedViewset, basename="borrowed")
 router.register("settings", LibrarySettingsViewSet, basename="settings")
@@ -52,10 +54,13 @@ router.register("staff/order", StaffOrderGetUpdateViewset, basename="staff/order
 router.register("staff/order/borrowed", StaffBorrowedViewset, basename="staff/order/borrowed")
 router.register("reasons/cancel", OrderCommentViewset, basename="reasons/cancel")
 router.register("reasons/notfound", OrderItemCommentViewset, basename="reasons/notfound")
+router.register("readers", ReadersViewset, basename='readers')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    #Для отладки запросов к бекенд, следующую строку закоментировать, а через одну раскомментировать
     path("api/auth/login/", AuthViewset.as_view()),
+    #path("api/auth/login/", TokenObtainPairView.as_view()),
     path("api/auth/bitrix-login/", BitrixAuthView.as_view()),
     path("api/auth/third-party/", AuthThirdPartyViewset.as_view()),
     path("api/auth/refresh/", TokenRefreshView.as_view()),

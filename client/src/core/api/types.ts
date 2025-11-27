@@ -88,12 +88,18 @@ export type OrderBook = {
   returned_date: string | null;
 };
 
+export type CustomOrderBook = {
+  original: OrderBook;
+  analogous: OrderBook;
+}
+
 export type Order = {
   id: number;
-  books: OrderBook[];
+  books: CustomOrderBook[] | OrderBook[];
   statuses: OrderStatus[];
   library: Library;
   user: UserInfo;
+  books_to_return: OrderBook[];
 };
 
 export type BorrowedBook = {
@@ -144,4 +150,39 @@ export type LibrarySettings = {
   logo: string | null;
   new_order_wait: number;
   processing_order_wait: number;
-}
+};
+
+export type ReaderStats = {
+  id: number;
+  username: string;
+  first_name: string;
+  last_name: string;
+  fullname: string;
+  department: string;
+  library_card: string | null;
+  campus_id: string | null;
+  mira_id: string | null;
+  total_books_ordered: number;
+  total_orders: number;
+  cancelled_orders: number;
+  last_order_date: string | null;
+};
+
+export type PaginatedReaders = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ReaderStats[];
+};
+
+export type ReadersFilters = {
+  fullname?: string;
+  department?: string;
+  last_order_date_from?: string;
+  last_order_date_to?: string;
+  current_order_statuses?: OrderStatusEnum[];
+  sort_by?: 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
+  sort_order?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+};

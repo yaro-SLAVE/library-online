@@ -7,7 +7,7 @@ export const moderatorRoutes = [
       {
         path: "readers",
         name: "readers",
-        component: () => import("@modules/staff/views/ManageOrdersPage.vue"),
+        component: () => import("@modules/moderator/views/ReadersPage.vue"),
         meta: { roles: ["Admin"], requiresAuth: true },
       },
       {
@@ -19,7 +19,7 @@ export const moderatorRoutes = [
       {
         path: "blacklist",
         name: "blacklist",
-        component: () => import("@modules/staff/views/ManageOrdersPage.vue"),
+        component: () => import("@modules/moderator/views/BlackListPage.vue"),
         meta: { roles: ["Admin"], requiresAuth: true },
       },
       {
