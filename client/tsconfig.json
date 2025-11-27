@@ -22,7 +22,6 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
-    "types": ["vite/client"],
-    "noCheck": true
+    "types": ["vite/client"]
   },
 }
