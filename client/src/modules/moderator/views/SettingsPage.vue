@@ -35,9 +35,9 @@ const settings = ref<LibrarySettings>();
 //   }
 // ]);
 
-onBeforeMount(async() => {
-    settings.value = await getSettings();
-});
+// onBeforeMount(async() => {
+//     settings.value = await getSettings();
+// });
 
 // const onDayClick = (day: DatePickerDate) => {
 //   const dateId = day.id;

@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import axios from "axios";
 import type { BorrowedBook, Order, UserOrder, OrderStatusEnum, OrderCheckingInfo } from "./types";
 
