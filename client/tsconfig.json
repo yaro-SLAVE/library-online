@@ -10,6 +10,7 @@
       "@modules/*": ["src/modules/*"],
       "@reader/*": ["src/modules/reader/*"],
       "@staff/*": ["src/modules/staff/*"],
+      "@moderator/*": ["src/modules/moderator/*"],
       "@assets/styles/*": ["src/assets/*"],
       "@utils/*": ["src/core/utils/*"],
       "@components/*": ["src/core/components/*"],

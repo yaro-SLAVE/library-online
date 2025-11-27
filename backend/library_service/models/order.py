@@ -28,6 +28,8 @@ class OrderHistory(models.Model):
         ERROR = "error", "Ошибка"
         ARCHIVED = "archived", "Заархивирован"
 
+    NOT_CAME_DESCRIPTION = 'не пришел'
+    
     description = models.TextField()
     status = models.CharField(max_length=255, choices=Status.choices)
     date = models.DateTimeField(auto_now_add=True)
