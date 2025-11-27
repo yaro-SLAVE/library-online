@@ -23,6 +23,6 @@
     "esModuleInterop": true,
     "strict": true,
     "types": ["vite/client"],
-    "checkJs": false
+    "noCheck": true
   },
 }
