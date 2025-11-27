@@ -37,8 +37,7 @@ class ReadersViewset(AsyncGenericViewSet):
         )
         
         total_books_ordered = Count(
-            "user__order__books",
-            filter=~Q(user__order__books__status="cancelled")
+            "user__order__books"
         )
 
         queryset = queryset.annotate(
