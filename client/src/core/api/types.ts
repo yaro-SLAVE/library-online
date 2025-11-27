@@ -95,7 +95,7 @@ export type CustomOrderBook = {
 
 export type Order = {
   id: number;
-  books: CustomOrderBook[] | OrderBook[];
+  books: OrderBook[];
   statuses: OrderStatus[];
   library: Library;
   user: UserInfo;

@@ -6,8 +6,7 @@
       "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
       "module": "ESNext",
       "moduleResolution": "Bundler",
-      "types": ["node"],
-      "noCheck": true
+      "types": ["node"]
     },
     "include": [
       "vite.config.*",
