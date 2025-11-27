@@ -142,6 +142,16 @@ export type OrderCheckingInfo = {
   additional_books: string[];
 };
 
+export type LibrarySettings = {
+  max_books_per_order: number;
+  max_books_per_reader: number;
+  max_borrow_days: number;
+  holidays: Date[] | null;
+  logo: string | null;
+  new_order_wait: number;
+  processing_order_wait: number;
+};
+
 export type ReaderStats = {
   id: number;
   username: string;

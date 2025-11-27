@@ -19,6 +19,8 @@ tags:
     description: Методы, связанные с параметрами системы
   - name: staff
     description: Методы связанные с работой сотрудников
+  - name: settings
+    description: Методы связанные с параметрами сервиса
 
 paths:
   /api/auth/login/:
@@ -690,39 +692,6 @@ paths:
         '404':
           description: Not Found
 
-  /api/admin/settings/:
-    get:
-      tags:
-        - admin
-      summary: Получение всех параметров системы
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LibraryParams"
-
-    post:
-      tags:
-        - admin
-      security:
-        - bearer: []
-      summary: Изменение параметров системы
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LibraryParams"
-      responses:
-        '200':
-          description: OK
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-
   /api/reasons/cancel/:
     get:
       tags:
@@ -862,6 +831,45 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+
+  /api/settings/:
+    get:
+      tags:
+        - settings
+      security:
+        - bearer: []
+      summary: Получение параметров сервиса
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryParams"
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+    put:
+      tags:
+        - settings
+      security:
+        - bearer: []
+      summary: Изменение параметров системы
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LibraryParams"
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
 
 components:
   securitySchemes:
@@ -1168,7 +1176,7 @@ components:
         max_books_per_order:
           type: number
           description: Максимальное количество книг в одном заказе
-          example: 5
+          example: 7
         max_books_per_reader:
           type: number
           description: Максимальное количество книг на руках читателя
@@ -1177,10 +1185,6 @@ components:
           type: number
           description: Максимальное количество рабочих дней ожидания книг на выдачу
           example: 2
-        max_extensions:
-          type: number
-          description: Максимальное количество продлений книг
-          example: 5
         holidays:
           description: Список праздничных дней
           type: array
@@ -1188,3 +1192,15 @@ components:
             type: string
             description: Праздничный день
             format: date
+        logo:
+          description: Логотип на сервисе
+          type: string
+          format: binary
+        new_order_wait:
+          description: Срок ожидания нового заказа (в часах)
+          type: number
+          example: 1.0
+        processing_order_wait:
+          description: Срок задержки исполнения заказа (в часах)
+          type: number
+          example: 0.5
