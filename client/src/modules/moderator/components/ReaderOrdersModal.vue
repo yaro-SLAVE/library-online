@@ -13,6 +13,9 @@
           <strong>ФИО:</strong> {{ reader.fullname }}
         </div>
         <div class="reader-info-item">
+          <strong>Чит. билет:</strong> {{ reader.library_card }}
+        </div>
+        <div class="reader-info-item">
           <strong>Подразделение:</strong> {{ reader.department }}
         </div>
         <div class="reader-info-item">
@@ -20,9 +23,6 @@
         </div>
         <div class="reader-info-item">
           <strong>Заказано книг:</strong> {{ reader.total_books_ordered }}
-        </div>
-        <div class="reader-info-item">
-          <strong>Активные заказы:</strong> {{ reader.active_orders }}
         </div>
         <div class="reader-info-item">
           <strong>Отмененные заказы:</strong> {{ reader.cancelled_orders }}
@@ -91,7 +91,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted, nextTick } from 'vue';
-import type { ReaderStats, UserOrder, Order } from "@api/types";
+import type { ReaderStats, Order } from "@api/types";
 import { getReaderOrders, getReaderOrderDetail } from "@api/readers";
 import OrderDetailsModal from '@modules/moderator/components/OrderDetailsModal.vue';
 
@@ -107,7 +107,7 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const orders = ref<UserOrder[]>([]);
+const orders = ref<Order[]>([]);
 const loading = ref(false);
 const selectedOrder = ref<Order | null>(null);
 let abortController: AbortController | null = null;
@@ -117,7 +117,7 @@ const close = () => {
   emit('update:isOpen', false);
 };
 
-const currentStatus = (order: UserOrder): string => {
+const currentStatus = (order: Order): string => {
   if (!order.statuses || order.statuses.length === 0) return 'unknown';
   return order.statuses[order.statuses.length - 1].status;
 };
@@ -148,8 +148,8 @@ const getStatusText = (status: string) => {
   return statusMap[status] || status;
 };
 
-const getBooksCount = (order: UserOrder): number => {
-  return order.books?.length || 0;
+const getBooksCount = (order: Order): number => {
+  return order.books?.length || 0;  
 };
 
 const formatDate = (dateString: string | undefined) => {
@@ -180,7 +180,7 @@ const loadReaderOrders = async () => {
   }
 };
 
-const showOrderDetails = async (order: UserOrder) => {
+const showOrderDetails = async (order: Order) => {
   try {
     const orderDetail = await getReaderOrderDetail(props.reader.id, order.id);
     selectedOrder.value = orderDetail;

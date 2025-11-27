@@ -10,7 +10,7 @@
             :loading="loading"
             @sort="onSort"
           >
-            #
+            Чит.билет
           </SortableHeader>
 
           <SortableHeader
@@ -40,7 +40,7 @@
             :loading="loading"
             @sort="onSort"
           >
-            Количество заказанных книг
+            Заказанные книги
           </SortableHeader>
 
           <SortableHeader
@@ -50,7 +50,7 @@
             :loading="loading"
             @sort="onSort"
           >
-            Количество заказов
+            Заказы
           </SortableHeader>
 
           <SortableHeader
@@ -60,7 +60,7 @@
             :loading="loading"
             @sort="onSort"
           >
-            Количество отмененных заказов
+            Отмененные заказы
           </SortableHeader>
         </tr>
       </thead>

@@ -179,20 +179,27 @@ class ReadersViewset(AsyncGenericViewSet):
             
             orders = await get_orders_for_user(reader.user_id)
             
-            @sync_to_async
-            def serialize_orders(orders_data, context):
-                serializer = UserOrderSerializer(
-                    orders_data, 
-                    many=True, 
-                    context=context
-                )
-                return serializer.data
+            from aiohttp import ClientSession
             
-            data = await serialize_orders(orders, self.get_serializer_context())
-            
-            return Response(data)
+            async with ClientSession() as client_session:
+                context = {
+                    'request': request,
+                    'format': self.format_kwarg,
+                    'view': self,
+                    'client_session': client_session
+                }
+                
+                # Создаем список задач для асинхронной сериализации каждого заказа
+                serialized_data = []
+                for order in orders:
+                    serializer = OrderSerializer(order, context=context)
+                    order_data = await serializer.adata
+                    serialized_data.append(order_data)
+                
+                return Response(serialized_data)
             
         except Exception as e:
+            print(f"Error in reader_orders: {str(e)}")  # Для отладки
             return Response(
                 {"error": "Ошибка при получении заказов читателя"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -229,18 +236,20 @@ class ReadersViewset(AsyncGenericViewSet):
             from aiohttp import ClientSession
             
             async with ClientSession() as client_session:
-                context = self.get_serializer_context()
-                context['client_session'] = client_session
+                context = {
+                    'request': request,
+                    'format': self.format_kwarg,
+                    'view': self,
+                    'client_session': client_session
+                }
                 
-                serializer = OrderSerializer(
-                    order, 
-                    context=context
-                )
+                serializer = OrderSerializer(order, context=context)
                 data = await serializer.adata
                 
                 return Response(data)
             
         except Exception as e:
+            print(f"Error in reader_order_detail: {str(e)}")  # Для отладки
             return Response(
                 {"error": "Ошибка при получении деталей заказа"}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR

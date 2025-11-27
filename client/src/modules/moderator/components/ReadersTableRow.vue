@@ -1,6 +1,6 @@
 <template>
   <tr class="reader-row" @click="handleRowClick">
-    <td>{{ reader.id }}</td>
+    <td>{{ reader.library_card }}</td>
     <td>{{ reader.fullname }}</td>
     <td>{{ reader.department }}</td>
     <td>{{ reader.total_books_ordered }}</td>

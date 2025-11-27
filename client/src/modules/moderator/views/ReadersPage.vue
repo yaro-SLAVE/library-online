@@ -32,6 +32,7 @@
     />
 
     <ReaderOrdersModal
+      v-if="selectedReader"
       v-model:isOpen="isOrdersModalOpen"
       :reader="selectedReader"
     />

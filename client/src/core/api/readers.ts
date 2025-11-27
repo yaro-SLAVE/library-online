@@ -21,7 +21,7 @@ export async function getReaders(filters?: ReadersFilters): Promise<PaginatedRea
   }
 }
 
-export async function getReaderOrders(readerId: number): Promise<UserOrder[]> {
+export async function getReaderOrders(readerId: number): Promise<Order[]> {
   try {
     const { data } = await axios.get(`/api/readers/${readerId}/orders/`);
     return data;
