@@ -3,8 +3,8 @@ import type { LibrarySettings } from "@core/api/types"
 import { getSettings } from "@core/api/settings"
 import { onBeforeMount, ref } from 'vue';
 import StyledButton from "@components/StyledButton.vue";
-import { Calendar, DatePicker } from 'v-calendar';
-import type { DatePickerDate, DatePickerAttribute } from 'v-calendar/types/index';
+// import { Calendar, DatePicker } from 'v-calendar';
+// import type { DatePickerDate, DatePickerAttribute } from 'v-calendar/types/index';
 
 interface SelectedDate {
   id: string;
@@ -13,73 +13,73 @@ interface SelectedDate {
 
 const settings = ref<LibrarySettings>();
 
-const selectedDates = ref<SelectedDate[]>([]);
+// const selectedDates = ref<SelectedDate[]>([]);
 
 // For v-calendar attributes
-const calendarAttributes = ref<DatePickerAttribute[]>([
-  {
-    key: 'selected-dates',
-    highlight: {
-      color: 'green',
-      fillMode: 'solid',
-    },
-    dates: selectedDates.value.map(d => d.date),
-  },
-  {
-    key: 'today',
-    highlight: {
-      color: 'blue',
-      fillMode: 'light',
-    },
-    dates: new Date(),
-  }
-]);
+// const calendarAttributes = ref<DatePickerAttribute[]>([
+//   {
+//     key: 'selected-dates',
+//     highlight: {
+//       color: 'green',
+//       fillMode: 'solid',
+//     },
+//     dates: selectedDates.value.map(d => d.date),
+//   },
+//   {
+//     key: 'today',
+//     highlight: {
+//       color: 'blue',
+//       fillMode: 'light',
+//     },
+//     dates: new Date(),
+//   }
+// ]);
 
 onBeforeMount(async() => {
     settings.value = await getSettings();
 });
 
-const onDayClick = (day: DatePickerDate) => {
-  const dateId = day.id;
-  const existingIndex = selectedDates.value.findIndex(d => d.id === dateId);
+// const onDayClick = (day: DatePickerDate) => {
+//   const dateId = day.id;
+//   const existingIndex = selectedDates.value.findIndex(d => d.id === dateId);
 
-  if (existingIndex > -1) {
-    // Remove if already selected
-    selectedDates.value.splice(existingIndex, 1);
-  } else {
-    // Add new date
-    selectedDates.value.push({
-      id: day.id,
-      date: new Date(day.date)
-    });
-  }
+//   if (existingIndex > -1) {
+//     // Remove if already selected
+//     selectedDates.value.splice(existingIndex, 1);
+//   } else {
+//     // Add new date
+//     selectedDates.value.push({
+//       id: day.id,
+//       date: new Date(day.date)
+//     });
+//   }
 
-  // Update calendar attributes reactively
-  calendarAttributes.value[0].dates = selectedDates.value.map(d => d.date);
+//   // Update calendar attributes reactively
+//   calendarAttributes.value[0].dates = selectedDates.value.map(d => d.date);
   
-  // Sort dates chronologically
-  selectedDates.value.sort((a, b) => a.date.getTime() - b.date.getTime());
-}
+//   // Sort dates chronologically
+//   selectedDates.value.sort((a, b) => a.date.getTime() - b.date.getTime());
+// }
 
-const removeDate = (dateToRemove: SelectedDate) => {
-  selectedDates.value = selectedDates.value.filter(
-    date => date.id !== dateToRemove.id
-  );
-  calendarAttributes.value[0].dates = selectedDates.value.map(d => d.date);
-}
+// const removeDate = (dateToRemove: SelectedDate) => {
+//   selectedDates.value = selectedDates.value.filter(
+//     date => date.id !== dateToRemove.id
+//   );
+//   calendarAttributes.value[0].dates = selectedDates.value.map(d => d.date);
+// }
 
-const clearAllDates = () => {
-  selectedDates.value = [];
-  calendarAttributes.value[0].dates = [];
-}
+// const clearAllDates = () => {
+//   selectedDates.value = [];
+//   calendarAttributes.value[0].dates = [];
+// }
 
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-}
+// const formatDate = (date: Date) => {
+//   return date.toLocaleDateString('ru-RU', {
+//     day: 'numeric',
+//     month: 'long',
+//     year: 'numeric'
+//   });
+// }
 
 </script>
 
@@ -115,7 +115,7 @@ const formatDate = (date: Date) => {
             <input type="file"/>
         </div>
 
-        <div>
+        <!-- <div>
             <DatePicker
                 :attributes="calendarAttributes"
                 @dayclick="onDayClick"
@@ -123,7 +123,7 @@ const formatDate = (date: Date) => {
                 :masks="{ input: 'DD.MM.YYYY' }"
             />
             
-        </div>
+        </div> -->
 
         <StyledButton
           theme="primary"
