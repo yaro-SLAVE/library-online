@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from datetime import datetime
 
 from .utils.datetime_helpers import is_working_hour, is_user_active_recently
+from library_service.models.order import OrderHistory # Import OrderHistory
 
 from asgiref.sync import sync_to_async
 
@@ -80,4 +81,53 @@ async def send_new_orders_summary_notification(orders, email_mode='prod'):
             print(f"Email: Skipping {librarian.email} (not active).")
 
 
+async def send_order_status_update_notification(order, new_status, description, email_mode='prod'):
+    user = order.user
+    if not user.email:
+        print(f"User {user.username} has no email address. Skipping notification.")
+        return
 
+    subject_map = {
+        OrderHistory.Status.PROCESSING: f"Ваш заказ #{order.id} в работе",
+        OrderHistory.Status.READY: f"Ваш заказ #{order.id} готов к выдаче",
+        OrderHistory.Status.CANCELLED: f"Ваш заказ #{order.id} отменен",
+    }
+    
+    body_map = {
+        OrderHistory.Status.PROCESSING: "Ваш заказ был взят в работу.",
+        OrderHistory.Status.READY: "Ваш заказ готов к выдаче.",
+        OrderHistory.Status.CANCELLED: "Ваш заказ был отменен.",
+    }
+
+    subject = subject_map.get(new_status)
+    body_intro = body_map.get(new_status)
+    print(f"Email Status Update: new_status='{new_status}', subject='{subject}', body_intro='{body_intro}'")
+    
+    if not subject or not body_intro:
+        return
+
+    plain_message = f"Здравствуйте, {user.get_full_name() or user.username}.\n\n"
+    plain_message += f"{body_intro}\n"
+    if description:
+        plain_message += f"Комментарий от сотрудника: {description}\n\n"
+    plain_message += "Спасибо!"
+
+    if email_mode == 'off':
+        print("--- Console Email (Status Update) ---")
+        print(f"To: {user.email}")
+        print(f"Subject: {subject}")
+        print(f"Body:\n{plain_message}")
+        print("------------------------------------")
+        return
+    
+    try:
+        await sync_to_async(send_mail)(
+            subject,
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        print(f"Status update email sent to {user.email} for order #{order.id}")
+    except Exception as e:
+        print(f"Error sending status update email to {user.email}: {e}")
