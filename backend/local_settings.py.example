@@ -7,6 +7,24 @@ OAUTH_CLIENT_ID = ""
 OAUTH_CLIENT_SECRET = ""
 OPAC_INTERNAL_TOKEN=""
 
+# NOTIFICATION_SCHEDULER_INTERVAL_SECONDS = 10 # For testing, run the job every 10 seconds
+
+EMAIL_HOST = 'smtp.mail.ru'  
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'test_library@mail.ru'  
+EMAIL_HOST_PASSWORD = ''  
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+SERVER_EMAIL = EMAIL_HOST_USER
+
+# EMAIL_MODE = 'prod'  # прод
+# EMAIL_MODE = 'test'  # инорируем часы работы
+EMAIL_MODE = 'off'   # только выводим в консоль
+
+
+
+
+
 # for SQLite
 DATABASES = {
     "default": {

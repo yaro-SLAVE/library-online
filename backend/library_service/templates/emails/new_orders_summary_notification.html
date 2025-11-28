@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Новые заказы!</title>
+</head>
+<body>
+    <p>Здравствуйте, {{ librarian_name }}!</p>
+    <p>В системе появились новые заказы ({{ total_new_orders }} шт.). Пожалуйста, проверьте их:</p>
+    <ul>
+        {% for order in orders %}
+            <li>Заказ #{{ order.id }} от пользователя {{ order.user_email }} (Библиотека: {{ order.library_name }}). Дата создания: {{ order.created_at }}</li>
+        {% endfor %}
+    </ul>
+    <p>Для просмотра деталей заказов, пожалуйста, войдите в систему.</p>
+</body>
+</html>

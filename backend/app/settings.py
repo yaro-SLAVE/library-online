@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     "library_service",
+    "django_apscheduler",
 ]
 
 MIDDLEWARE = [
@@ -139,10 +140,6 @@ SIMPLE_JWT = {
 
 OPAC_HOSTNAME = "https://library.istu.edu/opac"
 SERVICE_HOSTNAME = "http://localhost:5173"
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@example.com'
-SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 WORKING_HOURS = {
     'MONDAY_TO_FRIDAY_START_HOUR': 9,
