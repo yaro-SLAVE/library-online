@@ -1,17 +1,15 @@
-import os
 from django.apps import AppConfig
 from django.conf import settings
-from apscheduler.schedulers.background import BackgroundScheduler
-from .jobs import send_new_order_notifications_job        
-import library_service.signals
+import os
 
 class LibraryServiceConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "library_service"
 
     def ready(self):
-        
         if os.environ.get('RUN_MAIN'):
+            from apscheduler.schedulers.background import BackgroundScheduler
+            from .jobs import send_new_order_notifications_job
 
             scheduler = BackgroundScheduler(timezone=settings.TIME_ZONE)
             
