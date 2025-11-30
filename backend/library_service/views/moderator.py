@@ -3,16 +3,13 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Count, Q, Subquery, OuterRef, Min
-from django.utils import timezone
-
-from django.contrib.auth.models import User
 
 from adrf.viewsets import GenericViewSet as AsyncGenericViewSet
 from asgiref.sync import sync_to_async
 
 from library_service.models.user import UserProfile
 from library_service.models.order import Order, OrderHistory
-from library_service.serializers.order import UserOrderSerializer, OrderSerializer
+from library_service.serializers.order import OrderSerializer
 from library_service.serializers.moderator import ReaderStatsSerializer, ModeratorOrderSerializer
 
 

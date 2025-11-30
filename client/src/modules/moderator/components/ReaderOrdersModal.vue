@@ -92,6 +92,7 @@
 <script setup lang="ts">
 import { ref, watch, onUnmounted, nextTick } from 'vue';
 import type { ReaderStats, Order } from "@api/types";
+import { orderStatuses } from "@api/types";
 import { getReaderOrders, getReaderOrderDetail } from "@api/readers";
 import OrderDetailsModal from '@modules/moderator/components/OrderDetailsModal.vue';
 
@@ -123,29 +124,11 @@ const currentStatus = (order: Order): string => {
 };
 
 const getStatusClass = (status: string) => {
-  const statusMap: { [key: string]: string } = {
-    'new': 'status-new',
-    'processing': 'status-processing',
-    'ready': 'status-ready',
-    'done': 'status-done',
-    'cancelled': 'status-cancelled',
-    'error': 'status-error',
-    'archived': 'status-archived'
-  };
-  return statusMap[status] || 'status-unknown';
+  return `status-${status}`;
 };
 
 const getStatusText = (status: string) => {
-  const statusMap: { [key: string]: string } = {
-    'new': 'Новый',
-    'processing': 'В обработке',
-    'ready': 'Готов к выдаче',
-    'done': 'Выдан',
-    'cancelled': 'Отменен',
-    'error': 'Ошибка',
-    'archived': 'Архивирован'
-  };
-  return statusMap[status] || status;
+  return orderStatuses[status as keyof typeof orderStatuses] || status;
 };
 
 const getBooksCount = (order: Order): number => {

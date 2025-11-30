@@ -3,15 +3,9 @@
     <table class="table">
       <thead>
         <tr>
-          <SortableHeader
-            field="id"
-            :current-field="sortField"
-            :direction="sortDirection"
-            :loading="loading"
-            @sort="onSort"
-          >
+          <th class="static-header">
             Чит.билет
-          </SortableHeader>
+          </th>
 
           <SortableHeader
             field="fullname"
@@ -156,6 +150,18 @@ th {
   text-align: left;
   color: var(--color-text-800);
   background-color: var(--color-background-100);
+  vertical-align: middle;
+}
+
+.static-header {
+  cursor: default;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  
+  &:hover {
+    background-color: var(--color-background-100);
+  }
 }
 
 tr {
