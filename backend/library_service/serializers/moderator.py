@@ -31,6 +31,37 @@ class ReaderStatsSerializer(aserializers.ModelSerializer):
             "cancelled_orders",
             "last_order_date"
         ]
+        
+class StaffStatsSerializer(aserializers.ModelSerializer):
+    username = serializers.CharField(source="user.username", read_only=True)
+    fullname = serializers.CharField(read_only=True)
+    department = serializers.CharField(read_only=True)
+    
+    # Статистика по заказам, где сотрудник был исполнителем
+    total_orders = serializers.IntegerField(read_only=True)
+    cancelled_orders = serializers.IntegerField(read_only=True)
+    
+    class Meta:
+        model = UserProfile
+        fields = [
+            "id",
+            "username",
+            "fullname",
+            "department",
+            "total_orders",
+            "cancelled_orders"
+        ]
+        
+    async def get_total_orders(self, obj):
+        # Количество заказов, где сотрудник был исполнителем
+        return await OrderHistory.objects.filter(staff=obj.user).values('order').distinct().acount()
+    
+    async def get_cancelled_orders(self, obj):
+        # Количество отмененных заказов, где сотрудник был исполнителем
+        return await OrderHistory.objects.filter(
+            staff=obj.user,
+            status="cancelled"
+        ).values('order').distinct().acount()
 
 class ModeratorOrderSerializer(aserializers.ModelSerializer):
 

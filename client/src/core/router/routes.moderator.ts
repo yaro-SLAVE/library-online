@@ -17,6 +17,12 @@ export const moderatorRoutes = [
         meta: { roles: ["Admin"], requiresAuth: true },
       },
       {
+        path: "staff",
+        name: "staff",
+        component: () => import("@modules/moderator/views/StaffPage.vue"),
+        meta: { roles: ["Admin"], requiresAuth: true },
+      },
+      {
         path: "blacklist",
         name: "blacklist",
         component: () => import("@modules/moderator/views/BlackListPage.vue"),

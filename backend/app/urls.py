@@ -38,6 +38,7 @@ from library_service.views.staff_order import StaffOrderViewset, StaffOrderGetUp
 from library_service.views.comments import OrderCommentViewset, OrderItemCommentViewset
 from library_service.views.auth import AuthViewset, AuthThirdPartyViewset
 from library_service.views.moderator import ReadersViewset
+from library_service.views.moderator import StaffViewset
 
 router = AsyncDefaultRouter()
 router.register("book", BookViewset, basename="book")
@@ -49,12 +50,13 @@ router.register("profile/banned", ProfileBannedViewset, basename="profile-banned
 router.register("order", OrderViewset, basename="order")
 router.register("borrowed", BorrowedViewset, basename="borrowed")
 router.register("settings", LibrarySettingsViewSet, basename="settings")
-router.register("staff", StaffOrderViewset, basename="staff")
+router.register("staff-order", StaffOrderViewset, basename="staff-order")
 router.register("staff/order", StaffOrderGetUpdateViewset, basename="staff/order")
 router.register("staff/order/borrowed", StaffBorrowedViewset, basename="staff/order/borrowed")
 router.register("reasons/cancel", OrderCommentViewset, basename="reasons/cancel")
 router.register("reasons/notfound", OrderItemCommentViewset, basename="reasons/notfound")
 router.register("readers", ReadersViewset, basename='readers')
+router.register('staff', StaffViewset, basename='staff')
 
 urlpatterns = [
     path("admin/", admin.site.urls),

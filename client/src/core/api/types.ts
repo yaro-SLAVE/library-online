@@ -165,7 +165,6 @@ export type ReaderStats = {
   last_order_date: string | null;
 };
 
-
 export type PaginatedReaders = {
   count: number;
   next: string | null;
@@ -185,6 +184,28 @@ export type ReadersFilters = {
   page_size?: number;
 };
 
+export type StaffStats = {
+  id: number;
+  fullname: string;
+  department: string;
+  total_orders: number;
+  cancelled_orders: number;
+};
+
+export type PaginatedStaff = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: StaffStats[];
+};
+
+export type StaffFilters = {
+  search?: string;
+  sort_by?: 'fullname' | 'department' | 'total_orders' | 'cancelled_orders';
+  sort_order?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+};
 
 export type OrderStats = {
   id: number;
