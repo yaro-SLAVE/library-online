@@ -56,16 +56,17 @@
       </thead>
       <tbody>
         <OrdersTableRow 
-          v-for="order in ordersData" 
+          v-for="order in normalizedOrders" 
           :key="order.id" 
           :order="order" 
+          :last-status="order._lastStatusLabel"
           @row-click="$emit('row-click', $event)"
         />
       </tbody>
     </table>
 
     <Pagination
-      v-if="ordersData.length > 0"
+      v-if="normalizedOrders.length > 0"
       :current-page="pagination.page"
       :total-pages="totalPages"
       :loading="loading"
@@ -74,7 +75,7 @@
     />
 
     <EmptyState
-      v-if="ordersData.length === 0 && !loading"
+      v-if="normalizedOrders.length === 0 && !loading"
       :has-active-filters="hasActiveFilters"
       @clear-filters="$emit('clear-filters')"
       :loading="loading"
@@ -89,6 +90,8 @@ import Pagination from '@modules/moderator/components/Pagination.vue';
 import EmptyState from '@modules/moderator/components/EmptyState.vue';
 import type { OrderStats } from "@api/types";
 import { computed } from 'vue';
+import { orderStatuses } from "@api/types";
+import type { OrderStatusEnum } from "@api/types";
 
 interface Props {
   ordersData: OrderStats[];
@@ -129,6 +132,31 @@ const prevPage = () => {
 const nextPage = () => {
   emit('next-page');
 };
+
+// нормализуем список заказов и заранее считаем метку последнего статуса
+const normalizedOrders = computed(() => {
+  return props.ordersData.map((o: any) => {
+    let label = '-';
+
+    if (Array.isArray(o.statuses) && o.statuses.length > 0) {
+      const last = o.statuses[o.statuses.length - 1];
+      if (typeof last?.status === 'string' && last.status in orderStatuses) {
+        label = orderStatuses[last.status as OrderStatusEnum];
+      } else {
+        label = last?.status ?? '-';
+      }
+    } else {
+      if (typeof o.status === 'string' && o.status in orderStatuses) {
+        label = orderStatuses[o.status as OrderStatusEnum];
+      } else {
+        label = o.status ?? '-';
+      }
+    }
+
+    return { ...o, _lastStatusLabel: label };
+  });
+});
+
 </script>
 
 <style scoped lang="scss">
@@ -152,4 +180,3 @@ tr {
   border-bottom: 1px solid var(--color-text-200);
 }
 </style>
-
