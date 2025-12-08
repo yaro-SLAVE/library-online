@@ -1,9 +1,6 @@
 import axios from "axios";
 import type { StaffStats, PaginatedStaff, StaffFilters, Order, UserOrder } from "./types";
 
-/**
- * Получить список сотрудников с фильтрацией
- */
 export async function getStaff(filters?: StaffFilters): Promise<PaginatedStaff> {
   try {
     const { data } = await axios.get("/api/staff/", {
@@ -19,9 +16,6 @@ export async function getStaff(filters?: StaffFilters): Promise<PaginatedStaff> 
   }
 }
 
-/**
- * Получить статистику по сотрудникам (с группировкой и агрегацией)
- */
 export async function getStaffStats(filters?: StaffFilters): Promise<PaginatedStaff> {
   try {
     const { data } = await axios.get("/api/staff/stats/", {
@@ -37,9 +31,6 @@ export async function getStaffStats(filters?: StaffFilters): Promise<PaginatedSt
   }
 }
 
-/**
- * Получить заказы сотрудника
- */
 export async function getStaffOrders(staffId: number): Promise<UserOrder[]> {
   try {
     const { data } = await axios.get(`/api/staff/${staffId}/orders/`);
@@ -50,9 +41,6 @@ export async function getStaffOrders(staffId: number): Promise<UserOrder[]> {
   }
 }
 
-/**
- * Получить детали заказа сотрудника
- */
 export async function getStaffOrderDetail(staffId: number, orderId: number): Promise<Order> {
   try {
     const { data } = await axios.get(`/api/staff/${staffId}/orders/${orderId}/`);
@@ -63,9 +51,6 @@ export async function getStaffOrderDetail(staffId: number, orderId: number): Pro
   }
 }
 
-/**
- * Поиск сотрудников по ФИО или другим полям
- */
 export async function searchStaff(query: string): Promise<StaffStats[]> {
   try {
     const { data } = await axios.get("/api/staff/search/", {

@@ -1,6 +1,7 @@
 <template>
   <tr class="staff-row" @click="handleRowClick">
     <td>{{ staff.fullname }}</td>
+    <td>{{ staff.department }}</td>
     <td>{{ staff.total_orders }}</td>
     <td>{{ staff.cancelled_orders }}</td>
   </tr>
