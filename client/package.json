@@ -13,6 +13,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
     "@vueuse/core": "^12.4.0",
     "axios": "^1.7.7",
@@ -31,8 +32,10 @@
     "pinia-plugin-persistedstate": "^4.5.0",
     "qrcode": "^1.5.4",
     "qrcode.vue": "^3.6.0",
+    "v-calendar": "^3.0.0-alpha.6",
     "vue": "^3.5.12",
     "vue-cookie": "^1.1.4",
+    "vue-dayjs": "^1.0.2",
     "vue-html-to-paper": "^2.0.3",
     "vue-router": "^4.4.5",
     "vue-toastification": "^2.0.0-rc.5"

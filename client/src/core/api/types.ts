@@ -1,6 +1,7 @@
 export const groups = {
   Reader: "Читатель",
   Librarian: "Библиотекарь",
+  Admin: "Администратор",
 } as const;
 export type Group = keyof typeof groups;
 
@@ -87,12 +88,18 @@ export type OrderBook = {
   returned_date: string | null;
 };
 
+export type CustomOrderBook = {
+  original: OrderBook;
+  analogous: OrderBook;
+}
+
 export type Order = {
   id: number;
   books: OrderBook[];
   statuses: OrderStatus[];
   library: Library;
   user: UserInfo;
+  books_to_return: OrderBook[];
 };
 
 export type BorrowedBook = {
@@ -133,4 +140,98 @@ export type OrderCheckingInfo = {
   found_books: OrderBook[];
   notfound_books: OrderBook[];
   additional_books: string[];
+};
+
+export type LibrarySettings = {
+  max_books_per_order: number;
+  max_books_per_reader: number;
+  max_borrow_days: number;
+  holidays: Date[] | null;
+  logo: string | null;
+  new_order_wait: number;
+  processing_order_wait: number;
+};
+
+export type ReaderStats = {
+  id: number;
+  fullname: string;
+  department: string;
+  library_card: string | null;
+  campus_id: string | null;
+  mira_id: string | null;
+  total_books_ordered: number;
+  total_orders: number;
+  cancelled_orders: number;
+  last_order_date: string | null;
+};
+
+export type PaginatedReaders = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: ReaderStats[];
+};
+
+export type ReadersFilters = {
+  fullname?: string;
+  department?: string;
+  last_order_date_from?: string;
+  last_order_date_to?: string;
+  current_order_statuses?: OrderStatusEnum[];
+  sort_by?: 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
+  sort_order?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+};
+
+export type StaffStats = {
+  id: number;
+  fullname: string;
+  department: string;
+  total_orders: number;
+  cancelled_orders: number;
+};
+
+export type PaginatedStaff = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: StaffStats[];
+};
+
+export type StaffFilters = {
+  search?: string;
+  sort_by?: 'fullname' | 'department' | 'total_orders' | 'cancelled_orders';
+  sort_order?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
+};
+
+export type OrderStats = {
+  id: number;
+  fullname: string;
+  library_card: string | null;
+  employee_collect: string;
+  employee_issue: string;
+  status: OrderStatusEnum;
+};
+
+export type PaginatedOrderStats = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: OrderStats[];
+};
+
+export type OrdersFilters = {
+  fullname?: string;
+  employee_collect?: string;
+  employee_issue?: string;
+  date_from?: string;
+  date_to?: string;
+  statuses?: OrderStatusEnum[];
+  sort_by?: 'id' | 'fullname' | 'employee_collect' | 'employee_issue' | 'status';
+  sort_order?: 'asc' | 'desc';
+  page?: number;
+  page_size?: number;
 };

@@ -5,8 +5,7 @@ import "bootstrap-icons/font/bootstrap-icons.min.css";
 import "bootstrap/dist/js/bootstrap";
 import "modern-normalize/modern-normalize.css";
 import "@assets/style.scss";
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
 import App from "./App.vue";
 import router from "@core/router/index";
@@ -29,8 +28,8 @@ axios.interceptors.request.use(async (config) => {
 const app = createApp(App);
 
 app.use(Toast);
-const pinia = createPinia()
-pinia.use(piniaPluginPersistedstate)
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
 app.use(router);
 

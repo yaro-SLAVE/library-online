@@ -28,6 +28,8 @@ class OrderHistory(models.Model):
         ERROR = "error", "Ошибка"
         ARCHIVED = "archived", "Заархивирован"
 
+    NOT_CAME_DESCRIPTION = 'не пришел'
+    
     description = models.TextField()
     status = models.CharField(max_length=255, choices=Status.choices)
     date = models.DateTimeField(auto_now_add=True)
@@ -55,9 +57,9 @@ class OrderItem(models.Model):
     status = models.CharField(max_length=255, choices=Status.choices, default=Status.ORDERED)
     description = models.CharField(max_length=255, null=True, blank=True)
     order_to_return = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
-    handed_date = models.DateField(null=True, blank=True)
-    to_return_date = models.DateField(null=True, blank=True)
-    returned_date = models.DateField(null=True, blank=True)
+    handed_date = models.DateTimeField(null=True, blank=True)
+    to_return_date = models.DateTimeField(null=True, blank=True)
+    returned_date = models.DateTimeField(null=True, blank=True)
     analogous_order_item = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True)
 
     class Meta:

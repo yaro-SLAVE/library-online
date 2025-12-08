@@ -1,0 +1,39 @@
+import ModeratorLayout from "@core/layout/moderator/ModeratorLayout.vue";
+export const moderatorRoutes = [
+  {
+    path: "/moderator",
+    component: ModeratorLayout,
+    children: [
+      {
+        path: "readers",
+        name: "readers",
+        component: () => import("@modules/moderator/views/ReadersPage.vue"),
+        meta: { roles: ["Admin"], requiresAuth: true },
+      },
+      {
+        path: "orders",
+        name: "orders",
+        component: () => import("@modules/moderator/views/OrdersPage.vue"),
+        meta: { roles: ["Admin"], requiresAuth: true },
+      },
+      {
+        path: "staff",
+        name: "staff",
+        component: () => import("@modules/moderator/views/StaffPage.vue"),
+        meta: { roles: ["Admin"], requiresAuth: true },
+      },
+      {
+        path: "blacklist",
+        name: "blacklist",
+        component: () => import("@modules/moderator/views/BlackListPage.vue"),
+        meta: { roles: ["Admin"], requiresAuth: true },
+      },
+      {
+        path: "settings",
+        name: "settings",
+        component: () => import("@modules/moderator/views/SettingsPage.vue"),
+        meta: { roles: ["Admin"], requiresAuth: true },
+      },
+    ],
+  },
+];

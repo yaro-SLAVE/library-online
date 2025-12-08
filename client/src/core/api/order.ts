@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import axios from "axios";
 import type { BorrowedBook, Order, UserOrder, OrderStatusEnum, OrderCheckingInfo } from "./types";
 
@@ -5,7 +7,7 @@ export async function updateOrderStatus(
   orderId: number,
   newStatus: OrderStatusEnum,
   description?: string,
-  books?: [],
+  books?: []
 ) {
   const statusUpdate = {
     description: description,
@@ -41,7 +43,7 @@ export async function ordersList(): Promise<Order[]> {
 
 export async function fetchNewOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff/order/?status=new");
+    const response = await axios.get("/api/staff-order/order/?status=new");
     console.log("Ответ сервера:", response);
     return response.data;
   } catch (error: unknown) {
@@ -55,7 +57,7 @@ export async function fetchNewOrders(): Promise<UserOrder[]> {
 
 export async function fetchProcessingOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff/order/?status=processing");
+    const response = await axios.get("/api/staff-order/order/?status=processing");
     return response.data;
   } catch (error) {
     console.error("Ошибка при получении заказов в процессе:", error);
@@ -65,7 +67,7 @@ export async function fetchProcessingOrders(): Promise<UserOrder[]> {
 
 export async function fetchReadyOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff/order/?status=ready");
+    const response = await axios.get("/api/staff-order/order/?status=ready");
     return response.data;
   } catch (error) {
     console.error("Ошибка при получении готовых заказов:", error);
@@ -76,10 +78,10 @@ export async function fetchReadyOrders(): Promise<UserOrder[]> {
 export async function fetchArchiveOrders(): Promise<UserOrder[]> {
   try {
     let data = [];
-    const response = await axios.get("/api/staff/order/?status=done");
+    const response = await axios.get("/api/staff-order/order/?status=done");
     data = response.data;
-    const response2 = await axios.get("/api/staff/order/?status=cancelled");
-    response2.data.forEach(element => {
+    const response2 = await axios.get("/api/staff-order/order/?status=cancelled");
+    response2.data.forEach((element) => {
       data.push(element);
     });
     return data;
@@ -104,10 +106,10 @@ export async function checkOrder(orderId: number): Promise<OrderCheckingInfo> {
   try {
     const { data } = await axios.get(`/api/staff/order/check/${orderId}/`);
     console.log(`/api/order/${orderId}`, data);
-    
-    console.log('Найденные книги:', data.found_books);
-    console.log('Ненайденные книги:', data.notfound_books); 
-    console.log('Аналоги:', data.additional_books);
+
+    console.log("Найденные книги:", data.found_books);
+    console.log("Ненайденные книги:", data.notfound_books);
+    console.log("Аналоги:", data.additional_books);
 
     return data;
   } catch (error) {
@@ -127,6 +129,39 @@ export async function getOrderStaff(orderId: number): Promise<Order> {
   try {
     const { data } = await axios.get(`/api/staff/order/${orderId}/`);
     console.log(`/api/staff/order/${orderId}`, data);
+
+    if ((['ready', 'done', 'cancelled']).includes(data.statuses[data.statuses.length - 1].status)) {
+      console.log('---------------------');
+      let analogous_list = [...data.books].filter(x => x.analogous_order_item !== null).map(x => x.analogous_order_item);
+
+      let done_books = [...data.books].filter(x => (x.status === 'ordered' || x.status === 'handed') && !analogous_list.includes(x.id)).map(x => {
+        return {
+          original: x,
+          analogous: x
+        }
+      });
+
+      let books_with_analogous = [...data.books]
+      .filter(x => x.status === 'analogous')
+      .map(x => {
+        return {
+          original: x,
+          analogous: data.books.find(item => item.id === x.analogous_order_item)
+        }
+      });
+
+      let cancelled_books = [...data.books].filter(x => x.status === 'cancelled').map(x => {
+        return {
+          original: x,
+          analogous: null
+        }
+      });
+
+      data.books = [...done_books, ...books_with_analogous, ...cancelled_books];
+    }
+
+    console.log(data);
+
     return data;
   } catch (error) {
     console.error("Ошибка при получении заказа", error);

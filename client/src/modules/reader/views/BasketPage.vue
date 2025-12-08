@@ -115,7 +115,6 @@ const auth = useAuthStore();
 const { books } = storeToRefs(basketStore);
 const selectedBooks = ref<string[]>([]);
 const selectedBooksText = computed(() => {
-  // Прекрасный русский язык
   const amount = selectedBooks.value.length;
   const lastDigit = amount % 10;
 
@@ -182,14 +181,12 @@ const bookList = computed(() => {
     });
   };
 
-  // Получаем отсортированные списки книг на русском и английском языках
   const russianBooks = sortBooks("rus");
   const englishBooks = sortBooks("eng");
   const otherBooks = sortBooks().filter(
     (book) => book.language[0] !== "rus" && book.language[0] !== "eng"
   );
 
-  // Объединяем оба списка
   const combinedBooks = [...russianBooks, ...englishBooks, ...otherBooks];
 
   // Формируем список литературы
@@ -220,12 +217,10 @@ const bookList = computed(() => {
 async function saveBooks() {
   saveModalOpen.value = false;
 
-  // Получаем текущую дату для формирования имени файла
   const today = new Date();
   const defaultFileName = `Заказ Литературы_${today.toISOString().split("T")[0]}`;
 
   try {
-    // Проверяем выбранный формат файла и вызываем соответствующую функцию
     if (fileFormat.value === "txt") {
       await saveAsText(defaultFileName);
     } else if (fileFormat.value === "docx") {
@@ -305,8 +300,8 @@ async function saveAsPdf(defaultFileName: string) {
 // Функция для загрузки шрифта
 async function loadFont(pdf: jsPDF) {
   try {
-    const fontName = "Tinos-Regular";
-    const response = await fetch(`src/views/${fontName}.ttf`);
+    const fontName = "TimesNewRoman";
+    const response = await fetch(`src/modules/reader/views/${fontName}.ttf`);
     const fontData = await response.arrayBuffer();
     const uint8Array = new Uint8Array(fontData);
 

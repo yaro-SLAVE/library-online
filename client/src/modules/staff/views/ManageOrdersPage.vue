@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useAuthStore } from "@core/store/auth";
+import { useUserStore } from "@core/store/user";
 import LoadingModal from "@components/LoadingModal.vue";
 import OrderList from "@staff/components/OrderList.vue";
 import ModalOrderDetails from "@staff/components/ModalOrderDetails.vue";
@@ -71,7 +71,7 @@ import {
 import type { UserOrder, Order, OrderStatusEnum, OrderCheckingInfo } from "@api/types";
 import { getOrderStaff, updateOrderStatus, checkOrder } from "@api/order";
 
-const authStore = useAuthStore();
+const userStore = useUserStore();
 const isLoading = ref(false);
 
 interface TabConfig {
@@ -95,25 +95,25 @@ const tabs = ref<TabConfig[]>([
   {
     label: "Новые",
     fetchFn: fetchNewOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "В работе",
     fetchFn: fetchProcessingOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "Готовые",
     fetchFn: fetchReadyOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "Архив",
     fetchFn: fetchArchiveOrders,
-    interval: 10000,
+    interval: 15000,
     data: [],
   },
 ]);
@@ -141,6 +141,7 @@ const startAllIntervals = () => {
   });
 };
 
+//TODO: Разобраться с тем, что есть в бэке, и что есть на фронте для проверки показа только закрепленных за сотрудником заказов
 const fetchUserOrders = async (tab: TabConfig): Promise<UserOrder[]> => {
   let data = await tab.fetchFn();
   if (tab.label === "В работе") {
@@ -151,7 +152,7 @@ const fetchUserOrders = async (tab: TabConfig): Promise<UserOrder[]> => {
           name = status.staff.username;
         }
       });
-      return name === authStore.currentUser?.username;
+      return name === userStore.currentUser?.username;
     });
   }
   return data;
@@ -191,7 +192,7 @@ async function handleUpdateOrderStatus(
   orderId: number,
   newStatus: OrderStatusEnum,
   description: string,
-  books: [] = [],
+  books: [] = []
 ) {
   try {
     await updateOrderStatus(orderId, newStatus, description, books);

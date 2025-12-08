@@ -24,9 +24,11 @@ import { storeToRefs } from "pinia";
 import StyledButton from "@core/components/StyledButton.vue";
 import ModalDialog from "@core/components/ModalDialog.vue";
 import type { Group } from "@core/api/types";
+import { useUserStore } from "@core/store/user";
 const openModal = ref(false);
 const router = useRouter();
 const authStore = useAuthStore();
+const userStore = useUserStore();
 const states = {
   loading: "Загрузка...",
   error: "Ошибка",
@@ -42,7 +44,8 @@ onBeforeMount(async () => {
     state.value = "auth";
     const success = await authStore.bitrixLogin(code);
     if (success) {
-      const { currentUser } = storeToRefs(authStore);
+      await userStore.fetchProfile();
+      const { currentUser } = storeToRefs(userStore);
       if (currentUser.value?.groups?.includes("Librarian")) {
         openModal.value = true;
         console.log(currentUser.value?.groups, "YES");
@@ -61,11 +64,10 @@ onBeforeMount(async () => {
 });
 
 const handleUserRoleChoice = (choice: Group) => {
-  authStore.setUserRole(choice);
+  userStore.setCurrentRole(choice);
   state.value = "success";
   router.push("/profile");
 };
-
 </script>
 
 <style lang="scss" scoped>

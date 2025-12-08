@@ -33,6 +33,7 @@ import PasswordTextField from "@components/PasswordTextField.vue";
 import StyledButton from "@components/StyledButton.vue";
 import SurfaceCard from "@components/SurfaceCard.vue";
 import TextField from "@components/TextField.vue";
+import ModalDialog from "@core/components/ModalDialog.vue";
 import { useAuthStore } from "@core/store/auth";
 import { ref } from "vue";
 
@@ -40,12 +41,14 @@ const OAUTH_CLIENT_ID = import.meta.env.VITE_OAUTH_CLIENT_ID;
 
 const authStore = useAuthStore();
 
+
 const username = ref("");
 const password = ref("");
 async function login() {
   console.log(OAUTH_CLIENT_ID);
   // TODO: предупреждать пользователя об ошибках
-  await authStore.login(username.value, password.value);
+  const r = await authStore.login(username.value, password.value);
+  console.log(r);
 }
 </script>
 

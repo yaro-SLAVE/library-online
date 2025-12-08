@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <PageHeader />
+    <AppHeader :links="links" />
     <main>
       <div>
         <RouterView />
@@ -10,15 +10,19 @@
 </template>
 
 <script setup lang="ts">
-import PageHeader from "@modules/staff/components/PageHeader.vue";
 import { RouterView } from "vue-router";
+import AppHeader from "@core/components/AppHeader.vue";
+
+import { useStaffLinks } from "@core/composables/useStaffLinks";
+
+const { links } = useStaffLinks();
 </script>
 
 <style scoped lang="scss">
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Обеспечивает, чтобы футер всегда был внизу страницы */
+  min-height: 100vh;
 }
 
 main {
