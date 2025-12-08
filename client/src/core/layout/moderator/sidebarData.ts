@@ -19,6 +19,11 @@ export const sidebarLinks: SidebarLink[] = [
     icon: ShoppingCartIcon,
   },
   {
+    name: "Сотрудники",
+    to: "staff",
+    icon: ShoppingCartIcon,
+  },
+  {
     name: "Черный список",
     to: "blacklist",
     icon: MinusCircleIcon,

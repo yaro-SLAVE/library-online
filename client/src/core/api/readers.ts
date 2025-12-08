@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ReaderStats, PaginatedReaders, ReadersFilters, Order, UserOrder } from "./types";
+import type { ReaderStats, PaginatedReaders, ReadersFilters, Order } from "./types";
 
 export async function getReaders(filters?: ReadersFilters): Promise<PaginatedReaders> {
   try {
