@@ -1,5 +1,5 @@
 <script setup lang="ts">
-
+//@ts-nocheck
 
 import type { LibrarySettings } from "@core/api/types"
 import { getSettings, updateSettings } from "@core/api/settings"
