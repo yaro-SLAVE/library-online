@@ -144,15 +144,16 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .filter-group {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  position: relative;
+  align-items: center;
+  gap: 0.5rem;
   
   .filter-label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: var(--color-text-700);
-    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    text-align: right;
+    margin-bottom: 0;
   }
 }
 
@@ -169,7 +170,7 @@ onUnmounted(() => {
   border: 1px solid var(--color-text-300);
   border-radius: 4px;
   background: white;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   height: 2.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -232,7 +233,7 @@ onUnmounted(() => {
   display: block;
   left: 0;
   right: 0;
-  border: 1px solid var(--color-primary-500);
+  border: 2px solid var(--color-primary-500);
   border-radius: 0 0 4px 4px;
   max-height: 250px;
   animation: fadeIn 0.2s ease-out;
@@ -306,7 +307,7 @@ onUnmounted(() => {
 }
 
 .dropdown-item-label {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: inherit;
 }
 
@@ -323,7 +324,7 @@ onUnmounted(() => {
   width: 100%;
   background: none;
   border: none;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;

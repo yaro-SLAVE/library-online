@@ -46,19 +46,17 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "search", startDate: string, endDate: string): void;
-  (e: "initialDates", startDate: string, endDate: string): void; // Новый emit
+  (e: "initialDates", startDate: string, endDate: string): void;
 }>();
 
 const startDate = ref('');
 const endDate = ref('');
 const error = ref('');
 
-// Валидация формы
 const isFormValid = computed(() => {
   return startDate.value && endDate.value;
 });
 
-// Установка дат по умолчанию (последние 30 дней)
 const setDefaultDates = () => {
   const end = new Date();
   const start = new Date();
@@ -67,14 +65,12 @@ const setDefaultDates = () => {
   endDate.value = end.toISOString().split('T')[0];
   startDate.value = start.toISOString().split('T')[0];
   
-  // Эмитим начальные даты
   emit("initialDates", startDate.value, endDate.value);
 };
 
 const handleDateChange = () => {
   error.value = '';
   
-  // Проверка что начальная дата не больше конечной
   if (startDate.value && endDate.value && startDate.value > endDate.value) {
     error.value = 'Начальная дата не может быть больше конечной';
   }
@@ -120,14 +116,28 @@ onMounted(() => {
 
 .date-input-group {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 0.5rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
 }
 
 .date-label {
-  font-size: 0.9em;
-  color: var(--color-text-600);
+  font-size: 0.8rem;
   font-weight: 500;
+  color: var(--color-text-700);
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: right;
+  
+  @media (max-width: 768px) {
+    text-align: left;
+    min-width: auto;
+  }
 }
 
 .date-input {
@@ -138,6 +148,7 @@ onMounted(() => {
   background-color: var(--color-background-100);
   color: var(--color-text-800);
   transition: border-color 0.2s ease;
+  flex-grow: 1;
   
   &:focus {
     outline: none;
@@ -177,7 +188,7 @@ onMounted(() => {
 
 .error-message {
   color: var(--color-accent-400);
-  font-size: 0.9em;
+  font-size: 0.8em;
   margin-top: 8px;
   padding: 8px 12px;
   background-color: var(--color-accent-50);
