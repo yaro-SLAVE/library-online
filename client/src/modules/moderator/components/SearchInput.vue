@@ -4,7 +4,7 @@
       <input
         v-model="searchValue"
         type="text"
-        placeholder="Поиск по ФИО или номеру читательского билета..."
+        placeholder="Поиск по ФИО..."
         class="search-input"
         @input="handleInput"
       />
