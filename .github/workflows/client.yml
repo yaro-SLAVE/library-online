@@ -30,7 +30,7 @@ jobs:
     - name: Run linter
       run: |
         cd client
-        npx eslint src/ --ignore-pattern .gitignore
+        npx eslint src/ --fix --ignore-pattern .gitignore
 
     - name: Check formatting
       run: |

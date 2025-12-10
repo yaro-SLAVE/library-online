@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-909h7iain+=3226k_$_9=rqawwy4akcb^)71nq1%=e^hb^+@bx
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+OPAC_INTERNAL_TOKEN = ""
 ALLOWED_HOSTS = []
 
 # Application definition
@@ -58,7 +58,7 @@ ROOT_URLCONF = "app.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        'DIRS': [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -139,3 +139,24 @@ SIMPLE_JWT = {
 
 OPAC_HOSTNAME = "https://library.istu.edu/opac"
 SERVICE_HOSTNAME = "http://localhost:5173"
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@example.com'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
+WORKING_HOURS = {
+    'MONDAY_TO_FRIDAY_START_HOUR': 9,
+    'MONDAY_TO_FRIDAY_END_HOUR': 17,
+    'SATURDAY_START_HOUR': 9,
+    'SATURDAY_END_HOUR': 15,
+}
+
+DAYS = {
+    'MONDAY': 0,
+    'TUESDAY': 1,
+    'WEDNESDAY': 2, 
+    'THURSDAY': 3,  
+    'FRIDAY': 4,    
+    'SATURDAY': 5,  
+    'SUNDAY': 6,    
+}

@@ -1,11 +1,27 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "baseUrl": ".",
+    "paths": {
+      "@core/*": ["src/core/*"],
+      "@modules/*": ["src/modules/*"],
+      "@reader/*": ["src/modules/reader/*"],
+      "@staff/*": ["src/modules/staff/*"],
+      "@moderator/*": ["src/modules/moderator/*"],
+      "@assets/styles/*": ["src/assets/*"],
+      "@utils/*": ["src/core/utils/*"],
+      "@components/*": ["src/core/components/*"],
+      "@layouts/*": ["src/core/layouts/*"],
+      "@store/*": ["src/core/store/*"],
+      "@api/*": ["src/core/api/*"]
     },
-    {
-      "path": "./tsconfig.app.json"
-    }
-  ]
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "types": ["vite/client"]
+  },
 }

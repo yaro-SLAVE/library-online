@@ -4,15 +4,16 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-icons/font/bootstrap-icons.min.css";
 import "bootstrap/dist/js/bootstrap";
 import "modern-normalize/modern-normalize.css";
-import "@/style.scss";
+import "@assets/style.scss";
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
-import App from "@/App.vue";
-import router from "@/router";
+import App from "./App.vue";
+import router from "@core/router/index";
 
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import axios from "axios";
-import { useAuthStore } from "@/stores/auth";
+import { useAuthStore } from "@core/store/auth";
 
 axios.interceptors.request.use(async (config) => {
   const authStore = useAuthStore();
@@ -27,8 +28,9 @@ axios.interceptors.request.use(async (config) => {
 const app = createApp(App);
 
 app.use(Toast);
-
-app.use(createPinia());
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+app.use(pinia);
 app.use(router);
 
 app.mount("#app");

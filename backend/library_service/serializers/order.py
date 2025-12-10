@@ -31,10 +31,12 @@ class OrderUserSerializer(aserializers.ModelSerializer):
     username = serializers.CharField(read_only=True)
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
+    fullname = serializers.CharField(read_only=True)
+    department = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "username", "first_name", "last_name", "library_card", "campus_id", "mira_id"]
+        fields = ["id", "username", "first_name", "last_name", "library_card", "campus_id", "mira_id", "fullname", "department"]
 
 
 class OrderItemSerializer(aserializers.ModelSerializer):

@@ -4,7 +4,6 @@
 .pytest_cache
 .coverage
 
-prod_settings.py
 .env
 
 .42c

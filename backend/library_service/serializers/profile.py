@@ -11,10 +11,12 @@ class ProfileSerializer(aserializers.ModelSerializer):
     first_name = serializers.SerializerMethodField()
     last_name = serializers.SerializerMethodField()
     groups = afields.SerializerMethodField()
+    fullname = serializers.CharField()
+    department = serializers.CharField()
 
     class Meta:
         model = UserProfile
-        fields = ["username", "groups", "first_name", "last_name"]
+        fields = ["username", "groups", "first_name", "last_name", "fullname", "department"]
 
     def get_username(self, obj: UserProfile):
         return obj.user.username
@@ -26,4 +28,7 @@ class ProfileSerializer(aserializers.ModelSerializer):
         return obj.user.last_name
 
     async def get_groups(self, obj: UserProfile):
-        return [x.name async for x in obj.user.groups.all()]
+        user_groups = [x.name async for x in obj.user.groups.all()]
+        if(obj.user.is_staff and obj.user.is_superuser):
+            user_groups.append("Admin") 
+        return user_groups

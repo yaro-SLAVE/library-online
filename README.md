@@ -15,7 +15,7 @@
 ```mermaid
 graph TD
     client(Клиент) <--> nginx(nginx)
-    nginx <--> static(Статичные файлы)
+    nginx <--> staticF(Статичные файлы)
     nginx <--> handler(Обработчик запросов)
     psql(PostgreSQL) <--> handler
 
@@ -191,7 +191,7 @@ npm run format
 ```sh
 cd client
 npm install # Установка зависимостей
-npm run dev
+npm run dev # Запуск
 ```
 
 Для запуска бэкенда рекомендуется создать виртуальное окружение python, из которого сервис запускается следующим образом:
@@ -210,18 +210,32 @@ python manage.py runserver --settings local_settings
 
 Это, в частности, необходимо сделать, если нужно протестировать работу oauth. Тогда в файле `local_settings.py` нужно заполнить поля `OAUTH_CLIENT_ID` и `OAUTH_CLIENT_SECRET`.
 
+Можно сгенерировать тестовые данные
+```
+python manage.py generate_test_data
+```
+можно добавить --flush, чтобы почистить старые
+```
+python manage.py generate_test_data --flush
+```
+
+
 ### Запуск на проде
 
-В корне необходимо создать два файла: `prod_settings.py` и `.env`, скопировав в них текст из соответствующих .example файлов: `prod_settings.py.example` и `.env.example`.
+В корне необходимо создать файла `.env`, скопировав в него текст из соответствующего .example файла `.env.example`.
 
-После этого требуется дополнительное заполнение созданных файлов. Файл `prod_settings.py` можно оставить как есть, однако в некоторых случаях все же могут потребоваться дополнительные специфические для django настройки. Обязательным является заполнение в файле `.env` следующих полей:
+После этого требуется дополнительное заполнение созданного файла. Обязательным является заполнение следующих полей:
 
 - `POSTGRES_PASSWORD` (пароль СУБД)
 - `LIBRARY_PORT` (на каком порте будет хоститься сервис)
 - `DJANGO_SECRET_KEY` (секретный ключ для Django).
+- `DJANGO_SUPERUSER_USERNAME` (имя админского аккаунта в django)
+- `DJANGO_SUPERUSER_PASSWORD` (пароль админского аккаунта в django)
 - `SERVICE_HOSTNAME` (адрес сервиса, например: http://localhost:8000)
+- `SERVICE_CSRF_HOSTNAME` (адрес сервиса для CSRF, например: http://localhost:8000. Обязательно должен содержать http:// или https://)
 - `OAUTH_CLIENT_ID` (публичная часть oauth ключа для int.istu.edu)
 - `OAUTH_CLIENT_SECRET` (приватная часть oauth ключа для int.istu.edu)
+- `OPAC_INTERNAL_TOKEN` (супер-токен)
 
 Пароль для БД рекомендуется генерировать случайно:
 
