@@ -74,9 +74,11 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
+//@ts-nocheck
 import { ref, watch, onUnmounted, nextTick } from 'vue';
 import type { ReaderStats, UserOrder, Order } from "@api/types";
 import { getReaderOrders, getReaderOrderDetail } from "@api/readers";

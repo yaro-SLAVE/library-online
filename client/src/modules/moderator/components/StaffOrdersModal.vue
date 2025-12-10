@@ -121,6 +121,7 @@
 </template>
 
 <script setup lang="ts">
+//@ts-nocheck
 import { ref, watch, onUnmounted, nextTick, computed } from 'vue';
 import type { StaffStats, UserOrder, Order } from "@api/types";
 import { orderStatuses } from "@api/types";

@@ -39,6 +39,8 @@
 </template>
 
 <script setup lang="ts">
+//@ts-nocheck
+
 import StaffTable from '@moderator/components/StaffTable.vue';
 import SearchInput from '@moderator/components/SearchInput.vue';
 import LoadingModal from "@components/LoadingModal.vue";

@@ -43,7 +43,7 @@ export async function ordersList(): Promise<Order[]> {
 
 export async function fetchNewOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff/order/?status=new");
+    const response = await axios.get("/api/staff-order/order/?status=new");
     console.log("Ответ сервера:", response);
     return response.data;
   } catch (error: unknown) {
@@ -57,7 +57,7 @@ export async function fetchNewOrders(): Promise<UserOrder[]> {
 
 export async function fetchProcessingOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff/order/?status=processing");
+    const response = await axios.get("/api/staff-order/order/?status=processing");
     return response.data;
   } catch (error) {
     console.error("Ошибка при получении заказов в процессе:", error);
@@ -67,7 +67,7 @@ export async function fetchProcessingOrders(): Promise<UserOrder[]> {
 
 export async function fetchReadyOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff/order/?status=ready");
+    const response = await axios.get("/api/staff-order/order/?status=ready");
     return response.data;
   } catch (error) {
     console.error("Ошибка при получении готовых заказов:", error);
@@ -78,9 +78,9 @@ export async function fetchReadyOrders(): Promise<UserOrder[]> {
 export async function fetchArchiveOrders(): Promise<UserOrder[]> {
   try {
     let data = [];
-    const response = await axios.get("/api/staff/order/?status=done");
+    const response = await axios.get("/api/staff-order/order/?status=done");
     data = response.data;
-    const response2 = await axios.get("/api/staff/order/?status=cancelled");
+    const response2 = await axios.get("/api/staff-order/order/?status=cancelled");
     response2.data.forEach((element) => {
       data.push(element);
     });

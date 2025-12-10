@@ -13,7 +13,10 @@
         <span class="dropdown-arrow">▼</span>
       </div>
       
-      <div v-if="isOpen" class="dropdown-menu">
+      <div 
+        v-show="isOpen"
+        class="dropdown-menu"
+      >
         <div 
           v-for="status in statusOptions" 
           :key="status.value"
@@ -22,14 +25,14 @@
           @click="toggleStatus(status.value)"
         >
           <span class="checkbox-indicator">
-            {{ isSelected(status.value) ? '✓' : '' }}
+            <span v-if="isSelected(status.value)" class="checkmark">✓</span>
           </span>
           <span class="dropdown-item-label">{{ status.label }}</span>
         </div>
         
         <div class="dropdown-actions" v-if="localValue.length > 0">
           <button 
-            @click.stop="clearAll"
+            @click="clearAll"
             class="clear-all-btn"
             type="button"
           >
@@ -110,7 +113,9 @@ const toggleStatus = (statusValue: OrderStatusEnum) => {
   localValue.value = currentValue;
 };
 
-const toggleDropdown = () => {
+const toggleDropdown = (event: MouseEvent) => {
+  event.stopPropagation();
+  
   if (!props.disabled) {
     isOpen.value = !isOpen.value;
   }
@@ -118,6 +123,7 @@ const toggleDropdown = () => {
 
 const clearAll = () => {
   localValue.value = [];
+  isOpen.value = false;
 };
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -138,15 +144,16 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .filter-group {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  position: relative;
+  align-items: center;
+  gap: 0.5rem;
   
   .filter-label {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: var(--color-text-700);
-    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    text-align: right;
+    margin-bottom: 0;
   }
 }
 
@@ -163,24 +170,33 @@ onUnmounted(() => {
   border: 1px solid var(--color-text-300);
   border-radius: 4px;
   background: white;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   height: 2.25rem;
   cursor: pointer;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
+  user-select: none;
   
   &:hover:not(.dropdown-disabled) {
     border-color: var(--color-primary-500);
+    background: var(--color-background-50);
   }
   
   &.dropdown-open {
     border-color: var(--color-primary-500);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 0 0 1px var(--color-primary-500);
   }
   
   &.dropdown-disabled {
     background: var(--color-background-300);
     cursor: not-allowed;
     opacity: 0.6;
+    
+    &:hover {
+      border-color: var(--color-text-300);
+      background: var(--color-background-300);
+    }
   }
 }
 
@@ -190,6 +206,10 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  
+  .dropdown-disabled & {
+    color: var(--color-text-500);
+  }
 }
 
 .dropdown-arrow {
@@ -201,30 +221,42 @@ onUnmounted(() => {
   .dropdown-open & {
     transform: rotate(180deg);
   }
+  
+  .dropdown-disabled & {
+    color: var(--color-text-400);
+  }
 }
 
 .dropdown-menu {
-  position: absolute;
-  top: 100%;
+  padding: 0%;
+  overflow-y: auto;
+  display: block;
   left: 0;
   right: 0;
-  background: white;
-  border: 1px solid var(--color-text-300);
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  margin-top: 2px;
-  max-height: 200px;
-  overflow-y: auto;
+  border: 2px solid var(--color-primary-500);
+  border-radius: 0 0 4px 4px;
+  max-height: 250px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdown-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.625rem 0.75rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.15s ease;
   border-bottom: 1px solid var(--color-text-100);
   
   &:last-child {
@@ -238,6 +270,11 @@ onUnmounted(() => {
   &.dropdown-item-selected {
     background: var(--color-primary-50);
     color: var(--color-primary-700);
+    font-weight: 500;
+    
+    &:hover {
+      background: var(--color-primary-100);
+    }
   }
 }
 
@@ -247,34 +284,53 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid var(--color-text-300);
+  border-radius: 3px;
+  transition: all 0.15s ease;
+  
+  .dropdown-item-selected & {
+    border-color: var(--color-primary-500);
+    background: var(--color-primary-500);
+  }
+  
+  .dropdown-item:hover & {
+    border-color: var(--color-primary-400);
+  }
+}
+
+.checkmark {
   font-size: 0.75rem;
   font-weight: bold;
-  color: var(--color-primary-600);
-  flex-shrink: 0;
+  color: white;
+  line-height: 1;
 }
 
 .dropdown-item-label {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: inherit;
 }
 
 .dropdown-actions {
-  padding: 0.5rem 0.75rem;
+  padding: 0%;
   border-top: 1px solid var(--color-text-200);
-  background: var(--color-background-100);
+  background: var(--color-background-50);
+  position: sticky;
+  bottom: 0;
 }
 
 .clear-all-btn {
+  padding: 0.75rem;
+  width: 100%;
   background: none;
   border: none;
-  color: var(--color-error-500);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 0.25rem 0;
+  transition: all 0.2s ease;
   
   &:hover {
-    color: var(--color-error-600);
-    text-decoration: underline;
+    background: var(--color-primary-400);
   }
 }
 </style>
