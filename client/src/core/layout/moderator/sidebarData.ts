@@ -21,7 +21,7 @@ export const sidebarLinks: SidebarLink[] = [
   {
     name: "Сотрудники",
     to: "staff",
-    icon: ShoppingCartIcon,
+    icon: UsersIcon,
   },
   {
     name: "Черный список",
