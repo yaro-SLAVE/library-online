@@ -46,18 +46,39 @@ export async function getOrdersStats(filters?: OrdersFilters): Promise<Paginated
     // Map to OrderStats
     const mappedResults: OrderStats[] = allOrders.map((uo: UserOrder): OrderStats => {
       const lastStatus = uo.statuses[uo.statuses.length - 1];
+      
+      // Исправлено: получаем сотрудников из соответствующих статусов
       let employee_collect = '';
       let employee_issue = '';
-      for (const s of uo.statuses) {
-        if (s.status === 'ready') {
-          employee_collect = s.staff?.fullname ?? '';
-        } else if (s.status === 'done') {
-          employee_issue = s.staff?.fullname ?? '';
-        }
+      
+      // Ищем сотрудника, который собирал заказ (статус ready)
+      const readyStatus = uo.statuses.find(s => s.status === 'ready');
+      if (readyStatus?.staff) {
+        // Пробуем разные варианты получения имени сотрудника
+        employee_collect = readyStatus.staff.fullname || 
+                          `${readyStatus.staff.first_name || ''} ${readyStatus.staff.last_name || ''}`.trim() ||
+                          readyStatus.staff.username || 
+                          '';
       }
+      
+      // Ищем сотрудника, который выдавал заказ (статус done)
+      const doneStatus = uo.statuses.find(s => s.status === 'done');
+      if (doneStatus?.staff) {
+        employee_issue = doneStatus.staff.fullname || 
+                        `${doneStatus.staff.first_name || ''} ${doneStatus.staff.last_name || ''}`.trim() ||
+                        doneStatus.staff.username || 
+                        '';
+      }
+      
+      // Исправлено получение fullname пользователя
+      const fullname = uo.user.fullname || 
+                      `${uo.user.first_name || ''} ${uo.user.last_name || ''}`.trim() || 
+                      uo.user.username || 
+                      String(uo.user.id);
+      
       return {
         id: uo.id,
-        fullname: `${uo.user.first_name || ''} ${uo.user.last_name || ''}`.trim(),
+        fullname: fullname,
         library_card: uo.user.library_card ?? null,
         employee_collect,
         employee_issue,
@@ -68,10 +89,14 @@ export async function getOrdersStats(filters?: OrdersFilters): Promise<Paginated
     // Apply remaining filters on mapped
     let filteredResults = mappedResults;
     if (filters?.employee_collect) {
-      filteredResults = filteredResults.filter(stat => stat.employee_collect.toLowerCase().includes(filters.employee_collect?.toLowerCase() ?? ''));
+      filteredResults = filteredResults.filter(stat => 
+        stat.employee_collect.toLowerCase().includes(filters.employee_collect?.toLowerCase() ?? '')
+      );
     }
     if (filters?.employee_issue) {
-      filteredResults = filteredResults.filter(stat => stat.employee_issue.toLowerCase().includes(filters.employee_issue?.toLowerCase() ?? ''));
+      filteredResults = filteredResults.filter(stat => 
+        stat.employee_issue.toLowerCase().includes(filters.employee_issue?.toLowerCase() ?? '')
+      );
     }
 
     // Sorting client-side
