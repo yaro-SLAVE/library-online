@@ -60,6 +60,7 @@
           v-for="order in sortedOrders"
           :key="order.id"
           :order="order"
+          :current-tab="currentTab"
           @get-order="handleOpenOrderDetails"
         />
       </tbody>
@@ -68,11 +69,13 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import type { UserOrder } from "@api/types";
 import OrderTableRow from "@staff/components/OrderTableRow.vue";
+
 const props = defineProps<{
   orders: UserOrder[];
+  currentTab?: string;
 }>();
 
 const emit = defineEmits<{
@@ -111,8 +114,37 @@ const sortedOrders = computed(() => {
         comparison = aUser.localeCompare(bUser);
         break;
       case "date":
-        const aDate = a.statuses[0]?.date ? new Date(a.statuses[0].date).getTime() : 0;
-        const bDate = b.statuses[0]?.date ? new Date(b.statuses[0].date).getTime() : 0;
+        const getDateForOrder = (order: UserOrder): number => {
+          if (!order.statuses || order.statuses.length === 0) return 0;
+          
+          let targetStatus;
+          switch (props.currentTab) {
+            case "new":
+              targetStatus = "new";
+              break;
+            case "processing":
+              targetStatus = "processing";
+              break;
+            case "ready":
+              targetStatus = "ready";
+              break;
+            case "archive":
+              const lastStatus = order.statuses[order.statuses.length - 1];
+              return lastStatus?.date ? new Date(lastStatus.date).getTime() : 0;
+            default:
+              return order.statuses[0]?.date ? new Date(order.statuses[0].date).getTime() : 0;
+          }
+          
+          if (targetStatus) {
+            const status = order.statuses.find(s => s.status === targetStatus);
+            return status?.date ? new Date(status.date).getTime() : 0;
+          }
+          
+          return 0;
+        };
+        
+        const aDate = getDateForOrder(a);
+        const bDate = getDateForOrder(b);
         comparison = aDate - bDate;
         break;
       case "id":

@@ -2,7 +2,7 @@
   <tr :class="{ 'highlight-red': shouldHighlight }">
     <th>{{ order.id }}</th>
     <td>{{ order.user.first_name }} {{ order.user.last_name }}</td>
-    <td>{{ formatDate(order.statuses[0]?.date) }}</td>
+    <td>{{ formatDate(getStatusDate()) }}</td>
     <td>
       <button
         class="info-button"
@@ -17,16 +17,44 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { UserOrder } from "@api/types";
+import type { UserOrder, OrderStatusEnum } from "@api/types";
 import { calculateHighlightTime } from "@staff/utils/orderHighlighting";
 
 const props = defineProps<{
   order: UserOrder;
+  currentTab?: string;
 }>();
 
 const emit = defineEmits<{
   (e: "getOrder", id: number): void;
 }>();
+
+const getStatusDate = (): string | undefined => {
+  if (!props.order.statuses || props.order.statuses.length === 0) {
+    return undefined;
+  }
+
+  let targetStatus: OrderStatusEnum;
+  
+  switch (props.currentTab) {
+    case "new":
+      targetStatus = "new";
+      break;
+    case "processing":
+      targetStatus = "processing";
+      break;
+    case "ready":
+      targetStatus = "ready";
+      break;
+    case "archive":
+      return props.order.statuses[props.order.statuses.length - 1]?.date;
+    default:
+      return props.order.statuses[0]?.date;
+  }
+
+  const status = props.order.statuses.find(s => s.status === targetStatus);
+  return status?.date;
+};
 
 const orderShouldHighlightAt = computed<Date | null>(() => {
   if (

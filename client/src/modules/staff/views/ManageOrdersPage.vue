@@ -42,7 +42,11 @@
         </a>
       </li>
     </ul>
-    <OrderList @get-order="fetchOrder" :orders="currentData" />
+    <OrderList 
+      @get-order="fetchOrder" 
+      :orders="currentData"
+      :current-tab="getCurrentTabName()"
+    />
     <ModalOrderDetails
       v-if="selectedOrder"
       :order="selectedOrder"
@@ -118,6 +122,21 @@ const tabs = ref<TabConfig[]>([
   },
 ]);
 
+const getCurrentTabName = (): string => {
+  switch (currentTab.value) {
+    case tabsNumbers.new:
+      return "new";
+    case tabsNumbers.processing:
+      return "processing";
+    case tabsNumbers.ready:
+      return "ready";
+    case tabsNumbers.archive:
+      return "archive";
+    default:
+      return "new";
+  }
+};
+
 const newOrdersCount = computed(() => tabs.value[tabsNumbers.new].data.length);
 const processingOrdersCount = computed(() => tabs.value[tabsNumbers.processing].data.length);
 const readyOrdersCount = computed(() => tabs.value[tabsNumbers.ready].data.length);
@@ -141,7 +160,6 @@ const startAllIntervals = () => {
   });
 };
 
-//TODO: Разобраться с тем, что есть в бэке, и что есть на фронте для проверки показа только закрепленных за сотрудником заказов
 const fetchUserOrders = async (tab: TabConfig): Promise<UserOrder[]> => {
   let data = await tab.fetchFn();
   if (tab.label === "В работе") {
