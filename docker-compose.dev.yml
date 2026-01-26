@@ -3,7 +3,9 @@ services:
     environment:
       DEBUG: "1"
       DJANGO_SETTINGS_MODULE: "prod_settings"
-    command: python manage.py runserver 0.0.0.0:8000 --settings prod_settings
+    command: sh -c "python manage.py migrate --settings prod_settings \
+      && python manage.py init_superuser --settings prod_settings --username ${DJANGO_SUPERUSER_USERNAME} --password ${DJANGO_SUPERUSER_PASSWORD} \
+      && python manage.py runserver 0.0.0.0:8000 --settings prod_settings"
     volumes:
       - ./backend:/app
       - ./prod_settings.py:/app/prod_settings.py

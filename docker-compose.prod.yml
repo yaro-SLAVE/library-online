@@ -13,5 +13,7 @@ services:
       - media:/usr/share/nginx/html/media
       - django-static:/usr/share/nginx/html/static
     depends_on:
-      - postgres
-      - library-service
+      postgres:
+        condition: service_healthy
+      library-service:
+        condition: service_started
