@@ -1,7 +1,7 @@
 from app.settings import *
 import os
 
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", "0") == "1"
 
 CSRF_TRUSTED_ORIGINS = [os.environ.get("SERVICE_CSRF_HOSTNAME")]
 ALLOWED_HOSTS = [os.environ.get("SERVICE_HOSTNAME")]

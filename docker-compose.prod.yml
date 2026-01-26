@@ -1,0 +1,17 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+      args:
+        VITE_SERVICE_HOSTNAME: "${SERVICE_HOSTNAME}"
+        VITE_OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID}"
+    restart: unless-stopped
+    ports:
+      - "${LIBRARY_PORT}:80"
+    volumes:
+      - media:/usr/share/nginx/html/media
+      - django-static:/usr/share/nginx/html/static
+    depends_on:
+      - postgres
+      - library-service
