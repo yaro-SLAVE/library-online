@@ -1,16 +1,24 @@
 FROM python:3.13.3
 
-ENV PYTHONBUFFERED 1
-ENV DJANGO_SETTINGS_MODULE prod_settings
+ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=service_settings
+
+# Создаем не рута
+RUN useradd -m -u 1000 django
 
 WORKDIR /app
-COPY backend/. /app/.
-COPY prod_settings.py /app/prod_settings.py
 
+# Сразу копируем под нужным пользователем
+COPY --chown=django:django backend/. /app/.
+COPY --chown=django:django backend/service_settings.py /app/service_settings.py
+COPY --chown=django:django entrypoint.django.sh /app/entrypoint.sh
+
+RUN chmod +x /app/entrypoint.sh
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 
+# Создаем директории со статик фалами
+RUN mkdir -p /app/staticfiles /app/media
+
+
 EXPOSE 8000
-CMD python manage.py collectstatic --noinput --settings prod_settings \
-    && python manage.py migrate --settings prod_settings \
-    && python manage.py init_superuser --settings prod_settings --username ${DJANGO_SUPERUSER_USERNAME} --password ${DJANGO_SUPERUSER_PASSWORD} \
-    && uvicorn --host 0.0.0.0 app.asgi:application
+ENTRYPOINT ["./entrypoint.sh"]

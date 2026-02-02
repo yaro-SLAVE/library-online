@@ -3,7 +3,7 @@ from django.test import Client
 import pytest
 
 
-def authorize(client: Client, username: str = "user", password: str = "1235") -> tuple[str, str]:
+def authorize(client: Client, username: str = "user", password: str = "1234") -> tuple[str, str]:
     response = client.post("/api/auth/login/", {"username": username, "password": password})
     json = response.json()
     client.defaults.update(HttpHeaders.to_wsgi_names({"Authorization": f'Bearer {json["access"]}'}))
@@ -15,7 +15,7 @@ def test_normal_auth(client: Client):
     authorize(client)
     response = client.get("/api/profile/self-info/")
     json = response.json()
-    assert json == {"username": "user", "first_name": "Alan", "last_name": "Turing", "groups": ["Reader"]}
+    assert json == {"username": "user", "first_name": "Alan", "last_name": "Turing", "groups": ["Reader"], "department": None, "fullname": None}
 
 
 @pytest.mark.django_db
@@ -48,7 +48,7 @@ def test_refresh(client: Client):
     # Get profile info with the new token
     response = client.get("/api/profile/self-info/", headers={"Authorization": f"Bearer {access}"})
     json = response.json()
-    assert json == {"username": "user", "first_name": "Alan", "last_name": "Turing", "groups": ["Reader"]}
+    assert json == {"username": "user", "first_name": "Alan", "last_name": "Turing", "groups": ["Reader"], "department": None, "fullname": None}
 
 
 @pytest.mark.django_db
