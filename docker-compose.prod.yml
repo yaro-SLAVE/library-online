@@ -1,10 +1,13 @@
 services:
+  library-service:
+    environment:
+      MODE: "prod"
+
   nginx:
     build:
       context: .
       dockerfile: Dockerfile.nginx
       args:
-        VITE_SERVICE_HOSTNAME: "${SERVICE_HOSTNAME}"
         VITE_OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID}"
     restart: unless-stopped
     ports:
@@ -16,4 +19,11 @@ services:
       postgres:
         condition: service_healthy
       library-service:
-        condition: service_started
+        condition: service_healthy
+    networks:
+      - library-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
