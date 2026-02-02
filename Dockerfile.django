@@ -11,9 +11,8 @@ WORKDIR /app
 # Сразу копируем под нужным пользователем
 COPY --chown=django:django backend/. /app/.
 COPY --chown=django:django backend/service_settings.py /app/service_settings.py
-COPY --chown=django:django entrypoint.django.sh /app/entrypoint.sh
-
-RUN chmod +x /app/entrypoint.sh
+COPY --chown=django:django entrypoint.django.sh /entrypoint.django.sh
+RUN chmod +x /entrypoint.django.sh
 RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt
 
 # Создаем директории со статик фалами
@@ -21,4 +20,4 @@ RUN mkdir -p /app/staticfiles /app/media
 
 
 EXPOSE 8000
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.django.sh"]
