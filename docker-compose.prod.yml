@@ -1,0 +1,29 @@
+services:
+  library-service:
+    environment:
+      MODE: "prod"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+      args:
+        VITE_OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID}"
+    restart: unless-stopped
+    ports:
+      - "${LIBRARY_PORT}:80"
+    volumes:
+      - media:/usr/share/nginx/html/media
+      - django-static:/usr/share/nginx/html/static
+    depends_on:
+      postgres:
+        condition: service_healthy
+      library-service:
+        condition: service_healthy
+    networks:
+      - library-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

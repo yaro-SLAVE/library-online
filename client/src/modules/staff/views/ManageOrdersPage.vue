@@ -95,25 +95,25 @@ const tabs = ref<TabConfig[]>([
   {
     label: "Новые",
     fetchFn: fetchNewOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "В работе",
     fetchFn: fetchProcessingOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "Готовые",
     fetchFn: fetchReadyOrders,
-    interval: 3000,
+    interval: 15000,
     data: [],
   },
   {
     label: "Архив",
     fetchFn: fetchArchiveOrders,
-    interval: 10000,
+    interval: 15000,
     data: [],
   },
 ]);
@@ -141,6 +141,7 @@ const startAllIntervals = () => {
   });
 };
 
+//TODO: Разобраться с тем, что есть в бэке, и что есть на фронте для проверки показа только закрепленных за сотрудником заказов
 const fetchUserOrders = async (tab: TabConfig): Promise<UserOrder[]> => {
   let data = await tab.fetchFn();
   if (tab.label === "В работе") {

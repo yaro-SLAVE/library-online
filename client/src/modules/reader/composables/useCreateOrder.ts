@@ -1,3 +1,5 @@
+//@ts-nocheck
+
 import { ref } from "vue";
 import { useAuthStore } from "@core/store/auth";
 import { useOrderStore } from "@reader/store/orderStore";

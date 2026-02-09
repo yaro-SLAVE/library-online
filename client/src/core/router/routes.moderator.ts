@@ -7,13 +7,19 @@ export const moderatorRoutes = [
       {
         path: "readers",
         name: "readers",
-        component: () => import("@modules/staff/views/ManageOrdersPage.vue"),
+        component: () => import("@modules/moderator/views/ReadersPage.vue"),
         meta: { roles: ["Admin"], requiresAuth: true },
       },
       {
         path: "orders",
         name: "orders",
-        component: () => import("@modules/staff/views/ManageOrdersPage.vue"),
+        component: () => import("@modules/moderator/views/OrdersPage.vue"),
+        meta: { roles: ["Admin"], requiresAuth: true },
+      },
+      {
+        path: "staff",
+        name: "staff",
+        component: () => import("@modules/moderator/views/StaffPage.vue"),
         meta: { roles: ["Admin"], requiresAuth: true },
       },
       {
@@ -25,7 +31,7 @@ export const moderatorRoutes = [
       {
         path: "settings",
         name: "settings",
-        component: () => import("@modules/staff/views/ManageOrdersPage.vue"),
+        component: () => import("@modules/moderator/views/SettingsPage.vue"),
         meta: { roles: ["Admin"], requiresAuth: true },
       },
     ],

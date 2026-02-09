@@ -1,0 +1,38 @@
+services:
+  postgres:
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+
+  library-service:
+    environment:
+      MODE: "dev"
+      DEBUG: "1"
+    volumes:
+      - ./backend:/app
+      - ./entrypoint.django.sh:/entrypoint.django.sh
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+
+  frontend:
+    image: node:24
+    working_dir: /app
+    restart: unless-stopped
+    volumes:
+      - ./client:/app
+      - node_modules:/app/node_modules
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      VITE_PROXY_TARGET: "http://library-service:8000"
+      VITE_OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID}"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    networks:
+      - library-net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  node_modules:
