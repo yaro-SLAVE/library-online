@@ -33,6 +33,10 @@
               </div>
             </span>
           </th>
+          <!-- Новый столбец -->
+          <th class="candidate-column">
+            Претендент на блокировку
+          </th>
           <th
             @click="sortCandidates('total_orders_count')"
             class="sortable-th orders-column"
@@ -200,9 +204,15 @@ tr {
   min-width: 120px;
 }
 
+.candidate-column {
+  width: 15%;
+  min-width: 120px;
+  font-weight: 500;
+}
+
 .orders-column,
 .cancellations-column {
-  width: 15%;
+  width: 12%;
   min-width: 100px;
 }
 

@@ -2,6 +2,8 @@
   <tr class="candidate-row">
     <td class="library-card">{{ candidate.library_card }}</td>
     <td class="fullname">{{ candidate.fullname }}</td>
+    <!-- Новая ячейка -->
+    <td class="candidate-status">Да</td>
     <td class="total-orders">{{ candidate.total_orders_count }}</td>
     <td class="cancelled-orders">{{ candidate.cancelled_orders_count }}</td>
     <td class="actions">
@@ -65,6 +67,13 @@ const handleBan = () => {
   @media (max-width: 480px) {
     font-size: 0.9em;
   }
+}
+
+.candidate-status {
+  text-align: center;
+  font-weight: 500;
+  color: var(--color-accent-400);
+  background-color: inherit;
 }
 
 .total-orders,
