@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "lint": "eslint src/ --fix --ignore-pattern .gitignore",
+    "lint:no-ignores": "sh -c '! rg -n \"@ts-nocheck|@ts-ignore|@ts-expect-error|eslint-disable|prettier-ignore\" src'",
     "format": "prettier --write src/",
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",

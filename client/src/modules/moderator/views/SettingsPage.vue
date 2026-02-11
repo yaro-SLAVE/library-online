@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { LibrarySettings } from "@core/api/types";
-import { getSettings, updateSettings } from "@core/api/settings";
-import { onBeforeMount, ref } from "vue";
-import StyledButton from "@components/StyledButton.vue";
-import { Calendar, DatePicker } from "v-calendar";
-import type { DatePickerDate, DatePickerAttribute } from "v-calendar/types/index";
-import InputField from "@core/components/TextField.vue";
+import { computed, onBeforeMount, ref } from "vue";
 import dayjs from "dayjs";
+import StyledButton from "@components/StyledButton.vue";
+import { DatePicker } from "v-calendar";
+import InputField from "@core/components/TextField.vue";
+import { getSettings, updateSettings } from "@core/api/settings";
+import type { LibrarySettings } from "@core/api/types";
 
 const settings = ref<LibrarySettings>({
   max_books_per_order: 0,
@@ -17,9 +16,22 @@ const settings = ref<LibrarySettings>({
   new_order_wait: 0,
   processing_order_wait: 0,
 });
-const file = ref();
+const file = ref<File | null>(null);
 
-const calendarAttributes = ref<DatePickerAttribute[]>([
+type DayClickPayload = {
+  date: Date | string;
+};
+
+type CalendarAttribute = {
+  key: string;
+  highlight: {
+    color: string;
+    fillMode: string;
+  };
+  dates: string[];
+};
+
+const calendarAttributes = ref<CalendarAttribute[]>([
   {
     key: "selected-dates",
     highlight: {
@@ -30,22 +42,63 @@ const calendarAttributes = ref<DatePickerAttribute[]>([
   },
 ]);
 
-onBeforeMount(async () => {
-  settings.value = await getSettings();
-  calendarAttributes.value[0].dates = settings.value.holidays;
+const toNumber = (value: string): number => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const maxBooksPerOrder = computed({
+  get: () => String(settings.value.max_books_per_order),
+  set: (value: string) => {
+    settings.value.max_books_per_order = toNumber(value);
+  },
 });
 
-const onDayClick = (day: DatePickerDate) => {
-  const dayClick = dayjs(day.date).format("YYYY-MM-DD");
+const maxBooksPerReader = computed({
+  get: () => String(settings.value.max_books_per_reader),
+  set: (value: string) => {
+    settings.value.max_books_per_reader = toNumber(value);
+  },
+});
 
-  if (calendarAttributes.value[0].dates.includes(dayClick)) {
-    const existingIndex = calendarAttributes.value[0].dates.indexOf(dayClick);
-    calendarAttributes.value[0].dates.splice(existingIndex, 1);
+const maxBorrowDays = computed({
+  get: () => String(settings.value.max_borrow_days),
+  set: (value: string) => {
+    settings.value.max_borrow_days = toNumber(value);
+  },
+});
+
+const newOrderWait = computed({
+  get: () => String(settings.value.new_order_wait),
+  set: (value: string) => {
+    settings.value.new_order_wait = toNumber(value);
+  },
+});
+
+const processingOrderWait = computed({
+  get: () => String(settings.value.processing_order_wait),
+  set: (value: string) => {
+    settings.value.processing_order_wait = toNumber(value);
+  },
+});
+
+onBeforeMount(async () => {
+  settings.value = await getSettings();
+  calendarAttributes.value[0].dates = [...(settings.value.holidays ?? [])];
+});
+
+const onDayClick = (day: DayClickPayload) => {
+  const dayClick = dayjs(day.date).format("YYYY-MM-DD");
+  const selectedDates = calendarAttributes.value[0].dates;
+
+  if (selectedDates.includes(dayClick)) {
+    const existingIndex = selectedDates.indexOf(dayClick);
+    selectedDates.splice(existingIndex, 1);
   } else {
-    calendarAttributes.value[0].dates.push(dayClick);
+    selectedDates.push(dayClick);
   }
 
-  calendarAttributes.value[0].dates.sort();
+  selectedDates.sort();
 };
 
 const onFileChange = (event: Event) => {
@@ -56,7 +109,7 @@ const onFileChange = (event: Event) => {
 };
 
 async function save() {
-  settings.value.holidays = calendarAttributes.value[0].dates;
+  settings.value.holidays = [...calendarAttributes.value[0].dates];
   settings.value.logo = file.value;
 
   await updateSettings(settings.value);
@@ -67,32 +120,32 @@ async function save() {
   <div style="display: flex; flex-direction: column; margin: 15px; align-items: center; gap: 10px">
     <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 8px">
       <span>Максимальное количество книг в заказе</span>
-      <InputField type="number" v-model="settings.max_books_per_order" />
+      <InputField type="number" v-model="maxBooksPerOrder" />
     </div>
 
     <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 8px">
       <span>Максимальное количество книг на руках</span>
-      <InputField type="number" v-model="settings.max_books_per_reader" />
+      <InputField type="number" v-model="maxBooksPerReader" />
     </div>
 
     <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 8px">
       <span>Максимальное количество дней на выдачу</span>
-      <InputField type="number" v-model="settings.max_borrow_days" />
+      <InputField type="number" v-model="maxBorrowDays" />
     </div>
 
     <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 8px">
       <span>Срок ожидания нового заказа (в часах)</span>
-      <InputField type="number" v-model="settings.new_order_wait" />
+      <InputField type="number" v-model="newOrderWait" />
     </div>
 
     <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 8px">
       <span>Срок задержки исполнения заказа (в часах)</span>
-      <InputField type="number" v-model="settings.processing_order_wait" />
+      <InputField type="number" v-model="processingOrderWait" />
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
       <span>Логотип сайта</span>
-      <InputField type="file" v-model="file" @change="onFileChange" />
+      <InputField type="file" @change="onFileChange" />
     </div>
 
     <div>

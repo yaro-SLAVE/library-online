@@ -76,6 +76,7 @@ export const orderBookStatuses = {
   handed: "Выдана",
   returned: "Возвращена",
   cancelled: "Заказ отменен",
+  analogous: "Аналог",
 } as const;
 export type OrderBookStatus = keyof typeof orderBookStatuses;
 
@@ -86,11 +87,12 @@ export type OrderBook = {
   handed_date: string | null;
   to_return_date: string | null;
   returned_date: string | null;
+  analogous_order_item?: number | null;
 };
 
 export type CustomOrderBook = {
   original: OrderBook;
-  analogous: OrderBook;
+  analogous: OrderBook | null;
 };
 
 export type Order = {
@@ -115,6 +117,7 @@ export type UserOrder = {
   statuses: OrderStatus[];
   library: Library;
   user: UserInfo;
+  books?: OrderBook[];
 };
 
 export type UserInfo = {
@@ -139,17 +142,28 @@ export type PaginatedOrders = {
 export type OrderCheckingInfo = {
   found_books: OrderBook[];
   notfound_books: OrderBook[];
-  additional_books: string[];
+  additional_books: {
+    id: number;
+    title: string;
+    author: string;
+  }[];
 };
 
 export type LibrarySettings = {
   max_books_per_order: number;
   max_books_per_reader: number;
   max_borrow_days: number;
-  holidays: Date[] | null;
-  logo: string | null;
+  holidays: string[] | null;
+  logo: string | File | null;
   new_order_wait: number;
   processing_order_wait: number;
+};
+
+export type OrderBookUpdatePayload = {
+  book_id: number;
+  description: string;
+  status: "analogous" | "cancelled";
+  analogous: number | "";
 };
 
 export type ReaderStats = {
