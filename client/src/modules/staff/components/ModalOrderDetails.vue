@@ -14,7 +14,7 @@
         <div class="section">
           <h3>Книги ({{ selectedOrder.books.length }})</h3>
           <div class="books-container" v-if="['new', 'processing'].includes(currentStatus)">
-            <template v-for="orderBook in selectedOrder.books" :key="orderBook.id">
+            <template v-for="orderBook in editableBooks" :key="orderBook.id">
               <div
                 class="book-card"
                 :class="{
@@ -84,7 +84,7 @@
             class="books-container"
             v-else-if="['ready', 'done', 'cancelled'].includes(currentStatus)"
           >
-            <template v-for="orderBook in selectedOrder.books" :key="orderBook.original.id">
+            <template v-for="orderBook in displayBooks" :key="orderBook.original.id">
               <div :class="'book-card book-' + orderBook.original.status">
                 <ShortBookCard :book="orderBook.original.book" />
               </div>
@@ -191,19 +191,25 @@
   </div>
   <OrderRejectModal v-model="openRejectModal" @confirm="handleRejectOrder" />
   <OrderCancelModal v-model="openCancelModal" @confirm="handleOrderCancel" />
-  <PrintModal v-model="openPrintModal" :order="selectedOrder" />
-  <PrintStickerModal v-model="openPrintStickerModal" :order="selectedOrder" />
+  <PrintModal v-model="openPrintModal" :order="props.order" />
+  <PrintStickerModal v-model="openPrintStickerModal" :order="props.order" />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed, ref, watch } from "vue";
 import ShortBookCard from "@components/ShortBookCard.vue";
 import StyledButton from "@components/StyledButton.vue";
 import PrintModal from "@staff/components/PrintModal.vue";
 import PrintStickerModal from "@staff/components/PrintStickerModal.vue";
 import OrderRejectModal from "@staff/components/OrderRejectModal.vue";
-import type { Order, OrderCheckingInfo } from "@api/types";
-import type { OrderStatusEnum } from "@api/types";
+import type {
+  CustomOrderBook,
+  Order,
+  OrderBook,
+  OrderBookUpdatePayload,
+  OrderCheckingInfo,
+  OrderStatusEnum,
+} from "@api/types";
 import { orderStatuses } from "@api/types";
 import OrderCancelModal from "@staff/components/OrderCancelModal.vue";
 
@@ -236,10 +242,21 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "close"): void;
-  (e: "nextOrderStatus", orderId: number, nextStatus: OrderStatusEnum, description: string): void;
+  (
+    e: "nextOrderStatus",
+    orderId: number,
+    nextStatus: OrderStatusEnum,
+    description: string,
+    books?: OrderBookUpdatePayload[]
+  ): void;
 }>();
 
-const selectedOrder = ref<Order>(props.order);
+type StaffModalBook = OrderBook | CustomOrderBook;
+type StaffModalOrder = Omit<Order, "books"> & {
+  books: StaffModalBook[];
+};
+
+const selectedOrder = ref<StaffModalOrder>(props.order as StaffModalOrder);
 
 const unavailableReasons = ref([
   { value: "noAvailableCopies", label: "Нет доступных экземпляров" },
@@ -255,6 +272,25 @@ const unavailableBooks = ref<number[]>([]);
 const availableAnalogs = ref<{ id: number; title: string; author: string }[]>([]);
 
 const isCheckFailed = ref(false);
+
+const isCustomOrderBook = (book: StaffModalBook): book is CustomOrderBook => {
+  return "original" in book;
+};
+
+const editableBooks = computed<OrderBook[]>(() =>
+  selectedOrder.value.books.filter((book): book is OrderBook => !isCustomOrderBook(book))
+);
+
+const displayBooks = computed<CustomOrderBook[]>(() =>
+  selectedOrder.value.books.map((book) =>
+    isCustomOrderBook(book)
+      ? book
+      : {
+          original: book,
+          analogous: null,
+        }
+  )
+);
 
 const checkOrderAvailability = async () => {
   try {
@@ -280,48 +316,44 @@ const checkOrderAvailability = async () => {
       unavailableBooks.value = notFoundBooks.map((book) => book.id);
       availableAnalogs.value = additionalBooks;
 
-      if (availableAnalogs.value.length > 0) {
+      if (
+        availableAnalogs.value.length > 0 &&
+        !unavailableReasons.value.some((reason) => reason.value === "analogous")
+      ) {
         unavailableReasons.value.push({ value: "analogous", label: "Аналог" });
       }
 
-      // notFoundBooks.forEach(book => {
-      //   unavailableBookReason.value[book.id] = '';
-      //   unavailableBookComment.value[book.id] = '';
-      //   selectedAnalogBookId.value[book.id] = null;
-      // });
-
       if (notFoundBooks.length > 0 && !validateNotFoundBooks()) {
         isCheckFailed.value = true;
-      } else {
-        if (validateNotFoundBooks()) {
-          console.log("Все причины и аналоги заполнены");
+        return;
+      }
 
-          const updates = unavailableBooks.value.map((bookId) => ({
+      if (validateNotFoundBooks()) {
+        console.log("Все причины и аналоги заполнены");
+
+        const updates: OrderBookUpdatePayload[] = unavailableBooks.value.map((bookId) => {
+          const reason = unavailableBookReason.value[bookId] ?? "";
+          const comment = unavailableBookComment.value[bookId]?.trim();
+          const description = comment ? `${reason}: ${comment}` : reason;
+
+          return {
             book_id: bookId,
-            description:
-              unavailableBookReason.value[bookId] !== null
-                ? unavailableBookReason.value[bookId]
-                : unavailableBookComment.value[bookId] !== null
-                  ? unavailableBookComment.value[bookId]
-                  : "",
-            status: unavailableBookReason.value[bookId] === "analogous" ? "analogous" : "cancelled",
-            analogous:
-              unavailableBookReason.value[bookId] === "analogous"
-                ? selectedAnalogBookId.value[bookId]
-                : "",
-          }));
-          console.log("Данные для отправки на бэк:", updates);
+            description,
+            status: reason === "analogous" ? "analogous" : "cancelled",
+            analogous: reason === "analogous" ? (selectedAnalogBookId.value[bookId] ?? "") : "",
+          };
+        });
 
-          if (nextStatus.value)
-            emit(
-              "nextOrderStatus",
-              selectedOrder.value.id,
-              nextStatus.value,
-              nextStatus.value,
-              updates
-            );
-          emit("close");
+        if (nextStatus.value) {
+          emit(
+            "nextOrderStatus",
+            selectedOrder.value.id,
+            nextStatus.value,
+            nextStatus.value,
+            updates
+          );
         }
+        emit("close");
       }
     } else {
       console.error("Не удалось получить результат проверки");
@@ -400,7 +432,7 @@ function closeModal() {
 // }
 
 const currentStatus = computed(() => {
-  return props.order.statuses[props.order.statuses.length - 1].status;
+  return selectedOrder.value.statuses[selectedOrder.value.statuses.length - 1].status;
 });
 
 const nextStatus = computed(() => {
@@ -425,6 +457,19 @@ const changeToNextStatus = () => {
     emit("close");
   }
 };
+
+watch(
+  () => props.order,
+  (nextOrder) => {
+    selectedOrder.value = nextOrder as StaffModalOrder;
+    isCheckFailed.value = false;
+    validBooksId.value = [];
+    unavailableBooks.value = [];
+    unavailableBookReason.value = {};
+    unavailableBookComment.value = {};
+    selectedAnalogBookId.value = {};
+  }
+);
 </script>
 
 <style scoped>

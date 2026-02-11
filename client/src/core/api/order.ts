@@ -1,11 +1,20 @@
 import axios from "axios";
-import type { BorrowedBook, Order, UserOrder, OrderStatusEnum, OrderCheckingInfo } from "./types";
+import type {
+  BorrowedBook,
+  CustomOrderBook,
+  Order,
+  OrderBook,
+  OrderBookUpdatePayload,
+  OrderCheckingInfo,
+  OrderStatusEnum,
+  UserOrder,
+} from "./types";
 
 export async function updateOrderStatus(
   orderId: number,
   newStatus: OrderStatusEnum,
   description?: string,
-  books?: []
+  books: OrderBookUpdatePayload[] = []
 ) {
   const statusUpdate = {
     description: description,
@@ -20,7 +29,7 @@ export async function updateOrderStatus(
     const updatedStatuses = [...currentOrder.statuses, statusUpdate];
     console.log(updatedStatuses);
 
-    await axios.put(`/api/staff/order/${orderId}/`, { status: statusUpdate, books: books });
+    await axios.put(`/api/staff/order/${orderId}/`, { status: statusUpdate, books });
     console.log(`Статус заказа ${orderId} добавлен: "${newStatus}"`);
   } catch (error) {
     console.error("Ошибка при обновлении статуса заказа", error);
@@ -75,11 +84,11 @@ export async function fetchReadyOrders(): Promise<UserOrder[]> {
 
 export async function fetchArchiveOrders(): Promise<UserOrder[]> {
   try {
-    let data = [];
-    const response = await axios.get("/api/staff-order/order/?status=done");
-    data = response.data;
-    const response2 = await axios.get("/api/staff-order/order/?status=cancelled");
-    response2.data.forEach((element) => {
+    const data: UserOrder[] = [];
+    const response = await axios.get<UserOrder[]>("/api/staff-order/order/?status=done");
+    data.push(...response.data);
+    const response2 = await axios.get<UserOrder[]>("/api/staff-order/order/?status=cancelled");
+    response2.data.forEach((element: UserOrder) => {
       data.push(element);
     });
     return data;
@@ -125,50 +134,66 @@ export async function checkOrder(orderId: number): Promise<OrderCheckingInfo> {
 
 export async function getOrderStaff(orderId: number): Promise<Order> {
   try {
-    const { data } = await axios.get(`/api/staff/order/${orderId}/`);
+    type StaffOrderBook = OrderBook & {
+      analogous_order_item?: number | null;
+    };
+    type StaffOrderResponse = Omit<Order, "books"> & {
+      books: StaffOrderBook[];
+    };
+
+    const { data } = await axios.get<StaffOrderResponse>(`/api/staff/order/${orderId}/`);
     console.log(`/api/staff/order/${orderId}`, data);
 
     if (["ready", "done", "cancelled"].includes(data.statuses[data.statuses.length - 1].status)) {
       console.log("---------------------");
-      let analogous_list = [...data.books]
-        .filter((x) => x.analogous_order_item !== null)
-        .map((x) => x.analogous_order_item);
-
-      let done_books = [...data.books]
+      const analogousList = [...data.books]
         .filter(
-          (x) => (x.status === "ordered" || x.status === "handed") && !analogous_list.includes(x.id)
+          (book) => book.analogous_order_item !== null && book.analogous_order_item !== undefined
         )
-        .map((x) => {
-          return {
-            original: x,
-            analogous: x,
-          };
-        });
+        .map((book) => book.analogous_order_item) as number[];
 
-      let books_with_analogous = [...data.books]
-        .filter((x) => x.status === "analogous")
-        .map((x) => {
-          return {
-            original: x,
-            analogous: data.books.find((item) => item.id === x.analogous_order_item),
-          };
-        });
+      const doneBooks: CustomOrderBook[] = [...data.books]
+        .filter(
+          (book) =>
+            (book.status === "ordered" || book.status === "handed") &&
+            !analogousList.includes(book.id)
+        )
+        .map((book) => ({
+          original: book,
+          analogous: book,
+        }));
 
-      let cancelled_books = [...data.books]
-        .filter((x) => x.status === "cancelled")
-        .map((x) => {
-          return {
-            original: x,
-            analogous: null,
-          };
-        });
+      const booksWithAnalogous: CustomOrderBook[] = [...data.books]
+        .filter((book) => book.status === "analogous")
+        .map((book) => ({
+          original: book,
+          analogous:
+            data.books.find((item: StaffOrderBook) => item.id === book.analogous_order_item) ??
+            null,
+        }));
 
-      data.books = [...done_books, ...books_with_analogous, ...cancelled_books];
+      const cancelledBooks: CustomOrderBook[] = [...data.books]
+        .filter((book) => book.status === "cancelled")
+        .map((book) => ({
+          original: book,
+          analogous: null,
+        }));
+
+      const mappedBooks: Array<OrderBook | CustomOrderBook> = [
+        ...doneBooks,
+        ...booksWithAnalogous,
+        ...cancelledBooks,
+      ];
+
+      return {
+        ...data,
+        books: mappedBooks as Order["books"],
+      };
     }
 
     console.log(data);
 
-    return data;
+    return data as Order;
   } catch (error) {
     console.error("Ошибка при получении заказа", error);
     throw error;

@@ -68,7 +68,13 @@ import {
   fetchArchiveOrders,
 } from "@api/order";
 
-import type { UserOrder, Order, OrderStatusEnum, OrderCheckingInfo } from "@api/types";
+import type {
+  Order,
+  OrderBookUpdatePayload,
+  OrderCheckingInfo,
+  OrderStatusEnum,
+  UserOrder,
+} from "@api/types";
 import { getOrderStaff, updateOrderStatus, checkOrder } from "@api/order";
 
 const userStore = useUserStore();
@@ -192,7 +198,7 @@ async function handleUpdateOrderStatus(
   orderId: number,
   newStatus: OrderStatusEnum,
   description: string,
-  books: [] = []
+  books: OrderBookUpdatePayload[] = []
 ) {
   try {
     await updateOrderStatus(orderId, newStatus, description, books);
