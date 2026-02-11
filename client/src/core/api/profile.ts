@@ -21,11 +21,12 @@ export interface BannedUser {
 // Получить список забаненных пользователей
 export async function fetchBannedUsers(): Promise<BannedUser[]> {
   try {
-    const response = await axios.get("/api/profile/banned/");
+    const response = await axios.get<{
+      banned_users: BannedUser[];
+    }>("/api/profile/banned/");
     console.log("Полный ответ:", response.data);
 
-    // Теперь бэкенд возвращает данные в нужном формате
-    const bannedUsers = response.data.banned_users.map((user: any) => ({
+    const bannedUsers = response.data.banned_users.map((user) => ({
       id: user.id,
       library_card: user.library_card,
       fullname: user.fullname,

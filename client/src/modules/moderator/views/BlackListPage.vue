@@ -63,6 +63,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 import { useRouter } from "vue-router";
 import LoadingModal from "@components/LoadingModal.vue";
 import SearchInput from "@moderator/components/SearchInput.vue";
@@ -102,6 +103,9 @@ const loadingBanned = ref(false);
 const candidates = ref<BanCandidate[]>([]);
 const loadingCandidates = ref(false);
 const hasSearchedCandidates = ref(false);
+
+const isUnauthorizedError = (error: unknown): boolean =>
+  axios.isAxiosError(error) && error.response?.status === 401;
 
 // Фильтрация заблокированных пользователей на клиенте
 const filteredBannedUsers = computed(() => {
@@ -151,10 +155,10 @@ const handleCandidatesSearch = async (startDate: string, endDate: string) => {
     console.log("Получены кандидаты:", result);
 
     candidates.value = result;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка при получении кандидатов на блокировку:", error);
 
-    if (error.response?.status === 401) {
+    if (isUnauthorizedError(error)) {
       router.push("/login");
     }
   } finally {
@@ -176,10 +180,10 @@ const handleBanCandidate = async (userId: number) => {
     await loadBannedUsers();
 
     console.log(`Пользователь ${userId} успешно заблокирован`);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка при блокировке пользователя:", error);
 
-    if (error.response?.status === 401) {
+    if (isUnauthorizedError(error)) {
       router.push("/login");
     }
   } finally {
@@ -192,10 +196,10 @@ const loadBannedUsers = async () => {
   loadingBanned.value = true;
   try {
     bannedUsers.value = await fetchBannedUsers();
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка при получении списка забаненных пользователей:", error);
 
-    if (error.response?.status === 401) {
+    if (isUnauthorizedError(error)) {
       router.push("/login");
     }
   } finally {
@@ -211,10 +215,10 @@ const handleUnbanUser = async (userId: number) => {
 
     bannedUsers.value = bannedUsers.value.filter((user) => user.id !== userId);
     console.log(`Пользователь ${userId} успешно разблокирован`);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Ошибка при разблокировке пользователя:", error);
 
-    if (error.response?.status === 401) {
+    if (isUnauthorizedError(error)) {
       router.push("/login");
     }
   } finally {
