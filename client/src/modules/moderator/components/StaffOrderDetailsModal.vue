@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { StaffStats, Order, OrderBookStatus } from "@api/types";
+import type { StaffStats, Order } from "@api/types";
 import { orderStatuses, orderBookStatuses } from "@api/types";
 
 interface Props {

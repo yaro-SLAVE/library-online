@@ -150,8 +150,8 @@ const loadReaderOrders = async () => {
   try {
     const readerOrders = await getReaderOrders(props.reader.id);
     orders.value = readerOrders;
-  } catch (error: any) {
-    if (error.name !== "AbortError") {
+  } catch (error: unknown) {
+    if (!(error instanceof Error && error.name === "AbortError")) {
       console.error("Ошибка загрузки заказов читателя:", error);
     }
   } finally {

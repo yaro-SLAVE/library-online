@@ -33,7 +33,6 @@ import PasswordTextField from "@components/PasswordTextField.vue";
 import StyledButton from "@components/StyledButton.vue";
 import SurfaceCard from "@components/SurfaceCard.vue";
 import TextField from "@components/TextField.vue";
-import ModalDialog from "@core/components/ModalDialog.vue";
 import { useAuthStore } from "@core/store/auth";
 import { ref, computed } from "vue";
 
