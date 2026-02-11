@@ -22,8 +22,18 @@ export async function getOrdersStats(filters?: OrdersFilters): Promise<Paginated
     let readyOrders = await fetchReadyOrders();
     let archiveOrders = await fetchArchiveOrders();
 
-    const extractResults = (data: any): UserOrder[] =>
-      Array.isArray(data) ? data : data.results || [];
+    const extractResults = (data: unknown): UserOrder[] => {
+      if (Array.isArray(data)) {
+        return data as UserOrder[];
+      }
+      if (data && typeof data === "object" && "results" in data) {
+        const results = (data as { results?: unknown }).results;
+        if (Array.isArray(results)) {
+          return results as UserOrder[];
+        }
+      }
+      return [];
+    };
 
     newOrders = extractResults(newOrders);
     processingOrders = extractResults(processingOrders);

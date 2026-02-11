@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import type { OrderStats } from "@api/types";
 import { orderStatuses } from "@api/types";
 import type { OrderStatusEnum } from "@api/types";
@@ -37,23 +36,8 @@ const mapStatusKeyToLabel = (key: unknown): string | undefined => {
   return undefined;
 };
 
-const lastStatusLabel = computed(() => {
-  // если таблица заранее передала готовую метку — используем её
-  if (props.lastStatus) return props.lastStatus;
-
-  const o: any = props.order;
-
-  if (Array.isArray(o.statuses) && o.statuses.length > 0) {
-    const last = o.statuses[o.statuses.length - 1];
-    // сначала пробуем маппинг ключ -> метка
-    const labelFromMap = mapStatusKeyToLabel(last?.status);
-    return labelFromMap ?? last?.status ?? "-";
-  }
-
-  // если нет истории, пробуем сопоставить order.status, иначе fallback
-  const labelFromMap = mapStatusKeyToLabel(o.status);
-  return labelFromMap ?? o.status ?? "-";
-});
+const lastStatusLabel =
+  props.lastStatus ?? mapStatusKeyToLabel(props.order.status) ?? props.order.status;
 </script>
 
 <style scoped lang="scss">

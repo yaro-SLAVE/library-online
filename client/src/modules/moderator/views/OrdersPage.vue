@@ -42,28 +42,30 @@ import OrdersTable from "@modules/moderator/components/orders/OrdersTable.vue";
 import LoadingModal from "@components/LoadingModal.vue";
 import OrderDetailsModal from "@modules/moderator/components/orders/OrderDetailsModal.vue";
 
-import { ref, onMounted, onUnmounted, computed, watch } from "vue";
+import axios from "axios";
+import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useAuthentication } from "@core/composables/auth";
 import { useRouter } from "vue-router";
 import { getOrdersStats } from "@api/orders";
 import type { OrderStats, OrdersFilters, OrderStatusEnum } from "@api/types";
+import type { ModeratorFiltersModel } from "@modules/moderator/types/filters";
 
 const ordersData = ref<OrderStats[]>([]);
 const loading = ref(false);
 const router = useRouter();
 const dateError = ref("");
 
-const localFilters = ref({
+const localFilters = ref<ModeratorFiltersModel>({
   fullname: "",
-  department: "", // Added to suppress warning; perhaps map to employee_collect or ignore
+  department: "",
   employee_collect: "",
   employee_issue: "",
-  lastOrderDateFrom: "", // For dateFrom
-  lastOrderDateTo: "", // For dateTo
-  currentOrderStatuses: [] as OrderStatusEnum[], // For statuses
+  lastOrderDateFrom: "",
+  lastOrderDateTo: "",
+  currentOrderStatuses: [] as OrderStatusEnum[],
 });
 
-const activeFilters = ref({
+const activeFilters = ref<ModeratorFiltersModel>({
   fullname: "",
   department: "",
   employee_collect: "",
@@ -176,10 +178,10 @@ const loadOrdersData = async () => {
     const response = await getOrdersStats(requestParams.value);
     ordersData.value = response.results;
     pagination.value.total = response.count;
-  } catch (error: any) {
-    if (error.name !== "AbortError") {
+  } catch (error: unknown) {
+    if (!(error instanceof Error && error.name === "AbortError")) {
       console.error("Ошибка загрузки данных:", error);
-      if (error.response?.status === 400) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
         dateError.value = "Ошибка в параметрах запроса. Проверьте введенные данные.";
       } else {
         dateError.value = "Произошла ошибка при загрузке данных. Попробуйте позже.";

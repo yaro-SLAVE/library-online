@@ -93,6 +93,16 @@ import { computed } from "vue";
 import { orderStatuses } from "@api/types";
 import type { OrderStatusEnum } from "@api/types";
 
+type OrderStatsWithStatuses = OrderStats & {
+  statuses?: Array<{
+    status?: string;
+  }>;
+};
+
+type NormalizedOrderStats = OrderStats & {
+  _lastStatusLabel: string;
+};
+
 interface Props {
   ordersData: OrderStats[];
   loading: boolean;
@@ -132,26 +142,27 @@ const nextPage = () => {
 };
 
 // нормализуем список заказов и заранее считаем метку последнего статуса
-const normalizedOrders = computed(() => {
-  return props.ordersData.map((o: any) => {
+const normalizedOrders = computed<NormalizedOrderStats[]>(() => {
+  return props.ordersData.map((o) => {
+    const source = o as OrderStatsWithStatuses;
     let label = "-";
 
-    if (Array.isArray(o.statuses) && o.statuses.length > 0) {
-      const last = o.statuses[o.statuses.length - 1];
+    if (Array.isArray(source.statuses) && source.statuses.length > 0) {
+      const last = source.statuses[source.statuses.length - 1];
       if (typeof last?.status === "string" && last.status in orderStatuses) {
         label = orderStatuses[last.status as OrderStatusEnum];
       } else {
         label = last?.status ?? "-";
       }
     } else {
-      if (typeof o.status === "string" && o.status in orderStatuses) {
-        label = orderStatuses[o.status as OrderStatusEnum];
+      if (typeof source.status === "string" && source.status in orderStatuses) {
+        label = orderStatuses[source.status as OrderStatusEnum];
       } else {
-        label = o.status ?? "-";
+        label = source.status ?? "-";
       }
     }
 
-    return { ...o, _lastStatusLabel: label };
+    return { ...source, _lastStatusLabel: label };
   });
 });
 </script>

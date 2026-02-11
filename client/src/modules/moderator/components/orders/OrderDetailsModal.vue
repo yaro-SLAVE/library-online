@@ -126,7 +126,6 @@ import { ref, watch, computed } from "vue";
 import { getOrderDetails } from "@api/orders";
 import type { Order } from "@api/types";
 import { orderStatuses, orderBookStatuses } from "@api/types";
-import type { OrderStatusEnum } from "@api/types";
 
 interface Props {
   orderId?: number;
