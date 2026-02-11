@@ -41,11 +41,10 @@ const OAUTH_CLIENT_ID = import.meta.env.VITE_OAUTH_CLIENT_ID;
 const authStore = useAuthStore();
 
 // Use runtime origin instead of build-time env var for OAuth redirect
-const oauthRedirectUri = computed(() =>{
-  console.log(encodeURIComponent(`${window.location.origin}/bitrix-auth`))
-  return encodeURIComponent(`${window.location.origin}/bitrix-auth`)
-  }
-);
+const oauthRedirectUri = computed(() => {
+  console.log(encodeURIComponent(`${window.location.origin}/bitrix-auth`));
+  return encodeURIComponent(`${window.location.origin}/bitrix-auth`);
+});
 
 const username = ref("");
 const password = ref("");

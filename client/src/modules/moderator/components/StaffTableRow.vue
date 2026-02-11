@@ -14,14 +14,14 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'row-click', staff: StaffStats): void;
+  (e: "row-click", staff: StaffStats): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const handleRowClick = () => {
-  emit('row-click', props.staff);
+  emit("row-click", props.staff);
 };
 </script>
 
@@ -30,11 +30,11 @@ const handleRowClick = () => {
   cursor: pointer;
   transition: background-color 0.2s;
   background-color: var(--color-background-100);
-  
+
   &:hover {
     background-color: var(--color-background-200);
   }
-  
+
   td {
     padding: 12px;
     text-align: left;

@@ -11,7 +11,6 @@
     </div>
   </div>
 
-  
   <ModalDialog v-model="openModal">
     <h4 class="modal-text">Зайти как сотрудник<br />или как читатель ?</h4>
     <div class="choice-buttons">
@@ -49,7 +48,7 @@ const openModal = ref(false);
 
 onBeforeMount(() => {
   if (isAuthenticated) {
-  if (currentUser.value?.groups?.includes("Librarian")) {
+    if (currentUser.value?.groups?.includes("Librarian")) {
       openModal.value = true;
       console.log(currentUser.value?.groups, "YES");
     } else {
@@ -64,8 +63,6 @@ const handleUserRoleChoice = (choice: Group) => {
   openModal.value = false;
   router.push("/");
 };
-
-
 </script>
 
 <style scoped lang="scss">

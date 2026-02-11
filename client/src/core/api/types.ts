@@ -91,7 +91,7 @@ export type OrderBook = {
 export type CustomOrderBook = {
   original: OrderBook;
   analogous: OrderBook;
-}
+};
 
 export type Order = {
   id: number;
@@ -178,8 +178,14 @@ export type ReadersFilters = {
   last_order_date_from?: string;
   last_order_date_to?: string;
   current_order_statuses?: OrderStatusEnum[];
-  sort_by?: 'id' | 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
-  sort_order?: 'asc' | 'desc';
+  sort_by?:
+    | "id"
+    | "fullname"
+    | "department"
+    | "total_books_ordered"
+    | "total_orders"
+    | "cancelled_orders";
+  sort_order?: "asc" | "desc";
   page?: number;
   page_size?: number;
 };
@@ -201,8 +207,8 @@ export type PaginatedStaff = {
 
 export type StaffFilters = {
   search?: string;
-  sort_by?: 'fullname' | 'department' | 'total_orders' | 'cancelled_orders';
-  sort_order?: 'asc' | 'desc';
+  sort_by?: "fullname" | "department" | "total_orders" | "cancelled_orders";
+  sort_order?: "asc" | "desc";
   page?: number;
   page_size?: number;
 };
@@ -230,8 +236,8 @@ export type OrdersFilters = {
   date_from?: string;
   date_to?: string;
   statuses?: OrderStatusEnum[];
-  sort_by?: 'id' | 'fullname' | 'employee_collect' | 'employee_issue' | 'status';
-  sort_order?: 'asc' | 'desc';
+  sort_by?: "id" | "fullname" | "employee_collect" | "employee_issue" | "status";
+  sort_order?: "asc" | "desc";
   page?: number;
   page_size?: number;
 };

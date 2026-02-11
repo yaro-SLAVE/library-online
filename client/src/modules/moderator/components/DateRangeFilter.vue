@@ -2,27 +2,27 @@
   <div class="filter-group">
     <label class="filter-label">{{ label }}</label>
     <div class="date-inputs">
-      <input 
-        v-model="localFrom" 
-        type="date" 
+      <input
+        v-model="localFrom"
+        type="date"
         class="filter-input date"
         :disabled="disabled"
         placeholder="От"
-      >
+      />
       <span class="date-separator">—</span>
-      <input 
-        v-model="localTo" 
-        type="date" 
+      <input
+        v-model="localTo"
+        type="date"
         class="filter-input date"
         :disabled="disabled"
         placeholder="До"
-      >
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   from: string;
@@ -32,24 +32,24 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:from', value: string): void;
-  (e: 'update:to', value: string): void;
+  (e: "update:from", value: string): void;
+  (e: "update:to", value: string): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false
+  disabled: false,
 });
 
 const emit = defineEmits<Emits>();
 
 const localFrom = computed({
   get: () => props.from,
-  set: (value) => emit('update:from', value)
+  set: (value) => emit("update:from", value),
 });
 
 const localTo = computed({
   get: () => props.to,
-  set: (value) => emit('update:to', value)
+  set: (value) => emit("update:to", value),
 });
 </script>
 
@@ -58,7 +58,7 @@ const localTo = computed({
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  
+
   .filter-label {
     font-size: 0.75rem;
     font-weight: 500;
@@ -74,12 +74,12 @@ const localTo = computed({
   background: white;
   font-size: 0.875rem;
   height: 2.25rem;
-  
+
   &:focus {
     outline: none;
     border-color: var(--color-primary-500);
   }
-  
+
   &:disabled {
     background: var(--color-background-300);
     cursor: not-allowed;

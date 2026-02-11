@@ -1,5 +1,3 @@
-//@ts-nocheck
-
 import axios from "axios";
 import type { BorrowedBook, Order, UserOrder, OrderStatusEnum, OrderCheckingInfo } from "./types";
 
@@ -130,32 +128,40 @@ export async function getOrderStaff(orderId: number): Promise<Order> {
     const { data } = await axios.get(`/api/staff/order/${orderId}/`);
     console.log(`/api/staff/order/${orderId}`, data);
 
-    if ((['ready', 'done', 'cancelled']).includes(data.statuses[data.statuses.length - 1].status)) {
-      console.log('---------------------');
-      let analogous_list = [...data.books].filter(x => x.analogous_order_item !== null).map(x => x.analogous_order_item);
+    if (["ready", "done", "cancelled"].includes(data.statuses[data.statuses.length - 1].status)) {
+      console.log("---------------------");
+      let analogous_list = [...data.books]
+        .filter((x) => x.analogous_order_item !== null)
+        .map((x) => x.analogous_order_item);
 
-      let done_books = [...data.books].filter(x => (x.status === 'ordered' || x.status === 'handed') && !analogous_list.includes(x.id)).map(x => {
-        return {
-          original: x,
-          analogous: x
-        }
-      });
+      let done_books = [...data.books]
+        .filter(
+          (x) => (x.status === "ordered" || x.status === "handed") && !analogous_list.includes(x.id)
+        )
+        .map((x) => {
+          return {
+            original: x,
+            analogous: x,
+          };
+        });
 
       let books_with_analogous = [...data.books]
-      .filter(x => x.status === 'analogous')
-      .map(x => {
-        return {
-          original: x,
-          analogous: data.books.find(item => item.id === x.analogous_order_item)
-        }
-      });
+        .filter((x) => x.status === "analogous")
+        .map((x) => {
+          return {
+            original: x,
+            analogous: data.books.find((item) => item.id === x.analogous_order_item),
+          };
+        });
 
-      let cancelled_books = [...data.books].filter(x => x.status === 'cancelled').map(x => {
-        return {
-          original: x,
-          analogous: null
-        }
-      });
+      let cancelled_books = [...data.books]
+        .filter((x) => x.status === "cancelled")
+        .map((x) => {
+          return {
+            original: x,
+            analogous: null,
+          };
+        });
 
       data.books = [...done_books, ...books_with_analogous, ...cancelled_books];
     }

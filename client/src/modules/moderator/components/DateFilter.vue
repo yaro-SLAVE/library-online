@@ -3,34 +3,20 @@
     <div class="filter-row">
       <div class="date-input-group">
         <label class="date-label">Дата от:</label>
-        <input
-          v-model="startDate"
-          type="date"
-          class="date-input"
-          @change="handleDateChange"
-        />
+        <input v-model="startDate" type="date" class="date-input" @change="handleDateChange" />
       </div>
-      
+
       <div class="date-input-group">
         <label class="date-label">до:</label>
-        <input
-          v-model="endDate"
-          type="date"
-          class="date-input"
-          @change="handleDateChange"
-        />
+        <input v-model="endDate" type="date" class="date-input" @change="handleDateChange" />
       </div>
-      
-      <button 
-        class="search-button"
-        @click="handleSearch"
-        :disabled="!isFormValid || loading"
-      >
+
+      <button class="search-button" @click="handleSearch" :disabled="!isFormValid || loading">
         <span v-if="loading">Поиск...</span>
         <span v-else>Найти</span>
       </button>
     </div>
-    
+
     <div v-if="error" class="error-message">
       {{ error }}
     </div>
@@ -49,9 +35,9 @@ const emit = defineEmits<{
   (e: "initialDates", startDate: string, endDate: string): void; // Новый emit
 }>();
 
-const startDate = ref('');
-const endDate = ref('');
-const error = ref('');
+const startDate = ref("");
+const endDate = ref("");
+const error = ref("");
 
 // Валидация формы
 const isFormValid = computed(() => {
@@ -63,35 +49,35 @@ const setDefaultDates = () => {
   const end = new Date();
   const start = new Date();
   start.setDate(start.getDate() - 30);
-  
-  endDate.value = end.toISOString().split('T')[0];
-  startDate.value = start.toISOString().split('T')[0];
-  
+
+  endDate.value = end.toISOString().split("T")[0];
+  startDate.value = start.toISOString().split("T")[0];
+
   // Эмитим начальные даты
   emit("initialDates", startDate.value, endDate.value);
 };
 
 const handleDateChange = () => {
-  error.value = '';
-  
+  error.value = "";
+
   // Проверка что начальная дата не больше конечной
   if (startDate.value && endDate.value && startDate.value > endDate.value) {
-    error.value = 'Начальная дата не может быть больше конечной';
+    error.value = "Начальная дата не может быть больше конечной";
   }
 };
 
 const handleSearch = () => {
   if (!isFormValid.value) {
-    error.value = 'Заполните обе даты';
+    error.value = "Заполните обе даты";
     return;
   }
-  
+
   if (startDate.value > endDate.value) {
-    error.value = 'Начальная дата не может быть больше конечной';
+    error.value = "Начальная дата не может быть больше конечной";
     return;
   }
-  
-  error.value = '';
+
+  error.value = "";
   emit("search", startDate.value, endDate.value);
 };
 
@@ -110,7 +96,7 @@ onMounted(() => {
   align-items: end;
   gap: 16px;
   flex-wrap: wrap;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
@@ -138,12 +124,12 @@ onMounted(() => {
   background-color: var(--color-background-100);
   color: var(--color-text-800);
   transition: border-color 0.2s ease;
-  
+
   &:focus {
     outline: none;
     border-color: var(--color-primary-400);
   }
-  
+
   &:invalid {
     border-color: var(--color-accent-400);
   }
@@ -159,17 +145,17 @@ onMounted(() => {
   cursor: pointer;
   transition: background-color 0.2s ease;
   height: fit-content;
-  
+
   &:hover:not(:disabled) {
     background-color: var(--color-primary-500);
   }
-  
+
   &:disabled {
     background-color: var(--color-text-400);
     cursor: not-allowed;
     opacity: 0.7;
   }
-  
+
   @media (max-width: 768px) {
     align-self: flex-start;
   }

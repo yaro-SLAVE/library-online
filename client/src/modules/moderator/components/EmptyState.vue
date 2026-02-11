@@ -3,10 +3,10 @@
     <div class="empty-state-content">
       <p v-if="hasActiveFilters">Нет читателей, соответствующих фильтрам</p>
       <p v-else>Нет данных о читателях</p>
-      
-      <button 
+
+      <button
         v-if="hasActiveFilters"
-        @click="$emit('clear-filters')" 
+        @click="$emit('clear-filters')"
         class="clear-filters-btn"
         type="button"
         :disabled="loading"
@@ -24,7 +24,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'clear-filters'): void;
+  (e: "clear-filters"): void;
 }
 
 defineProps<Props>();
@@ -53,11 +53,11 @@ defineEmits<Emits>();
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
-  
+
   &:hover:not(:disabled) {
     background: var(--color-primary-600);
   }
-  
+
   &:disabled {
     background: var(--color-text-300);
     cursor: not-allowed;

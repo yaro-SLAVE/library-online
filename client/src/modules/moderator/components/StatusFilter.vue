@@ -2,7 +2,7 @@
   <div class="filter-group">
     <label class="filter-label">{{ label }}</label>
     <div class="dropdown-container" ref="dropdownContainer">
-      <div 
+      <div
         class="dropdown-trigger"
         :class="{ 'dropdown-open': isOpen, 'dropdown-disabled': disabled }"
         @click="toggleDropdown"
@@ -12,29 +12,23 @@
         </span>
         <span class="dropdown-arrow">▼</span>
       </div>
-      
+
       <div v-if="isOpen" class="dropdown-menu">
-        <div 
-          v-for="status in statusOptions" 
+        <div
+          v-for="status in statusOptions"
           :key="status.value"
           class="dropdown-item"
           :class="{ 'dropdown-item-selected': isSelected(status.value) }"
           @click="toggleStatus(status.value)"
         >
           <span class="checkbox-indicator">
-            {{ isSelected(status.value) ? '✓' : '' }}
+            {{ isSelected(status.value) ? "✓" : "" }}
           </span>
           <span class="dropdown-item-label">{{ status.label }}</span>
         </div>
-        
+
         <div class="dropdown-actions" v-if="localValue.length > 0">
-          <button 
-            @click.stop="clearAll"
-            class="clear-all-btn"
-            type="button"
-          >
-            Сбросить все
-          </button>
+          <button @click.stop="clearAll" class="clear-all-btn" type="button">Сбросить все</button>
         </div>
       </div>
     </div>
@@ -42,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { orderStatuses, type OrderStatusEnum } from '@api/types';
+import { computed, ref, onMounted, onUnmounted } from "vue";
+import { orderStatuses, type OrderStatusEnum } from "@api/types";
 
 interface Props {
   modelValue: OrderStatusEnum[];
@@ -52,11 +46,11 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:modelValue', value: OrderStatusEnum[]): void;
+  (e: "update:modelValue", value: OrderStatusEnum[]): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false
+  disabled: false,
 });
 
 const emit = defineEmits<Emits>();
@@ -66,29 +60,31 @@ const dropdownContainer = ref<HTMLElement>();
 
 const localValue = computed({
   get: () => props.modelValue || [],
-  set: (value) => emit('update:modelValue', value)
+  set: (value) => emit("update:modelValue", value),
 });
 
 const statusOptions = computed(() => {
   return Object.entries(orderStatuses).map(([value, label]) => ({
     value: value as OrderStatusEnum,
-    label
+    label,
   }));
 });
 
 const selectedText = computed(() => {
   const selected = localValue.value || [];
   if (selected.length === 0) {
-    return 'Выберите статусы...';
+    return "Выберите статусы...";
   }
   if (selected.length === statusOptions.value.length) {
-    return 'Все статусы';
+    return "Все статусы";
   }
   if (selected.length <= 2) {
-    return selected.map(statusValue => {
-      const status = statusOptions.value.find(s => s.value === statusValue);
-      return status ? status.label : statusValue;
-    }).join(', ');
+    return selected
+      .map((statusValue) => {
+        const status = statusOptions.value.find((s) => s.value === statusValue);
+        return status ? status.label : statusValue;
+      })
+      .join(", ");
   }
   return `Выбрано: ${selected.length}`;
 });
@@ -100,13 +96,13 @@ const isSelected = (statusValue: OrderStatusEnum) => {
 const toggleStatus = (statusValue: OrderStatusEnum) => {
   const currentValue = [...localValue.value];
   const index = currentValue.indexOf(statusValue);
-  
+
   if (index > -1) {
     currentValue.splice(index, 1);
   } else {
     currentValue.push(statusValue);
   }
-  
+
   localValue.value = currentValue;
 };
 
@@ -127,11 +123,11 @@ const handleClickOutside = (event: MouseEvent) => {
 };
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside);
+  document.addEventListener("click", handleClickOutside);
 });
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener("click", handleClickOutside);
 });
 </script>
 
@@ -141,7 +137,7 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 0.25rem;
   position: relative;
-  
+
   .filter-label {
     font-size: 0.75rem;
     font-weight: 500;
@@ -167,16 +163,16 @@ onUnmounted(() => {
   height: 2.25rem;
   cursor: pointer;
   transition: border-color 0.2s ease;
-  
+
   &:hover:not(.dropdown-disabled) {
     border-color: var(--color-primary-500);
   }
-  
+
   &.dropdown-open {
     border-color: var(--color-primary-500);
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
   }
-  
+
   &.dropdown-disabled {
     background: var(--color-background-300);
     cursor: not-allowed;
@@ -197,7 +193,7 @@ onUnmounted(() => {
   font-size: 0.75rem;
   margin-left: 0.5rem;
   transition: transform 0.2s ease;
-  
+
   .dropdown-open & {
     transform: rotate(180deg);
   }
@@ -226,15 +222,15 @@ onUnmounted(() => {
   cursor: pointer;
   transition: background-color 0.2s ease;
   border-bottom: 1px solid var(--color-text-100);
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:hover {
     background: var(--color-primary-50);
   }
-  
+
   &.dropdown-item-selected {
     background: var(--color-primary-50);
     color: var(--color-primary-700);
@@ -271,7 +267,7 @@ onUnmounted(() => {
   font-size: 0.75rem;
   cursor: pointer;
   padding: 0.25rem 0;
-  
+
   &:hover {
     color: var(--color-error-600);
     text-decoration: underline;

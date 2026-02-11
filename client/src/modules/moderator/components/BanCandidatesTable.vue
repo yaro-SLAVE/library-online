@@ -6,7 +6,9 @@
           <th
             @click="sortCandidates('library_card')"
             class="sortable-th library-card-column"
-            :aria-sort="sortKey === 'library_card' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+            :aria-sort="
+              sortKey === 'library_card' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'
+            "
           >
             <span class="th-content">
               Читательский билет
@@ -21,7 +23,9 @@
           <th
             @click="sortCandidates('fullname')"
             class="sortable-th fullname-column"
-            :aria-sort="sortKey === 'fullname' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+            :aria-sort="
+              sortKey === 'fullname' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'
+            "
           >
             <span class="th-content">
               ФИО
@@ -36,7 +40,13 @@
           <th
             @click="sortCandidates('total_orders_count')"
             class="sortable-th orders-column"
-            :aria-sort="sortKey === 'total_orders_count' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+            :aria-sort="
+              sortKey === 'total_orders_count'
+                ? sortOrder === 1
+                  ? 'ascending'
+                  : 'descending'
+                : 'none'
+            "
           >
             <span class="th-content">
               Количество заказов
@@ -51,7 +61,13 @@
           <th
             @click="sortCandidates('cancelled_orders_count')"
             class="sortable-th cancellations-column"
-            :aria-sort="sortKey === 'cancelled_orders_count' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+            :aria-sort="
+              sortKey === 'cancelled_orders_count'
+                ? sortOrder === 1
+                  ? 'ascending'
+                  : 'descending'
+                : 'none'
+            "
           >
             <span class="th-content">
               Количество отказов
@@ -77,11 +93,11 @@
       </tbody>
     </table>
     <div v-if="candidates.length === 0 && !loading" class="empty-state">
-      {{ hasSearched ? 'Кандидаты на блокировку не найдены' : 'Укажите период для поиска кандидатов' }}
+      {{
+        hasSearched ? "Кандидаты на блокировку не найдены" : "Укажите период для поиска кандидатов"
+      }}
     </div>
-    <div v-if="loading" class="loading-state">
-      Загрузка...
-    </div>
+    <div v-if="loading" class="loading-state">Загрузка...</div>
   </div>
 </template>
 
@@ -124,8 +140,8 @@ const sortedCandidates = computed(() => {
 
     switch (sortKey.value) {
       case "fullname":
-        const aName = a.fullname?.toLowerCase() || '';
-        const bName = b.fullname?.toLowerCase() || '';
+        const aName = a.fullname?.toLowerCase() || "";
+        const bName = b.fullname?.toLowerCase() || "";
         comparison = aName.localeCompare(bName);
         break;
       case "total_orders_count":
@@ -136,8 +152,8 @@ const sortedCandidates = computed(() => {
         break;
       case "library_card":
       default:
-        const aCard = a.library_card?.toLowerCase() || '';
-        const bCard = b.library_card?.toLowerCase() || '';
+        const aCard = a.library_card?.toLowerCase() || "";
+        const bCard = b.library_card?.toLowerCase() || "";
         comparison = aCard.localeCompare(bCard);
     }
 
@@ -168,12 +184,12 @@ td {
   text-align: left;
   color: var(--color-text-800);
   background-color: var(--color-background-100);
-  
+
   @media (max-width: 768px) {
     padding: 10px 6px;
     font-size: 0.9em;
   }
-  
+
   @media (max-width: 480px) {
     padding: 8px 4px;
     font-size: 0.85em;
@@ -188,7 +204,7 @@ tr {
 .library-card-column {
   width: 15%;
   min-width: 100px;
-  
+
   @media (max-width: 768px) {
     width: 18%;
     min-width: 90px;
@@ -238,7 +254,7 @@ tr {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-  
+
   @media (max-width: 480px) {
     gap: 2px;
   }
@@ -253,7 +269,7 @@ tr {
   justify-content: center;
   width: 1em;
   height: 1em;
-  
+
   @media (max-width: 480px) {
     font-size: 0.8em;
   }
@@ -271,7 +287,7 @@ tr {
   color: var(--color-text-600);
   font-size: 1.1em;
   background-color: var(--color-background-100);
-  
+
   @media (max-width: 768px) {
     padding: 30px 20px;
     font-size: 1em;

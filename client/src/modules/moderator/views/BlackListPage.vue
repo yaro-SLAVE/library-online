@@ -26,18 +26,15 @@
     <!-- Претенденты на блокировку -->
     <div v-if="currentTab === tabsNumbers.candidates" class="tab-content">
       <!-- Фильтр по датам для запроса к бэкенду -->
-      <DateFilter 
+      <DateFilter
         :loading="loadingCandidates"
         @search="handleCandidatesSearch"
         @initial-dates="handleInitialDates"
       />
-      
+
       <!-- Поиск по уже полученному списку -->
-      <SearchInput 
-        v-model="candidatesSearchQuery"
-        :item-count="filteredCandidates.length"
-      />
-      
+      <SearchInput v-model="candidatesSearchQuery" :item-count="filteredCandidates.length" />
+
       <!-- Таблица с уже отфильтрованными данными -->
       <BanCandidatesTable
         :candidates="filteredCandidates"
@@ -50,11 +47,8 @@
 
     <!-- Заблокированные читатели -->
     <div v-else-if="currentTab === tabsNumbers.banned" class="tab-content">
-      <SearchInput 
-        v-model="bannedSearchQuery" 
-        :item-count="filteredBannedUsers.length"
-      />
-      
+      <SearchInput v-model="bannedSearchQuery" :item-count="filteredBannedUsers.length" />
+
       <BlackListTable
         :users="bannedUsers"
         :search-query="bannedSearchQuery"
@@ -75,13 +69,13 @@ import SearchInput from "@moderator/components/SearchInput.vue";
 import BlackListTable from "@moderator/components/BlackListTable.vue";
 import DateFilter from "@moderator/components/DateFilter.vue";
 import BanCandidatesTable from "@moderator/components/BanCandidatesTable.vue";
-import { 
-  fetchBannedUsers, 
-  unbanUser, 
-  fetchBanCandidates, 
+import {
+  fetchBannedUsers,
+  unbanUser,
+  fetchBanCandidates,
   banUser,
   type BannedUser,
-  type BanCandidate 
+  type BanCandidate,
 } from "@api/profile";
 
 const router = useRouter();
@@ -90,8 +84,8 @@ const unbanningUserId = ref<number | null>(null);
 const banningUserId = ref<number | null>(null);
 
 // Поисковые запросы
-const bannedSearchQuery = ref('');
-const candidatesSearchQuery = ref('');
+const bannedSearchQuery = ref("");
+const candidatesSearchQuery = ref("");
 
 const tabsNumbers = {
   candidates: 0,
@@ -114,11 +108,12 @@ const filteredBannedUsers = computed(() => {
   if (!bannedSearchQuery.value.trim()) {
     return bannedUsers.value;
   }
-  
+
   const searchTerm = bannedSearchQuery.value.toLowerCase().trim();
-  return bannedUsers.value.filter(user => 
-    user.fullname?.toLowerCase().includes(searchTerm) ||
-    user.library_card?.toLowerCase().includes(searchTerm)
+  return bannedUsers.value.filter(
+    (user) =>
+      user.fullname?.toLowerCase().includes(searchTerm) ||
+      user.library_card?.toLowerCase().includes(searchTerm)
   );
 });
 
@@ -127,11 +122,12 @@ const filteredCandidates = computed(() => {
   if (!candidatesSearchQuery.value.trim()) {
     return candidates.value;
   }
-  
+
   const searchTerm = candidatesSearchQuery.value.toLowerCase().trim();
-  return candidates.value.filter(candidate => 
-    candidate.fullname?.toLowerCase().includes(searchTerm) ||
-    candidate.library_card?.toLowerCase().includes(searchTerm)
+  return candidates.value.filter(
+    (candidate) =>
+      candidate.fullname?.toLowerCase().includes(searchTerm) ||
+      candidate.library_card?.toLowerCase().includes(searchTerm)
   );
 });
 
@@ -146,20 +142,20 @@ const handleInitialDates = (startDate: string, endDate: string) => {
 const handleCandidatesSearch = async (startDate: string, endDate: string) => {
   loadingCandidates.value = true;
   hasSearchedCandidates.value = true;
-  
+
   try {
-    console.log('Запрос кандидатов с датами:', startDate, 'до', endDate);
-    
+    console.log("Запрос кандидатов с датами:", startDate, "до", endDate);
+
     // Запрос к бэкенду с датами
     const result = await fetchBanCandidates(startDate, endDate);
-    console.log('Получены кандидаты:', result);
-    
+    console.log("Получены кандидаты:", result);
+
     candidates.value = result;
   } catch (error: any) {
-    console.error('Ошибка при получении кандидатов на блокировку:', error);
-    
+    console.error("Ошибка при получении кандидатов на блокировку:", error);
+
     if (error.response?.status === 401) {
-      router.push('/login');
+      router.push("/login");
     }
   } finally {
     loadingCandidates.value = false;
@@ -169,23 +165,22 @@ const handleCandidatesSearch = async (startDate: string, endDate: string) => {
 // Блокировка кандидата
 const handleBanCandidate = async (userId: number) => {
   banningUserId.value = userId;
-  
+
   try {
     await banUser(userId);
-    
+
     // Удаляем кандидата из списка после успешной блокировки
-    candidates.value = candidates.value.filter(candidate => candidate.user_id !== userId);
-    
+    candidates.value = candidates.value.filter((candidate) => candidate.user_id !== userId);
+
     // Обновляем список заблокированных пользователей
     await loadBannedUsers();
-    
+
     console.log(`Пользователь ${userId} успешно заблокирован`);
-    
   } catch (error: any) {
-    console.error('Ошибка при блокировке пользователя:', error);
-    
+    console.error("Ошибка при блокировке пользователя:", error);
+
     if (error.response?.status === 401) {
-      router.push('/login');
+      router.push("/login");
     }
   } finally {
     banningUserId.value = null;
@@ -198,10 +193,10 @@ const loadBannedUsers = async () => {
   try {
     bannedUsers.value = await fetchBannedUsers();
   } catch (error: any) {
-    console.error('Ошибка при получении списка забаненных пользователей:', error);
-    
+    console.error("Ошибка при получении списка забаненных пользователей:", error);
+
     if (error.response?.status === 401) {
-      router.push('/login');
+      router.push("/login");
     }
   } finally {
     loadingBanned.value = false;
@@ -213,15 +208,14 @@ const handleUnbanUser = async (userId: number) => {
   unbanningUserId.value = userId;
   try {
     await unbanUser(userId);
-    
-    bannedUsers.value = bannedUsers.value.filter(user => user.id !== userId);
+
+    bannedUsers.value = bannedUsers.value.filter((user) => user.id !== userId);
     console.log(`Пользователь ${userId} успешно разблокирован`);
-    
   } catch (error: any) {
-    console.error('Ошибка при разблокировке пользователя:', error);
-    
+    console.error("Ошибка при разблокировке пользователя:", error);
+
     if (error.response?.status === 401) {
-      router.push('/login');
+      router.push("/login");
     }
   } finally {
     unbanningUserId.value = null;

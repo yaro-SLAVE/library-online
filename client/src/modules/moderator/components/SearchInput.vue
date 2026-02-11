@@ -8,9 +8,7 @@
         class="search-input"
         @input="handleInput"
       />
-      <span class="clear-search" v-if="searchValue" @click="clearSearch">
-        ×
-      </span>
+      <span class="clear-search" v-if="searchValue" @click="clearSearch"> × </span>
     </div>
     <div class="search-counter" v-if="searchValue && itemCount !== undefined">
       Найдено: {{ itemCount }}
@@ -32,17 +30,20 @@ const emit = defineEmits<{
 
 const searchValue = ref(props.modelValue);
 
-watch(() => props.modelValue, (newValue) => {
-  searchValue.value = newValue;
-});
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    searchValue.value = newValue;
+  }
+);
 
 const handleInput = () => {
   emit("update:modelValue", searchValue.value);
 };
 
 const clearSearch = () => {
-  searchValue.value = '';
-  emit("update:modelValue", '');
+  searchValue.value = "";
+  emit("update:modelValue", "");
 };
 </script>
 
@@ -53,7 +54,7 @@ const clearSearch = () => {
   align-items: center;
   gap: 16px;
   margin-bottom: 16px;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
@@ -65,7 +66,7 @@ const clearSearch = () => {
   position: relative;
   flex: 1;
   max-width: 400px;
-  
+
   @media (max-width: 768px) {
     max-width: none;
   }
@@ -79,7 +80,7 @@ const clearSearch = () => {
   font-size: 14px;
   background-color: var(--color-background-100);
   color: var(--color-text-800);
-  transition: 
+  transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 
@@ -121,7 +122,7 @@ const clearSearch = () => {
   color: var(--color-text-600);
   font-size: 0.9em;
   white-space: nowrap;
-  
+
   @media (max-width: 768px) {
     text-align: center;
   }

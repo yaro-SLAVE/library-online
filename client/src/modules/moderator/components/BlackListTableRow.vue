@@ -3,11 +3,7 @@
     <td class="library-card">{{ user.library_card }}</td>
     <td class="fullname">{{ user.fullname }}</td>
     <td class="actions">
-      <button 
-        class="info-button"
-        @click="handleUnban"
-        :disabled="loading"
-      >
+      <button class="info-button" @click="handleUnban" :disabled="loading">
         <span v-if="loading">Разблокировка...</span>
         <span v-else>Разблокировать</span>
       </button>
@@ -49,7 +45,7 @@ const handleUnban = () => {
   font-size: 0.9em;
   word-break: break-all; /* Перенос длинных номеров */
   background-color: inherit;
-  
+
   @media (max-width: 480px) {
     font-size: 0.85em;
   }
@@ -59,7 +55,7 @@ const handleUnban = () => {
   color: var(--color-text-700);
   word-break: break-word; /* Перенос длинных ФИО */
   background-color: inherit;
-  
+
   @media (max-width: 480px) {
     font-size: 0.9em;
   }
@@ -94,7 +90,7 @@ const handleUnban = () => {
     outline: 2px solid var(--color-primary-500);
     outline-offset: 2px;
   }
-  
+
   @media (max-width: 480px) {
     padding: 5px 8px;
     font-size: 0.85em;

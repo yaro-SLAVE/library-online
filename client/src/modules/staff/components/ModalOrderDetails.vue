@@ -13,7 +13,7 @@
         </div>
         <div class="section">
           <h3>Книги ({{ selectedOrder.books.length }})</h3>
-          <div class="books-container" v-if="(['new', 'processing']).includes(currentStatus)">
+          <div class="books-container" v-if="['new', 'processing'].includes(currentStatus)">
             <template v-for="orderBook in selectedOrder.books" :key="orderBook.id">
               <div
                 class="book-card"
@@ -80,13 +80,19 @@
             </template>
           </div>
 
-          <div class="books-container" v-else-if="(['ready', 'done', 'cancelled']).includes(currentStatus)">
+          <div
+            class="books-container"
+            v-else-if="['ready', 'done', 'cancelled'].includes(currentStatus)"
+          >
             <template v-for="orderBook in selectedOrder.books" :key="orderBook.original.id">
               <div :class="'book-card book-' + orderBook.original.status">
                 <ShortBookCard :book="orderBook.original.book" />
               </div>
 
-              <div v-if="orderBook.analogous !== null" :class="'book-card book-' + orderBook.original.status">
+              <div
+                v-if="orderBook.analogous !== null"
+                :class="'book-card book-' + orderBook.original.status"
+              >
                 <ShortBookCard :book="orderBook.analogous.book" />
               </div>
 
@@ -96,12 +102,14 @@
         </div>
 
         <div class="section" v-if="selectedOrder.books_to_return.length > 0">
-          <h3 v-if="currentStatus === 'done'">Возвращенные книги ({{ selectedOrder.books_to_return.length }})</h3>
+          <h3 v-if="currentStatus === 'done'">
+            Возвращенные книги ({{ selectedOrder.books_to_return.length }})
+          </h3>
           <h3 v-else>Книги на возврат ({{ selectedOrder.books_to_return.length }})</h3>
           <div class="books-container">
             <template v-for="orderBook in selectedOrder.books_to_return" :key="orderBook.id">
-              <div class="book-card" >
-                <ShortBookCard :book="orderBook.book"/>
+              <div class="book-card">
+                <ShortBookCard :book="orderBook.book" />
               </div>
             </template>
           </div>
@@ -188,8 +196,6 @@
 </template>
 
 <script setup lang="ts">
-//@ts-nocheck
-
 import { ref, computed } from "vue";
 import ShortBookCard from "@components/ShortBookCard.vue";
 import StyledButton from "@components/StyledButton.vue";

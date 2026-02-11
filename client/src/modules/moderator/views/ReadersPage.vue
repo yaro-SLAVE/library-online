@@ -2,9 +2,7 @@
   <div class="readers-page">
     <div class="page-header">
       <h2>Читатели</h2>
-      <div class="stats">
-        Всего читателей: {{ pagination.total }}
-      </div>
+      <div class="stats">Всего читателей: {{ pagination.total }}</div>
     </div>
 
     <FiltersSection
@@ -56,34 +54,39 @@ import type { ReaderStats, ReadersFilters, OrderStatusEnum } from "@api/types";
 const readersData = ref<ReaderStats[]>([]);
 const loading = ref(false);
 const router = useRouter();
-const dateError = ref('');
+const dateError = ref("");
 
 const localFilters = ref({
-  fullname: '',
-  department: '',
-  lastOrderDateFrom: '',
-  lastOrderDateTo: '',
+  fullname: "",
+  department: "",
+  lastOrderDateFrom: "",
+  lastOrderDateTo: "",
   currentOrderStatuses: [] as OrderStatusEnum[],
 });
 
 const activeFilters = ref({
-  fullname: '',
-  department: '',
-  lastOrderDateFrom: '',
-  lastOrderDateTo: '',
+  fullname: "",
+  department: "",
+  lastOrderDateFrom: "",
+  lastOrderDateTo: "",
   currentOrderStatuses: [] as OrderStatusEnum[],
 });
 
 const pagination = ref({
   page: 1,
   limit: 10,
-  total: 0
+  total: 0,
 });
 
-type SortField = 'fullname' | 'department' | 'total_books_ordered' | 'total_orders' | 'cancelled_orders';
+type SortField =
+  | "fullname"
+  | "department"
+  | "total_books_ordered"
+  | "total_orders"
+  | "cancelled_orders";
 
-const sortField = ref<SortField>('fullname');
-const sortDirection = ref<'asc' | 'desc'>('asc');
+const sortField = ref<SortField>("fullname");
+const sortDirection = ref<"asc" | "desc">("asc");
 
 const isOrdersModalOpen = ref(false);
 const selectedReader = ref<ReaderStats>();
@@ -101,45 +104,54 @@ const hasFilterChanges = computed(() => {
 
 const hasActiveFilters = computed(() => {
   const f = activeFilters.value;
-  return f.fullname !== '' || f.department !== '' || 
-         f.lastOrderDateFrom !== '' || f.lastOrderDateTo !== '' ||
-         f.currentOrderStatuses.length > 0;
+  return (
+    f.fullname !== "" ||
+    f.department !== "" ||
+    f.lastOrderDateFrom !== "" ||
+    f.lastOrderDateTo !== "" ||
+    f.currentOrderStatuses.length > 0
+  );
 });
 
-const totalPages = computed(() => 
-  Math.ceil(pagination.value.total / pagination.value.limit)
-);
+const totalPages = computed(() => Math.ceil(pagination.value.total / pagination.value.limit));
 
 const requestParams = computed((): ReadersFilters => {
   const params: ReadersFilters = {
     page: pagination.value.page,
-    page_size: pagination.value.limit
+    page_size: pagination.value.limit,
   };
-  
+
   if (activeFilters.value.fullname) params.fullname = activeFilters.value.fullname;
   if (activeFilters.value.department) params.department = activeFilters.value.department;
-  if (activeFilters.value.lastOrderDateFrom) params.last_order_date_from = activeFilters.value.lastOrderDateFrom;
-  if (activeFilters.value.lastOrderDateTo) params.last_order_date_to = activeFilters.value.lastOrderDateTo;
-  if (activeFilters.value.currentOrderStatuses && activeFilters.value.currentOrderStatuses.length > 0) {
+  if (activeFilters.value.lastOrderDateFrom)
+    params.last_order_date_from = activeFilters.value.lastOrderDateFrom;
+  if (activeFilters.value.lastOrderDateTo)
+    params.last_order_date_to = activeFilters.value.lastOrderDateTo;
+  if (
+    activeFilters.value.currentOrderStatuses &&
+    activeFilters.value.currentOrderStatuses.length > 0
+  ) {
     params.current_order_statuses = activeFilters.value.currentOrderStatuses;
   }
-  
+
   if (sortField.value) {
     params.sort_by = sortField.value;
     params.sort_order = sortDirection.value;
   }
-  
+
   return params;
 });
 
 const validateDates = (): boolean => {
-  dateError.value = '';
-  
-  if (!validateDateRange(localFilters.value.lastOrderDateFrom, localFilters.value.lastOrderDateTo)) {
-    dateError.value = 'Дата начала последнего заказа не может быть больше даты окончания';
+  dateError.value = "";
+
+  if (
+    !validateDateRange(localFilters.value.lastOrderDateFrom, localFilters.value.lastOrderDateTo)
+  ) {
+    dateError.value = "Дата начала последнего заказа не может быть больше даты окончания";
     return false;
   }
-  
+
   return true;
 };
 
@@ -152,25 +164,25 @@ const validateDateRange = (from: string, to: string): boolean => {
 
 const loadReadersData = async () => {
   if (!validateDates()) return;
-  
+
   if (abortController) {
     abortController.abort();
   }
-  
+
   abortController = new AbortController();
   loading.value = true;
-  
+
   try {
     const response = await getReaders(requestParams.value);
     readersData.value = response.results;
     pagination.value.total = response.count;
   } catch (error: any) {
-    if (error.name !== 'AbortError') {
-      console.error('Ошибка загрузки данных:', error);
+    if (error.name !== "AbortError") {
+      console.error("Ошибка загрузки данных:", error);
       if (error.response?.status === 400) {
-        dateError.value = 'Ошибка в параметрах запроса. Проверьте введенные данные.';
+        dateError.value = "Ошибка в параметрах запроса. Проверьте введенные данные.";
       } else {
-        dateError.value = 'Произошла ошибка при загрузке данных. Попробуйте позже.';
+        dateError.value = "Произошла ошибка при загрузке данных. Попробуйте позже.";
       }
     }
   } finally {
@@ -181,29 +193,29 @@ const loadReadersData = async () => {
 
 const applyFilters = () => {
   if (!validateDates()) return;
-  
+
   activeFilters.value = { ...localFilters.value };
   pagination.value.page = 1;
   loadReadersData();
 };
 
-const handleSort = (field: string, direction: 'asc' | 'desc') => {
+const handleSort = (field: string, direction: "asc" | "desc") => {
   sortField.value = field as SortField;
   sortDirection.value = direction;
 };
 
 const clearAllFilters = () => {
   localFilters.value = {
-    fullname: '',
-    department: '',
-    lastOrderDateFrom: '',
-    lastOrderDateTo: '',
+    fullname: "",
+    department: "",
+    lastOrderDateFrom: "",
+    lastOrderDateTo: "",
     currentOrderStatuses: [],
   };
   activeFilters.value = { ...localFilters.value };
   pagination.value.page = 1;
-  sortField.value = 'fullname';
-  sortDirection.value = 'asc';
+  sortField.value = "fullname";
+  sortDirection.value = "asc";
   loadReadersData();
 };
 
@@ -226,13 +238,10 @@ watch(
   }
 );
 
-watch(
-  [() => sortField.value, () => sortDirection.value],
-  () => {
-    pagination.value.page = 1;
-    loadReadersData();
-  }
-);
+watch([() => sortField.value, () => sortDirection.value], () => {
+  pagination.value.page = 1;
+  loadReadersData();
+});
 
 onMounted(async () => {
   await loadReadersData();
@@ -258,12 +267,12 @@ useAuthentication((isAuthenticated) => {
 
 .page-header {
   margin-bottom: 1rem;
-  
+
   h2 {
     color: var(--color-text-800);
     margin: 0;
   }
-  
+
   .stats {
     color: var(--color-text-800);
     display: flex;

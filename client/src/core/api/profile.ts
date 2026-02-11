@@ -22,16 +22,16 @@ export interface BannedUser {
 export async function fetchBannedUsers(): Promise<BannedUser[]> {
   try {
     const response = await axios.get("/api/profile/banned/");
-    console.log('Полный ответ:', response.data);
-    
+    console.log("Полный ответ:", response.data);
+
     // Теперь бэкенд возвращает данные в нужном формате
     const bannedUsers = response.data.banned_users.map((user: any) => ({
       id: user.id,
       library_card: user.library_card,
-      fullname: user.fullname
+      fullname: user.fullname,
     }));
-    
-    console.log('Преобразованные данные:', bannedUsers);
+
+    console.log("Преобразованные данные:", bannedUsers);
     return bannedUsers;
   } catch (error) {
     console.error("Ошибка при получении черного списка пользователей:", error);
@@ -59,10 +59,15 @@ export interface BanCandidate {
 }
 
 // Получить кандидатов на блокировку
-export async function fetchBanCandidates(startDate: string, endDate: string): Promise<BanCandidate[]> {
+export async function fetchBanCandidates(
+  startDate: string,
+  endDate: string
+): Promise<BanCandidate[]> {
   try {
-    const response = await axios.get(`/api/profile/banned/candidates_for_ban/${startDate}/${endDate}/`);
-    console.log('Получены кандидаты на блокировку:', response.data);
+    const response = await axios.get(
+      `/api/profile/banned/candidates_for_ban/${startDate}/${endDate}/`
+    );
+    console.log("Получены кандидаты на блокировку:", response.data);
     return response.data.ban_candidates;
   } catch (error) {
     console.error("Ошибка при получении кандидатов на блокировку:", error);

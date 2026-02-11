@@ -1,23 +1,13 @@
 <template>
   <tr class="reader-row" @click="handleRowClick">
-    <td 
-      :class="{ expanded: isExpanded }" 
-      @contextmenu="showContextMenu"
-    >
+    <td :class="{ expanded: isExpanded }" @contextmenu="showContextMenu">
       {{ reader.library_card }}
-      
-      <div 
-        v-if="showMenu" 
-        class="context-menu" 
-        :style="menuStyle"
-        @click.stop
-      >
+
+      <div v-if="showMenu" class="context-menu" :style="menuStyle" @click.stop>
         <div class="menu-item" @click="toggleExpand">
-          {{ isExpanded ? 'Свернуть' : 'Раскрыть' }}
+          {{ isExpanded ? "Свернуть" : "Раскрыть" }}
         </div>
-        <div class="menu-item" @click="copyToClipboard">
-          Копировать
-        </div>
+        <div class="menu-item" @click="copyToClipboard">Копировать</div>
       </div>
     </td>
     <td>{{ reader.fullname }}</td>
@@ -30,14 +20,14 @@
 
 <script setup lang="ts">
 import type { ReaderStats } from "@api/types";
-import { ref } from 'vue';
+import { ref } from "vue";
 
 interface Props {
   reader: ReaderStats;
 }
 
 interface Emits {
-  (e: 'row-click', reader: ReaderStats): void;
+  (e: "row-click", reader: ReaderStats): void;
 }
 
 const props = defineProps<Props>();
@@ -45,20 +35,20 @@ const emit = defineEmits<Emits>();
 
 const isExpanded = ref(false);
 const showMenu = ref(false);
-const menuStyle = ref({ top: '0', left: '0' });
+const menuStyle = ref({ top: "0", left: "0" });
 
 const handleRowClick = () => {
-  emit('row-click', props.reader);
+  emit("row-click", props.reader);
   hideContextMenu();
 };
 
 const showContextMenu = (event: MouseEvent) => {
   event.preventDefault();
   event.stopPropagation();
-  
+
   menuStyle.value = {
     top: `${event.clientY}px`,
-    left: `${event.clientX}px`
+    left: `${event.clientX}px`,
   };
   showMenu.value = true;
 };
@@ -74,32 +64,32 @@ const toggleExpand = () => {
 
 const copyToClipboard = async () => {
   try {
-    await navigator.clipboard.writeText(props.reader.library_card || '');
-    console.log('Читательский билет скопирован в буфер обмена');
+    await navigator.clipboard.writeText(props.reader.library_card || "");
+    console.log("Читательский билет скопирован в буфер обмена");
     hideContextMenu();
   } catch (err) {
-    console.error('Ошибка при копировании в буфер обмена:', err);
-    fallbackCopyToClipboard(props.reader.library_card || '');
+    console.error("Ошибка при копировании в буфер обмена:", err);
+    fallbackCopyToClipboard(props.reader.library_card || "");
     hideContextMenu();
   }
 };
 
 const fallbackCopyToClipboard = (text: string) => {
-  const textArea = document.createElement('textarea');
+  const textArea = document.createElement("textarea");
   textArea.value = text;
   document.body.appendChild(textArea);
   textArea.select();
   try {
-    document.execCommand('copy');
-    console.log('Читательский билет скопирован (fallback)');
+    document.execCommand("copy");
+    console.log("Читательский билет скопирован (fallback)");
   } catch (err) {
-    console.error('Fallback copying failed:', err);
+    console.error("Fallback copying failed:", err);
   }
   document.body.removeChild(textArea);
 };
 
-document.addEventListener('click', hideContextMenu);
-document.addEventListener('contextmenu', hideContextMenu);
+document.addEventListener("click", hideContextMenu);
+document.addEventListener("contextmenu", hideContextMenu);
 </script>
 
 <style scoped lang="scss">
@@ -108,11 +98,11 @@ document.addEventListener('contextmenu', hideContextMenu);
   transition: background-color 0.2s;
   background-color: var(--color-background-100);
   position: relative;
-  
+
   &:hover {
     background-color: var(--color-background-200);
   }
-  
+
   td {
     padding: 12px;
     text-align: left;
@@ -121,7 +111,7 @@ document.addEventListener('contextmenu', hideContextMenu);
     background-color: transparent;
     vertical-align: middle;
     position: relative;
-    
+
     &:first-child {
       width: 120px;
       min-width: 120px;
@@ -131,7 +121,7 @@ document.addEventListener('contextmenu', hideContextMenu);
       white-space: nowrap;
       cursor: context-menu;
       transition: all 0.3s ease;
-      
+
       &.expanded {
         width: auto;
         min-width: auto;
@@ -157,11 +147,11 @@ document.addEventListener('contextmenu', hideContextMenu);
   padding: 8px 12px;
   cursor: pointer;
   transition: background-color 0.2s;
-  
+
   &:hover {
     background-color: var(--color-background-100);
   }
-  
+
   &:not(:last-child) {
     border-bottom: 1px solid var(--color-text-100);
   }

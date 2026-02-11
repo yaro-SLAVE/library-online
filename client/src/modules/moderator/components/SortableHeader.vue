@@ -13,7 +13,7 @@
       <slot />
       <span class="th-icon">
         <span v-if="isActive" class="direction-icon">
-          {{ direction === 'asc' ? "↓" : "↑" }}
+          {{ direction === "asc" ? "↓" : "↑" }}
         </span>
         <span v-else>⇅</span>
       </span>
@@ -22,42 +22,42 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   field: string;
   currentField: string;
-  direction: 'asc' | 'desc';
+  direction: "asc" | "desc";
   loading: boolean;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<{
-  sort: [field: string, direction: 'asc' | 'desc']
+  sort: [field: string, direction: "asc" | "desc"];
 }>();
 
 const isActive = computed(() => props.currentField === props.field);
 
 const headerClasses = computed(() => ({
-  'active-sort': isActive.value,
-  'sort-loading': props.loading,
-  'sort-asc': isActive.value && props.direction === 'asc',
-  'sort-desc': isActive.value && props.direction === 'desc'
+  "active-sort": isActive.value,
+  "sort-loading": props.loading,
+  "sort-asc": isActive.value && props.direction === "asc",
+  "sort-desc": isActive.value && props.direction === "desc",
 }));
 
 const ariaSort = computed(() => {
-  if (!isActive.value) return 'none';
-  return props.direction === 'asc' ? 'ascending' : 'descending';
+  if (!isActive.value) return "none";
+  return props.direction === "asc" ? "ascending" : "descending";
 });
 
 const handleClick = () => {
   if (props.loading) return;
-  
+
   if (isActive.value) {
-    const newDirection = props.direction === 'asc' ? 'desc' : 'asc';
-    emit('sort', props.field, newDirection);
+    const newDirection = props.direction === "asc" ? "desc" : "asc";
+    emit("sort", props.field, newDirection);
   } else {
-    emit('sort', props.field, 'asc');
+    emit("sort", props.field, "asc");
   }
 };
 </script>
@@ -80,7 +80,7 @@ const handleClick = () => {
 
   &.active-sort {
     background-color: var(--color-background-300);
-    
+
     .th-icon {
       opacity: 1;
       font-weight: bold;

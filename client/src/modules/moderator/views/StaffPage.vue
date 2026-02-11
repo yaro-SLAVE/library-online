@@ -2,9 +2,7 @@
   <div class="staff-page">
     <div class="page-header">
       <h2>Сотрудники</h2>
-      <div class="stats">
-        Всего сотрудников: {{ pagination.total }}
-      </div>
+      <div class="stats">Всего сотрудников: {{ pagination.total }}</div>
     </div>
 
     <div class="search-section">
@@ -29,22 +27,17 @@
       @row-click="showStaffOrders"
     />
 
-    <StaffOrdersModal
-      v-model:isOpen="isOrdersModalOpen"
-      :staff="selectedStaff"
-    />
+    <StaffOrdersModal v-model:isOpen="isOrdersModalOpen" :staff="selectedStaff" />
 
     <LoadingModal v-model="loading" />
   </div>
 </template>
 
 <script setup lang="ts">
-//@ts-nocheck
-
-import StaffTable from '@moderator/components/StaffTable.vue';
-import SearchInput from '@moderator/components/SearchInput.vue';
+import StaffTable from "@moderator/components/StaffTable.vue";
+import SearchInput from "@moderator/components/SearchInput.vue";
 import LoadingModal from "@components/LoadingModal.vue";
-import StaffOrdersModal from '@moderator/components/StaffOrdersModal.vue';
+import StaffOrdersModal from "@moderator/components/StaffOrdersModal.vue";
 
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useAuthentication } from "@core/composables/auth";
@@ -55,7 +48,7 @@ import type { StaffStats } from "@api/types";
 const staffData = ref<StaffStats[]>([]);
 const loading = ref(false);
 const router = useRouter();
-const searchValue = ref('');
+const searchValue = ref("");
 
 const selectedStaff = ref<StaffStats>(null);
 const isOrdersModalOpen = ref(false);
@@ -63,16 +56,16 @@ const isOrdersModalOpen = ref(false);
 const pagination = ref({
   page: 1,
   limit: 10,
-  total: 0
+  total: 0,
 });
 
-type SortField = 'fullname' | 'department' | 'total_orders' | 'cancelled_orders';
+type SortField = "fullname" | "department" | "total_orders" | "cancelled_orders";
 
-const sortField = ref<SortField>('fullname');
-const sortDirection = ref<'asc' | 'desc'>('asc');
+const sortField = ref<SortField>("fullname");
+const sortDirection = ref<"asc" | "desc">("asc");
 
 const hasSearch = computed(() => {
-  return searchValue.value !== '';
+  return searchValue.value !== "";
 });
 
 let abortController: AbortController | null = null;
@@ -80,18 +73,18 @@ let abortController: AbortController | null = null;
 const requestParams = computed(() => {
   const params: any = {
     page: pagination.value.page,
-    page_size: pagination.value.limit
+    page_size: pagination.value.limit,
   };
-  
+
   if (searchValue.value) {
     params.search = searchValue.value;
   }
-  
+
   if (sortField.value) {
     params.sort_by = sortField.value;
     params.sort_order = sortDirection.value;
   }
-  
+
   return params;
 });
 
@@ -99,17 +92,17 @@ const loadStaffData = async () => {
   if (abortController) {
     abortController.abort();
   }
-  
+
   abortController = new AbortController();
   loading.value = true;
-  
+
   try {
     const response = await getStaffStats(requestParams.value);
     staffData.value = response.results;
     pagination.value.total = response.count;
   } catch (error: any) {
-    if (error.name !== 'AbortError') {
-      console.error('Ошибка загрузки данных сотрудников:', error);
+    if (error.name !== "AbortError") {
+      console.error("Ошибка загрузки данных сотрудников:", error);
     }
   } finally {
     loading.value = false;
@@ -122,7 +115,7 @@ const handleSearch = () => {
   loadStaffData();
 };
 
-const handleSort = (field: string, direction: 'asc' | 'desc') => {
+const handleSort = (field: string, direction: "asc" | "desc") => {
   sortField.value = field as SortField;
   sortDirection.value = direction;
   pagination.value.page = 1;
@@ -130,7 +123,7 @@ const handleSort = (field: string, direction: 'asc' | 'desc') => {
 };
 
 const clearSearch = () => {
-  searchValue.value = '';
+  searchValue.value = "";
   pagination.value.page = 1;
   loadStaffData();
 };
@@ -154,9 +147,7 @@ const prevPage = () => {
   }
 };
 
-const totalPages = computed(() => 
-  Math.ceil(pagination.value.total / pagination.value.limit)
-);
+const totalPages = computed(() => Math.ceil(pagination.value.total / pagination.value.limit));
 
 onMounted(async () => {
   await loadStaffData();
@@ -182,12 +173,12 @@ useAuthentication((isAuthenticated) => {
 
 .page-header {
   margin-bottom: 1rem;
-  
+
   h2 {
     color: var(--color-text-800);
     margin: 0;
   }
-  
+
   .stats {
     color: var(--color-text-800);
     display: flex;

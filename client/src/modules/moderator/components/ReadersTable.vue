@@ -3,9 +3,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th class="static-header">
-            Чит.билет
-          </th>
+          <th class="static-header">Чит.билет</th>
 
           <SortableHeader
             field="fullname"
@@ -59,10 +57,10 @@
         </tr>
       </thead>
       <tbody>
-        <ReadersTableRow 
-          v-for="reader in readersData" 
-          :key="reader.id" 
-          :reader="reader" 
+        <ReadersTableRow
+          v-for="reader in readersData"
+          :key="reader.id"
+          :reader="reader"
           @row-click="$emit('row-click', $event)"
         />
       </tbody>
@@ -88,17 +86,17 @@
 
 <script setup lang="ts">
 import ReadersTableRow from "@modules/moderator/components/ReadersTableRow.vue";
-import SortableHeader from '@modules/moderator/components/SortableHeader.vue';
-import Pagination from '@modules/moderator/components/Pagination.vue';
-import EmptyState from '@modules/moderator/components/EmptyState.vue';
+import SortableHeader from "@modules/moderator/components/SortableHeader.vue";
+import Pagination from "@modules/moderator/components/Pagination.vue";
+import EmptyState from "@modules/moderator/components/EmptyState.vue";
 import type { ReaderStats } from "@api/types";
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   readersData: ReaderStats[];
   loading: boolean;
   sortField: string;
-  sortDirection: 'asc' | 'desc';
+  sortDirection: "asc" | "desc";
   pagination: {
     page: number;
     total: number;
@@ -108,30 +106,28 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'sort', field: string, direction: 'asc' | 'desc'): void;
-  (e: 'prev-page'): void;
-  (e: 'next-page'): void;
-  (e: 'clear-filters'): void;
-  (e: 'row-click', reader: ReaderStats): void;
+  (e: "sort", field: string, direction: "asc" | "desc"): void;
+  (e: "prev-page"): void;
+  (e: "next-page"): void;
+  (e: "clear-filters"): void;
+  (e: "row-click", reader: ReaderStats): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const totalPages = computed(() => 
-  Math.ceil(props.pagination.total / props.pagination.limit)
-);
+const totalPages = computed(() => Math.ceil(props.pagination.total / props.pagination.limit));
 
-const onSort = (field: string, direction: 'asc' | 'desc') => {
-  emit('sort', field, direction);
+const onSort = (field: string, direction: "asc" | "desc") => {
+  emit("sort", field, direction);
 };
 
 const prevPage = () => {
-  emit('prev-page');
+  emit("prev-page");
 };
 
 const nextPage = () => {
-  emit('next-page');
+  emit("next-page");
 };
 </script>
 
@@ -158,7 +154,7 @@ th {
   width: 120px;
   min-width: 120px;
   max-width: 120px;
-  
+
   &:hover {
     background-color: var(--color-background-100);
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="pagination">
-    <button 
-      @click="$emit('prev')" 
+    <button
+      @click="$emit('prev')"
       :disabled="currentPage === 1 || loading"
       class="pagination-btn"
       type="button"
@@ -9,11 +9,9 @@
     >
       Назад
     </button>
-    <span class="pagination-info">
-      Страница {{ currentPage }} из {{ totalPages }}
-    </span>
-    <button 
-      @click="$emit('next')" 
+    <span class="pagination-info"> Страница {{ currentPage }} из {{ totalPages }} </span>
+    <button
+      @click="$emit('next')"
       :disabled="currentPage >= totalPages || loading"
       class="pagination-btn"
       type="button"
@@ -32,8 +30,8 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'prev'): void;
-  (e: 'next'): void;
+  (e: "prev"): void;
+  (e: "next"): void;
 }
 
 defineProps<Props>();
@@ -57,11 +55,11 @@ defineEmits<Emits>();
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
-  
+
   &:hover:not(:disabled) {
     background: var(--color-primary-600);
   }
-  
+
   &:disabled {
     background: var(--color-text-300);
     cursor: not-allowed;

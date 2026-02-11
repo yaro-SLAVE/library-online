@@ -45,10 +45,10 @@
         </tr>
       </thead>
       <tbody>
-        <StaffTableRow 
-          v-for="staff in staffData" 
-          :key="staff.id" 
-          :staff="staff" 
+        <StaffTableRow
+          v-for="staff in staffData"
+          :key="staff.id"
+          :staff="staff"
           @row-click="$emit('row-click', $event)"
         />
       </tbody>
@@ -73,18 +73,18 @@
 </template>
 
 <script setup lang="ts">
-import SortableHeader from '@moderator/components/SortableHeader.vue';
-import Pagination from '@moderator/components/Pagination.vue';
-import EmptyState from '@moderator/components/EmptyState.vue';
-import StaffTableRow from '@moderator/components/StaffTableRow.vue';
+import SortableHeader from "@moderator/components/SortableHeader.vue";
+import Pagination from "@moderator/components/Pagination.vue";
+import EmptyState from "@moderator/components/EmptyState.vue";
+import StaffTableRow from "@moderator/components/StaffTableRow.vue";
 import type { StaffStats } from "@api/types";
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   staffData: StaffStats[];
   loading: boolean;
   sortField: string;
-  sortDirection: 'asc' | 'desc';
+  sortDirection: "asc" | "desc";
   pagination: {
     page: number;
     total: number;
@@ -94,30 +94,28 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'sort', field: string, direction: 'asc' | 'desc'): void;
-  (e: 'prev-page'): void;
-  (e: 'next-page'): void;
-  (e: 'clear-filters'): void;
-  (e: 'row-click', staff: StaffStats): void;
+  (e: "sort", field: string, direction: "asc" | "desc"): void;
+  (e: "prev-page"): void;
+  (e: "next-page"): void;
+  (e: "clear-filters"): void;
+  (e: "row-click", staff: StaffStats): void;
 }
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const totalPages = computed(() => 
-  Math.ceil(props.pagination.total / props.pagination.limit)
-);
+const totalPages = computed(() => Math.ceil(props.pagination.total / props.pagination.limit));
 
-const onSort = (field: string, direction: 'asc' | 'desc') => {
-  emit('sort', field, direction);
+const onSort = (field: string, direction: "asc" | "desc") => {
+  emit("sort", field, direction);
 };
 
 const prevPage = () => {
-  emit('prev-page');
+  emit("prev-page");
 };
 
 const nextPage = () => {
-  emit('next-page');
+  emit("next-page");
 };
 </script>
 

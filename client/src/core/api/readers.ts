@@ -7,12 +7,12 @@ export async function getReaders(filters?: ReadersFilters): Promise<PaginatedRea
       params: {
         ...filters,
         ...(filters?.current_order_statuses && {
-          'current_order_statuses[]': filters.current_order_statuses
-        })
+          "current_order_statuses[]": filters.current_order_statuses,
+        }),
       },
       paramsSerializer: {
-        indexes: null
-      }
+        indexes: null,
+      },
     });
     return data;
   } catch (error) {
