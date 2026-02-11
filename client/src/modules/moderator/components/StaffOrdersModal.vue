@@ -61,7 +61,7 @@
             </thead>
             <tbody>
               <tr
-                v-for="order in orders"
+                v-for="order in paginatedOrders"
                 :key="order.id"
                 class="order-row"
                 @click="showOrderDetails(order)"
@@ -81,7 +81,7 @@
         </div>
 
         <Pagination
-          v-if="orders.length > 0"
+          v-if="paginatedOrders.length > 0"
           :current-page="pagination.page"
           :total-pages="totalPages"
           :loading="loading"
@@ -110,6 +110,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted, nextTick, computed } from "vue";
+import axios from "axios";
 import type { StaffStats, UserOrder, Order } from "@api/types";
 import { orderStatuses } from "@api/types";
 import { getStaffOrders, getStaffOrderDetail } from "@core/api/staff";
@@ -184,9 +185,12 @@ const loadStaffOrders = async () => {
     // Если API не поддерживает пагинацию для заказов сотрудника,
     // установим общее количество равным количеству заказов
     pagination.value.total = staffOrders.length;
-  } catch (error: any) {
-    if (error.name !== "AbortError") {
+  } catch (error: unknown) {
+    if (!(error instanceof Error && error.name === "AbortError")) {
       console.error("Ошибка загрузки заказов сотрудника:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        close();
+      }
     }
   } finally {
     loading.value = false;

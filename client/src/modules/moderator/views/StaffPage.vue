@@ -27,7 +27,11 @@
       @row-click="showStaffOrders"
     />
 
-    <StaffOrdersModal v-model:isOpen="isOrdersModalOpen" :staff="selectedStaff" />
+    <StaffOrdersModal
+      v-if="selectedStaff"
+      v-model:isOpen="isOrdersModalOpen"
+      :staff="selectedStaff"
+    />
 
     <LoadingModal v-model="loading" />
   </div>
@@ -39,18 +43,19 @@ import SearchInput from "@moderator/components/SearchInput.vue";
 import LoadingModal from "@components/LoadingModal.vue";
 import StaffOrdersModal from "@moderator/components/StaffOrdersModal.vue";
 
+import axios from "axios";
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useAuthentication } from "@core/composables/auth";
 import { useRouter } from "vue-router";
 import { getStaffStats } from "@core/api/staff";
-import type { StaffStats } from "@api/types";
+import type { StaffStats, StaffFilters } from "@api/types";
 
 const staffData = ref<StaffStats[]>([]);
 const loading = ref(false);
 const router = useRouter();
 const searchValue = ref("");
 
-const selectedStaff = ref<StaffStats>(null);
+const selectedStaff = ref<StaffStats | null>(null);
 const isOrdersModalOpen = ref(false);
 
 const pagination = ref({
@@ -70,8 +75,8 @@ const hasSearch = computed(() => {
 
 let abortController: AbortController | null = null;
 
-const requestParams = computed(() => {
-  const params: any = {
+const requestParams = computed((): StaffFilters => {
+  const params: StaffFilters = {
     page: pagination.value.page,
     page_size: pagination.value.limit,
   };
@@ -100,9 +105,12 @@ const loadStaffData = async () => {
     const response = await getStaffStats(requestParams.value);
     staffData.value = response.results;
     pagination.value.total = response.count;
-  } catch (error: any) {
-    if (error.name !== "AbortError") {
+  } catch (error: unknown) {
+    if (!(error instanceof Error && error.name === "AbortError")) {
       console.error("Ошибка загрузки данных сотрудников:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        router.push("/");
+      }
     }
   } finally {
     loading.value = false;
