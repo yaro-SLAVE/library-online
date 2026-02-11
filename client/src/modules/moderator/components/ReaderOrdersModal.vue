@@ -79,6 +79,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onUnmounted, nextTick } from "vue";
+import axios from "axios";
 import type { ReaderStats, Order } from "@api/types";
 import { orderStatuses } from "@api/types";
 import { getReaderOrders, getReaderOrderDetail } from "@api/readers";
@@ -141,9 +142,12 @@ const loadReaderOrders = async () => {
   try {
     const readerOrders = await getReaderOrders(props.reader.id);
     orders.value = readerOrders;
-  } catch (error: any) {
-    if (error.name !== "AbortError") {
+  } catch (error: unknown) {
+    if (!(error instanceof Error && error.name === "AbortError")) {
       console.error("Ошибка загрузки заказов читателя:", error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        close();
+      }
     }
   } finally {
     loading.value = false;

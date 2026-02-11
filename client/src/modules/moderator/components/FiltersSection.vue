@@ -75,9 +75,10 @@ import { computed } from "vue";
 import FilterInput from "@modules/moderator/components/FilterInput.vue";
 import DateRangeFilter from "@modules/moderator/components/DateRangeFilter.vue";
 import StatusFilter from "@modules/moderator/components/StatusFilter.vue";
+import type { ModeratorFiltersModel } from "@modules/moderator/types/filters";
 
 interface Props {
-  filters: any;
+  filters: ModeratorFiltersModel;
   loading: boolean;
   dateError?: string;
   hasActiveFilters: boolean;
@@ -85,9 +86,9 @@ interface Props {
 }
 
 interface Emits {
-  (e: "apply-filters", filters: any): void;
+  (e: "apply-filters", filters: ModeratorFiltersModel): void;
   (e: "clear-filters"): void;
-  (e: "update:filters", filters: any): void;
+  (e: "update:filters", filters: ModeratorFiltersModel): void;
 }
 
 const props = defineProps<Props>();

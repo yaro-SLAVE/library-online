@@ -23,6 +23,10 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({
+  name: "PaginationControls",
+});
+
 interface Props {
   currentPage: number;
   totalPages: number;

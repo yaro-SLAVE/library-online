@@ -45,18 +45,20 @@ import ReadersTable from "@modules/moderator/components/ReadersTable.vue";
 import LoadingModal from "@components/LoadingModal.vue";
 import ReaderOrdersModal from "@modules/moderator/components/ReaderOrdersModal.vue";
 
+import axios from "axios";
 import { ref, onMounted, onUnmounted, computed, watch } from "vue";
 import { useAuthentication } from "@core/composables/auth";
 import { useRouter } from "vue-router";
 import { getReaders } from "@api/readers";
 import type { ReaderStats, ReadersFilters, OrderStatusEnum } from "@api/types";
+import type { ModeratorFiltersModel } from "@modules/moderator/types/filters";
 
 const readersData = ref<ReaderStats[]>([]);
 const loading = ref(false);
 const router = useRouter();
 const dateError = ref("");
 
-const localFilters = ref({
+const localFilters = ref<ModeratorFiltersModel>({
   fullname: "",
   department: "",
   lastOrderDateFrom: "",
@@ -64,7 +66,7 @@ const localFilters = ref({
   currentOrderStatuses: [] as OrderStatusEnum[],
 });
 
-const activeFilters = ref({
+const activeFilters = ref<ModeratorFiltersModel>({
   fullname: "",
   department: "",
   lastOrderDateFrom: "",
@@ -176,10 +178,10 @@ const loadReadersData = async () => {
     const response = await getReaders(requestParams.value);
     readersData.value = response.results;
     pagination.value.total = response.count;
-  } catch (error: any) {
-    if (error.name !== "AbortError") {
+  } catch (error: unknown) {
+    if (!(error instanceof Error && error.name === "AbortError")) {
       console.error("Ошибка загрузки данных:", error);
-      if (error.response?.status === 400) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
         dateError.value = "Ошибка в параметрах запроса. Проверьте введенные данные.";
       } else {
         dateError.value = "Произошла ошибка при загрузке данных. Попробуйте позже.";
