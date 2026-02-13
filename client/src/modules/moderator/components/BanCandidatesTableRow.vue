@@ -2,8 +2,14 @@
   <tr class="candidate-row">
     <td class="library-card">{{ candidate.library_card }}</td>
     <td class="fullname">{{ candidate.fullname }}</td>
-    <!-- Новая ячейка -->
-    <td class="candidate-status">Да</td>
+    
+    <td 
+      class="candidate-status" 
+      :class="{ 'is-real-candidate': candidate.is_candidate === 'Да' }"
+    >
+      {{ candidate.is_candidate }}
+    </td>
+
     <td class="total-orders">{{ candidate.total_orders_count }}</td>
     <td class="cancelled-orders">{{ candidate.cancelled_orders_count }}</td>
     <td class="actions">
@@ -72,8 +78,12 @@ const handleBan = () => {
 .candidate-status {
   text-align: center;
   font-weight: 500;
-  color: var(--color-accent-400);
+  color: var(--color-text-500); 
   background-color: inherit;
+
+  &.is-real-candidate {
+    color: var(--color-accent-400); 
+  }
 }
 
 .total-orders,

@@ -33,10 +33,23 @@
               </div>
             </span>
           </th>
-          <!-- Новый столбец -->
-          <th class="candidate-column">
-            Претендент на блокировку
+          
+          <th 
+            @click="sortCandidates('is_candidate')"
+            class="sortable-th candidate-column"
+            :aria-sort="sortKey === 'is_candidate' ? (sortOrder === 1 ? 'ascending' : 'descending') : 'none'"
+          >
+            <span class="th-content">
+              Претендент на блокировку
+              <div class="th-icon">
+                <span v-if="sortKey === 'is_candidate'" class="direction-icon">
+                  {{ sortOrder === 1 ? "↑" : "↓" }}
+                </span>
+                <span v-else>⇅</span>
+              </div>
+            </span>
           </th>
+
           <th
             @click="sortCandidates('total_orders_count')"
             class="sortable-th orders-column"
@@ -105,10 +118,11 @@ const emit = defineEmits<{
   (e: "banUser", userId: number): void;
 }>();
 
-type SortKey = "library_card" | "fullname" | "total_orders_count" | "cancelled_orders_count";
+// Добавили "is_candidate" в типы ключей сортировки
+type SortKey = "library_card" | "fullname" | "total_orders_count" | "cancelled_orders_count" | "is_candidate";
 
 const sortKey = ref<SortKey>("cancelled_orders_count");
-const sortOrder = ref<1 | -1>(-1); // По умолчанию сортировка по убыванию отказов
+const sortOrder = ref<1 | -1>(-1); 
 
 function sortCandidates(key: SortKey) {
   if (sortKey.value === key) {
@@ -119,7 +133,6 @@ function sortCandidates(key: SortKey) {
   }
 }
 
-// Сортировка
 const sortedCandidates = computed(() => {
   if (!props.candidates) return [];
 
@@ -128,9 +141,11 @@ const sortedCandidates = computed(() => {
 
     switch (sortKey.value) {
       case "fullname":
-        const aName = a.fullname?.toLowerCase() || '';
-        const bName = b.fullname?.toLowerCase() || '';
-        comparison = aName.localeCompare(bName);
+        comparison = (a.fullname || '').localeCompare(b.fullname || '');
+        break;
+      case "is_candidate":
+        // Сортировка "Да"/"Нет"
+        comparison = (a.is_candidate || '').localeCompare(b.is_candidate || '');
         break;
       case "total_orders_count":
         comparison = a.total_orders_count - b.total_orders_count;
@@ -140,9 +155,7 @@ const sortedCandidates = computed(() => {
         break;
       case "library_card":
       default:
-        const aCard = a.library_card?.toLowerCase() || '';
-        const bCard = b.library_card?.toLowerCase() || '';
-        comparison = aCard.localeCompare(bCard);
+        comparison = (a.library_card || '').localeCompare(b.library_card || '');
     }
 
     return comparison * sortOrder.value;
@@ -188,15 +201,9 @@ tr {
   border-bottom: 1px solid var(--color-text-200);
 }
 
-/* Ширины колонок */
 .library-card-column {
   width: 15%;
   min-width: 100px;
-  
-  @media (max-width: 768px) {
-    width: 18%;
-    min-width: 90px;
-  }
 }
 
 .fullname-column {
@@ -248,10 +255,6 @@ tr {
   align-items: center;
   gap: 4px;
   white-space: nowrap;
-  
-  @media (max-width: 480px) {
-    gap: 2px;
-  }
 }
 
 .th-icon {
@@ -263,10 +266,6 @@ tr {
   justify-content: center;
   width: 1em;
   height: 1em;
-  
-  @media (max-width: 480px) {
-    font-size: 0.8em;
-  }
 }
 
 .direction-icon {
@@ -281,10 +280,5 @@ tr {
   color: var(--color-text-600);
   font-size: 1.1em;
   background-color: var(--color-background-100);
-  
-  @media (max-width: 768px) {
-    padding: 30px 20px;
-    font-size: 1em;
-  }
 }
 </style>
