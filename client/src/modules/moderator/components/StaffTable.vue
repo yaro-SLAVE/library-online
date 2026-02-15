@@ -14,16 +14,6 @@
           </SortableHeader>
 
           <SortableHeader
-            field="department"
-            :current-field="sortField"
-            :direction="sortDirection"
-            :loading="loading"
-            @sort="onSort"
-          >
-            Подразделение
-          </SortableHeader>
-
-          <SortableHeader
             field="total_orders"
             :current-field="sortField"
             :direction="sortDirection"

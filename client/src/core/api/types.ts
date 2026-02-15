@@ -187,7 +187,6 @@ export type ReadersFilters = {
 export type StaffStats = {
   id: number;
   fullname: string;
-  department: string;
   total_orders: number;
   cancelled_orders: number;
 };
@@ -201,13 +200,13 @@ export type PaginatedStaff = {
 
 export type StaffFilters = {
   search?: string;
-  sort_by?: 'fullname' | 'department' | 'total_orders' | 'cancelled_orders';
+  sort_by?: 'fullname' | 'total_orders' | 'cancelled_orders';
   sort_order?: 'asc' | 'desc';
   page?: number;
   page_size?: number;
 };
 
-export type OrderStats = {
+export type ModeratorOrderStats = {
   id: number;
   fullname: string;
   library_card: string | null;
@@ -216,14 +215,14 @@ export type OrderStats = {
   status: OrderStatusEnum;
 };
 
-export type PaginatedOrderStats = {
+export type ModeratorPaginatedOrders = {
   count: number;
   next: string | null;
   previous: string | null;
-  results: OrderStats[];
+  results: ModeratorOrderStats[];
 };
 
-export type OrdersFilters = {
+export type ModeratorOrdersFilters = {
   fullname?: string;
   employee_collect?: string;
   employee_issue?: string;

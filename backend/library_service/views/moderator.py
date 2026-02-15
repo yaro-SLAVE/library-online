@@ -296,15 +296,14 @@ class StaffViewset(AsyncGenericViewSet):
     
     def _apply_search_filter(self, queryset, search_query):
         if search_query:
-            # Ищем по ФИО и отделу
+            # Ищем по ФИО
             queryset = queryset.filter(
-                Q(fullname__icontains=search_query) |
-                Q(department__icontains=search_query)
+                Q(fullname__icontains=search_query)
             )
         return queryset
     
     def _apply_ordering(self, queryset, sort_by, sort_order):
-        valid_sort_fields = ['fullname', 'department', 'total_orders', 'cancelled_orders']
+        valid_sort_fields = ['fullname', 'total_orders', 'cancelled_orders']
         
         if sort_by in valid_sort_fields:
             order_field = sort_by
