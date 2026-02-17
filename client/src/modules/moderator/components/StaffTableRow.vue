@@ -1,6 +1,7 @@
 <template>
   <tr class="staff-row" @click="handleRowClick">
     <td>{{ staff.fullname }}</td>
+    <td>{{ staff.department }}</td>
     <td>{{ staff.total_orders }}</td>
     <td>{{ staff.cancelled_orders }}</td>
   </tr>
@@ -8,17 +9,20 @@
 
 <script setup lang="ts">
 import type { StaffStats } from "@api/types";
+import { computed } from 'vue';
 
 interface Props {
   staff: StaffStats;
 }
 
-interface Emits {
-  (e: 'row-click', staff: StaffStats): void;
-}
-
 const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+  'row-click': [staff: StaffStats]
+}>();
+
+const hasOrders = computed(() => {
+  return (props.staff.total_orders ?? 0) > 0;
+});
 
 const handleRowClick = () => {
   emit('row-click', props.staff);

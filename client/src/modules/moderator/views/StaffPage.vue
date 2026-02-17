@@ -105,7 +105,14 @@ const loadStaffData = async () => {
   
   try {
     const response = await getStaffStats(requestParams.value);
-    staffData.value = response.results;
+    
+    const normalizedResults = response.results.map(staff => ({
+      ...staff,
+      total_orders: staff.total_orders ?? 0,
+      cancelled_orders: staff.cancelled_orders ?? 0
+    }));
+    
+    staffData.value = normalizedResults;
     pagination.value.total = response.count;
   } catch (error: any) {
     if (error.name !== 'AbortError') {

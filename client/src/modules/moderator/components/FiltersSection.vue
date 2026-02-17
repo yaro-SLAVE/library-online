@@ -22,6 +22,15 @@
           id="department-filter"
         />
 
+        <button 
+          @click="$emit('apply-filters', localFilters)" 
+          class="apply-filters-btn"
+          type="button"
+          :disabled="loading || !hasFilterChanges"
+        >
+          Применить
+        </button>
+
         <StatusFilter
           v-model="localFilters.currentOrderStatuses"
           label="Статусы заказов"
@@ -34,37 +43,16 @@
           label="Дата заказа"
           :disabled="loading"
         />
-
-        <div>
-          <b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
-            <b-dropdown-item>Первое действие</b-dropdown-item>
-            <b-dropdown-item>Второе действие</b-dropdown-item>
-            <b-dropdown-item>Третье действие</b-dropdown-item>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-item active>Активное действие</b-dropdown-item>
-            <b-dropdown-item disabled>Отключенное действие</b-dropdown-item>
-          </b-dropdown>
-        </div>
-
-        <div class="filter-actions">
-          <button 
-            @click="$emit('apply-filters', localFilters)" 
-            class="apply-filters-btn"
-            type="button"
-            :disabled="loading || !hasFilterChanges"
-          >
-            Применить
-          </button>
-          <button 
-            v-if="hasActiveFilters"
-            @click="$emit('clear-filters')" 
-            class="clear-filters-btn"
-            type="button"
-            :disabled="loading"
-          >
-            Сбросить
-          </button>
-        </div>
+          
+        <button 
+          v-if="hasActiveFilters"
+          @click="$emit('clear-filters')" 
+          class="clear-filters-btn"
+          type="button"
+          :disabled="loading"
+        >
+          Сбросить
+        </button>
       </div>
     </div>
   </div>
@@ -110,19 +98,14 @@ const localFilters = computed({
 
 .filters-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 3fr 3fr 1fr;
   gap: 1rem;
-  align-items: end;
-}
-
-.filter-actions {
-  display: flex;
-  gap: 0.5rem;
   align-items: end;
 }
 
 .apply-filters-btn,
 .clear-filters-btn {
+  align-self: center;
   background: var(--color-primary-500);
   color: white;
   border: none;
