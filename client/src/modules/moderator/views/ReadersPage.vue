@@ -1,9 +1,20 @@
 <template>
   <div class="readers-page">
     <div class="page-header">
-      <h2>Читатели</h2>
-      <div class="stats">
-        Всего читателей: {{ pagination.total }}
+      <div>
+        <h2>Читатели</h2>
+        <div class="stats">
+          Всего читателей: {{ pagination.total }}
+        </div>
+      </div>
+
+      <div>
+        <StyledButton
+          theme="primary"
+          @click="getExcel"
+        >
+          Excel
+        </StyledButton>
       </div>
     </div>
 
@@ -52,6 +63,10 @@ import { useAuthentication } from "@core/composables/auth";
 import { useRouter } from "vue-router";
 import { getReaders } from "@api/readers";
 import type { ReaderStats, ReadersFilters, OrderStatusEnum } from "@api/types";
+
+import writeXlsxFile from 'write-excel-file';
+
+import StyledButton from "@components/StyledButton.vue";
 
 const readersData = ref<ReaderStats[]>([]);
 const loading = ref(false);
@@ -249,6 +264,93 @@ useAuthentication((isAuthenticated) => {
     router.push("/");
   }
 });
+
+async function getExcel() {
+  let schema = [
+    [{
+      value: 'ФИО',
+      type: String
+    },
+    {
+      value: 'Институт/отдел',
+      type: String
+    },
+    {
+      value: 'Читательский билет',
+      type: String
+    },
+    {
+      value: 'ID кампуса',
+      type: String
+    },
+    {
+      value: 'ID mira',
+      type: String
+    },
+    {
+      value: 'Заказано книг',
+      type: String
+    },
+    {
+      value: 'Всего заказов',
+      type: String
+    },
+    {
+      value: 'Отменненые заказы',
+      type: String
+    },
+    {
+      value: 'Последняя дата заказа',
+      type: String
+    },
+  ]];
+
+  for (let obj in readersData.value) {
+    schema.push([
+    {
+      value: readersData.value[obj].fullname,
+      type: String
+    },
+    {
+      value: readersData.value[obj].department,
+      type: String
+    },
+    {
+      value: readersData.value[obj].library_card,
+      type: String
+    },
+    {
+      value: readersData.value[obj].campus_id,
+      type: String
+    },
+    {
+      value: readersData.value[obj].mira_id,
+      type: String
+    },
+    {
+      value: readersData.value[obj].total_books_ordered,
+      type: Number
+    },
+    {
+      value: readersData.value[obj].total_orders,
+      type: Number
+    },
+    {
+      value: readersData.value[obj].cancelled_orders,
+      type: Number
+    },
+    {
+      value: readersData.value[obj].last_order_date,
+      type: String
+    },
+    ])
+  }
+
+  await writeXlsxFile(schema, {
+    fileName: 'file.xlsx'
+  });
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -258,6 +360,9 @@ useAuthentication((isAuthenticated) => {
 
 .page-header {
   margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   
   h2 {
     color: var(--color-text-800);
