@@ -54,6 +54,7 @@ export interface BanCandidate {
   user_id: number;
   library_card: string;
   fullname: string;
+  is_candidate: string;
   total_orders_count: number;
   cancelled_orders_count: number;
 }
