@@ -10,7 +10,7 @@
             :loading="loading"
             @sort="onSort"
           >
-            #
+            ID
           </SortableHeader>
 
           <SortableHeader
@@ -20,27 +20,21 @@
             :loading="loading"
             @sort="onSort"
           >
-            ФИО читателя
+            Читатель
           </SortableHeader>
 
+          <th class="static-header">
+            Чит.билет
+          </th>
+
           <SortableHeader
-            field="employee_collect"
+            field="library"
             :current-field="sortField"
             :direction="sortDirection"
             :loading="loading"
             @sort="onSort"
           >
-            Сотрудник собрал
-          </SortableHeader>
-
-          <SortableHeader
-            field="employee_issue"
-            :current-field="sortField"
-            :direction="sortDirection"
-            :loading="loading"
-            @sort="onSort"
-          >
-            Сотрудник выдал
+            Библиотека
           </SortableHeader>
 
           <SortableHeader
@@ -52,21 +46,60 @@
           >
             Статус
           </SortableHeader>
+
+          <SortableHeader
+            field="books_count"
+            :current-field="sortField"
+            :direction="sortDirection"
+            :loading="loading"
+            @sort="onSort"
+          >
+            Книг
+          </SortableHeader>
+
+          <SortableHeader
+            field="employee_collect"
+            :current-field="sortField"
+            :direction="sortDirection"
+            :loading="loading"
+            @sort="onSort"
+          >
+            Собрал
+          </SortableHeader>
+
+          <SortableHeader
+            field="employee_issue"
+            :current-field="sortField"
+            :direction="sortDirection"
+            :loading="loading"
+            @sort="onSort"
+          >
+            Выдал
+          </SortableHeader>
+
+          <SortableHeader
+            field="created_date"
+            :current-field="sortField"
+            :direction="sortDirection"
+            :loading="loading"
+            @sort="onSort"
+          >
+            Дата создания
+          </SortableHeader>
         </tr>
       </thead>
       <tbody>
         <OrdersTableRow 
-          v-for="order in normalizedOrders" 
+          v-for="order in ordersData" 
           :key="order.id" 
           :order="order" 
-          :last-status="order._lastStatusLabel"
           @row-click="$emit('row-click', $event)"
         />
       </tbody>
     </table>
 
     <Pagination
-      v-if="normalizedOrders.length > 0"
+      v-if="ordersData.length > 0"
       :current-page="pagination.page"
       :total-pages="totalPages"
       :loading="loading"
@@ -74,8 +107,8 @@
       @next="nextPage"
     />
 
-    <EmptyState
-      v-if="normalizedOrders.length === 0 && !loading"
+    <OrdersEmptyState
+      v-if="ordersData.length === 0 && !loading"
       :has-active-filters="hasActiveFilters"
       @clear-filters="$emit('clear-filters')"
       :loading="loading"
@@ -84,17 +117,15 @@
 </template>
 
 <script setup lang="ts">
-import OrdersTableRow from "../orders/OrdersTableRow.vue";
+import OrdersTableRow from "@moderator/components/orders/OrdersTableRow.vue";
 import SortableHeader from '@modules/moderator/components/SortableHeader.vue';
 import Pagination from '@modules/moderator/components/Pagination.vue';
-import EmptyState from '@modules/moderator/components/EmptyState.vue';
-import type { OrderStats } from "@api/types";
+import OrdersEmptyState from '@moderator/components/orders/OrdersEmptyState.vue';
+import type { ModeratorOrderStats } from "@api/types";
 import { computed } from 'vue';
-import { orderStatuses } from "@api/types";
-import type { OrderStatusEnum } from "@api/types";
 
 interface Props {
-  ordersData: OrderStats[];
+  ordersData: ModeratorOrderStats[];
   loading: boolean;
   sortField: string;
   sortDirection: 'asc' | 'desc';
@@ -111,10 +142,12 @@ interface Emits {
   (e: 'prev-page'): void;
   (e: 'next-page'): void;
   (e: 'clear-filters'): void;
-  (e: 'row-click', order: OrderStats): void;
+  (e: 'row-click', order: ModeratorOrderStats): void;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  ordersData: () => []
+});
 const emit = defineEmits<Emits>();
 
 const totalPages = computed(() => 
@@ -132,31 +165,6 @@ const prevPage = () => {
 const nextPage = () => {
   emit('next-page');
 };
-
-// нормализуем список заказов и заранее считаем метку последнего статуса
-const normalizedOrders = computed(() => {
-  return props.ordersData.map((o: any) => {
-    let label = '-';
-
-    if (Array.isArray(o.statuses) && o.statuses.length > 0) {
-      const last = o.statuses[o.statuses.length - 1];
-      if (typeof last?.status === 'string' && last.status in orderStatuses) {
-        label = orderStatuses[last.status as OrderStatusEnum];
-      } else {
-        label = last?.status ?? '-';
-      }
-    } else {
-      if (typeof o.status === 'string' && o.status in orderStatuses) {
-        label = orderStatuses[o.status as OrderStatusEnum];
-      } else {
-        label = o.status ?? '-';
-      }
-    }
-
-    return { ...o, _lastStatusLabel: label };
-  });
-});
-
 </script>
 
 <style scoped lang="scss">
@@ -167,6 +175,10 @@ const normalizedOrders = computed(() => {
 .table {
   width: 100%;
   border-collapse: collapse;
+  
+  th, td {
+    white-space: nowrap;
+  }
 }
 
 th {
@@ -174,6 +186,18 @@ th {
   text-align: left;
   color: var(--color-text-800);
   background-color: var(--color-background-100);
+  vertical-align: middle;
+}
+
+.static-header {
+  cursor: default;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  
+  &:hover {
+    background-color: var(--color-background-100);
+  }
 }
 
 tr {

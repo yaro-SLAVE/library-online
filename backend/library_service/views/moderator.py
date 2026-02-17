@@ -488,3 +488,194 @@ class ModeratorOrderViewset(AsyncGenericViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = ModeratorOrderSerializer
     queryset = Order.objects.all()
+
+    def get_annotated_queryset(self):
+        employee_collect_subquery = (
+            OrderHistory.objects
+            .filter(order=OuterRef('pk'), status='ready')
+            .order_by('date')
+            .values('staff__profile__fullname')[:1]
+        )
+        employee_issue_subquery = (
+            OrderHistory.objects
+            .filter(order=OuterRef('pk'), status='done')
+            .order_by('date')
+            .values('staff__profile__fullname')[:1]
+        )
+        created_date_subquery = (
+            OrderHistory.objects
+            .filter(order=OuterRef('pk'))
+            .order_by('date')
+            .values('date')[:1]
+        )
+        latest_status_subquery = (
+            OrderHistory.objects
+            .filter(order=OuterRef('pk'))
+            .order_by('-date')
+            .values('status')[:1]
+        )
+
+        from django.db.models.functions import Coalesce
+        from django.db.models import Value
+
+        return Order.objects.select_related(
+            'user__profile', 'library'
+        ).annotate(
+            employee_collect=Coalesce(Subquery(employee_collect_subquery), Value('—')),
+            employee_issue=Coalesce(Subquery(employee_issue_subquery), Value('—')),
+            created_date=Subquery(created_date_subquery),
+            latest_status=Subquery(latest_status_subquery),
+            books_count=Count('books', distinct=True)
+        )
+
+    def _apply_filters(self, queryset, filters):
+        fullname = filters.get('fullname', '').strip()
+        if fullname:
+            queryset = queryset.filter(user__profile__fullname__icontains=fullname)
+
+        library_name = filters.get('library_name', '').strip()
+        if library_name:
+            queryset = queryset.filter(library__description__icontains=library_name)
+
+        employee_collect = filters.get('employee_collect', '').strip()
+        if employee_collect:
+            queryset = queryset.filter(employee_collect__icontains=employee_collect)
+
+        employee_issue = filters.get('employee_issue', '').strip()
+        if employee_issue:
+            queryset = queryset.filter(employee_issue__icontains=employee_issue)
+
+        date_from = filters.get('date_from')
+        if date_from:
+            queryset = queryset.filter(created_date__gte=date_from)
+
+        date_to = filters.get('date_to')
+        if date_to:
+            queryset = queryset.filter(created_date__lte=date_to)
+
+        statuses = filters.get('statuses', [])
+        if statuses:
+            valid_statuses = [
+                s for s in statuses
+                if s in ['new', 'processing', 'ready', 'done', 'cancelled', 'error', 'archived']
+            ]
+            if valid_statuses:
+                queryset = queryset.filter(latest_status__in=valid_statuses)
+
+        return queryset
+
+    def _apply_ordering(self, queryset, sort_by, sort_order):
+        valid_sort_fields = {
+            'id': 'id',
+            'fullname': 'user__profile__fullname',
+            'library': 'library__description',
+            'employee_collect': 'employee_collect',
+            'employee_issue': 'employee_issue',
+            'status': 'latest_status',
+            'created_date': 'created_date',
+            'books_count': 'books_count',
+        }
+
+        order_field = valid_sort_fields.get(sort_by, 'created_date')
+        if sort_order == 'desc':
+            order_field = f'-{order_field}'
+
+        return queryset.order_by(order_field)
+
+    async def alist(self, request):
+        filters = {
+            'fullname': request.query_params.get('fullname', '').strip(),
+            'library_name': request.query_params.get('library_name', '').strip(),
+            'employee_collect': request.query_params.get('employee_collect', '').strip(),
+            'employee_issue': request.query_params.get('employee_issue', '').strip(),
+            'date_from': request.query_params.get('date_from'),
+            'date_to': request.query_params.get('date_to'),
+            'statuses': request.query_params.getlist('statuses[]'),
+        }
+
+        sort_by = request.query_params.get('sort_by', 'created_date')
+        sort_order = request.query_params.get('sort_order', 'desc')
+        page = int(request.query_params.get('page', 1))
+        page_size = int(request.query_params.get('page_size', 10))
+
+        try:
+            queryset = self.get_annotated_queryset()
+            queryset = self._apply_filters(queryset, filters)
+            queryset = self._apply_ordering(queryset, sort_by, sort_order)
+
+            start_index = (page - 1) * page_size
+            end_index = start_index + page_size
+
+            total_count = await sync_to_async(queryset.count)()
+            orders = await sync_to_async(list)(queryset[start_index:end_index])
+
+            serializer = self.get_serializer(orders, many=True)
+            data = await serializer.adata
+
+            base_url = request.build_absolute_uri().split('?')[0]
+            query_params = request.GET.copy()
+
+            next_page = None
+            previous_page = None
+
+            if end_index < total_count:
+                query_params['page'] = page + 1
+                next_page = f"{base_url}?{query_params.urlencode()}"
+
+            if page > 1:
+                query_params['page'] = page - 1
+                previous_page = f"{base_url}?{query_params.urlencode()}"
+
+            return Response({
+                "count": total_count,
+                "next": next_page,
+                "previous": previous_page,
+                "results": data
+            })
+
+        except Exception as e:
+            print(f"Error in moderator orders list: {str(e)}")
+            return Response({"error": "Внутренняя ошибка сервера"}, status=500)
+
+    async def aretrieve(self, request, pk=None):
+        try:
+            @sync_to_async
+            def get_order(order_id):
+                try:
+                    return Order.objects.select_related(
+                        'library', 'user__profile'
+                    ).prefetch_related(
+                        'statuses__staff__profile', 'books__book'
+                    ).get(id=order_id)
+                except Order.DoesNotExist:
+                    return None
+
+            order = await get_order(pk)
+
+            if not order:
+                return Response(
+                    {"error": "Заказ не найден"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            from aiohttp import ClientSession
+
+            async with ClientSession() as client_session:
+                context = {
+                    'request': request,
+                    'format': self.format_kwarg,
+                    'view': self,
+                    'client_session': client_session
+                }
+
+                serializer = OrderSerializer(order, context=context)
+                data = await serializer.adata
+
+                return Response(data)
+
+        except Exception as e:
+            print(f"Error in moderator order detail: {str(e)}")
+            return Response(
+                {"error": "Ошибка при получении деталей заказа"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

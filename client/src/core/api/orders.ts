@@ -1,7 +1,14 @@
 import axios from "axios";
-import type { ModeratorOrderStats, ModeratorPaginatedOrders, ModeratorOrdersFilters, Order } from "./types";
+import type { 
+  ModeratorOrderStats, 
+  ModeratorPaginatedOrders, 
+  ModeratorOrdersFilters,
+  Order
+} from "./types";
 
-export async function getModeratorOrders(filters?: ModeratorOrdersFilters): Promise<ModeratorOrdersFilters> {
+export async function getModeratorOrders(
+  filters?: ModeratorOrdersFilters
+): Promise<ModeratorPaginatedOrders> {
   try {
     const { data } = await axios.get("/api/moderator/orders/", {
       params: {

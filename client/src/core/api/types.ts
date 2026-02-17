@@ -210,12 +210,16 @@ export type ModeratorOrderStats = {
   id: number;
   fullname: string;
   library_card: string | null;
+  library_name: string;
+  current_status: OrderStatusEnum;
+  created_date: string;
   employee_collect: string;
   employee_issue: string;
-  status: OrderStatusEnum;
+  books_count: number;
 };
 
 export type ModeratorPaginatedOrders = {
+  length: number;
   count: number;
   next: string | null;
   previous: string | null;
@@ -224,12 +228,13 @@ export type ModeratorPaginatedOrders = {
 
 export type ModeratorOrdersFilters = {
   fullname?: string;
+  library_name?: string;
   employee_collect?: string;
   employee_issue?: string;
   date_from?: string;
   date_to?: string;
   statuses?: OrderStatusEnum[];
-  sort_by?: 'id' | 'fullname' | 'employee_collect' | 'employee_issue' | 'status';
+  sort_by?: 'id' | 'fullname' | 'library' | 'employee_collect' | 'employee_issue' | 'status' | 'created_date' | 'books_count';
   sort_order?: 'asc' | 'desc';
   page?: number;
   page_size?: number;

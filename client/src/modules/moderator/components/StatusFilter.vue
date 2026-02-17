@@ -1,42 +1,51 @@
 <template>
   <div class="filter-group">
     <label class="filter-label">{{ label }}</label>
-    <div class="dropdown-container" ref="dropdownContainer">
-      <div 
-        class="dropdown-trigger"
-        :class="{ 'dropdown-open': isOpen, 'dropdown-disabled': disabled }"
+    <div class="status-filter-container">
+      <button 
+        type="button"
+        class="status-filter-toggle"
         @click="toggleDropdown"
+        :disabled="disabled"
       >
-        <span class="dropdown-selected">
-          {{ selectedText }}
-        </span>
-        <span class="dropdown-arrow">▼</span>
-      </div>
+        <span v-if="selectedCount === 0">Все статусы</span>
+        <span v-else>Выбрано: {{ selectedCount }}</span>
+        <span class="arrow" :class="{ open: isOpen }">▼</span>
+      </button>
       
-      <div 
-        v-show="isOpen"
-        class="dropdown-menu"
-      >
-        <div 
-          v-for="status in statusOptions" 
-          :key="status.value"
-          class="dropdown-item"
-          :class="{ 'dropdown-item-selected': isSelected(status.value) }"
-          @click="toggleStatus(status.value)"
-        >
-          <span class="checkbox-indicator">
-            <span v-if="isSelected(status.value)" class="checkmark">✓</span>
-          </span>
-          <span class="dropdown-item-label">{{ status.label }}</span>
+      <div v-if="isOpen" class="status-dropdown" @click.stop>
+        <div class="status-options">
+          <label 
+            v-for="status in availableStatuses" 
+            :key="status.value"
+            class="status-option"
+          >
+            <input
+              type="checkbox"
+              :value="status.value"
+              :checked="isSelected(status.value)"
+              @change="toggleStatus(status.value)"
+            />
+            <span class="status-badge" :class="`status-${status.value}`">
+              {{ status.label }}
+            </span>
+          </label>
         </div>
         
-        <div class="dropdown-actions" v-if="localValue.length > 0">
+        <div class="dropdown-footer">
           <button 
-            @click="clearAll"
-            class="clear-all-btn"
             type="button"
+            class="clear-btn"
+            @click="clearSelection"
           >
-            Сбросить все
+            Очистить
+          </button>
+          <button 
+            type="button"
+            class="select-all-btn"
+            @click="selectAll"
+          >
+            Выбрать все
           </button>
         </div>
       </div>
@@ -45,8 +54,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { orderStatuses, type OrderStatusEnum } from '@api/types';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import type { OrderStatusEnum } from '@api/types';
+import { orderStatuses } from '@api/types';
 
 interface Props {
   modelValue: OrderStatusEnum[];
@@ -65,70 +75,58 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>();
 
 const isOpen = ref(false);
-const dropdownContainer = ref<HTMLElement>();
 
-const localValue = computed({
-  get: () => props.modelValue || [],
-  set: (value) => emit('update:modelValue', value)
-});
+const availableStatuses = [
+  { value: 'new' as OrderStatusEnum, label: orderStatuses.new },
+  { value: 'processing' as OrderStatusEnum, label: orderStatuses.processing },
+  { value: 'ready' as OrderStatusEnum, label: orderStatuses.ready },
+  { value: 'done' as OrderStatusEnum, label: orderStatuses.done },
+  { value: 'cancelled' as OrderStatusEnum, label: orderStatuses.cancelled },
+  { value: 'error' as OrderStatusEnum, label: orderStatuses.error },
+  { value: 'archived' as OrderStatusEnum, label: orderStatuses.archived },
+];
 
-const statusOptions = computed(() => {
-  return Object.entries(orderStatuses).map(([value, label]) => ({
-    value: value as OrderStatusEnum,
-    label
-  }));
-});
+const selectedCount = computed(() => props.modelValue.length);
 
-const selectedText = computed(() => {
-  const selected = localValue.value || [];
-  if (selected.length === 0) {
-    return 'Выберите статусы...';
-  }
-  if (selected.length === statusOptions.value.length) {
-    return 'Все статусы';
-  }
-  if (selected.length <= 2) {
-    return selected.map(statusValue => {
-      const status = statusOptions.value.find(s => s.value === statusValue);
-      return status ? status.label : statusValue;
-    }).join(', ');
-  }
-  return `Выбрано: ${selected.length}`;
-});
-
-const isSelected = (statusValue: OrderStatusEnum) => {
-  return localValue.value.includes(statusValue);
+const isSelected = (status: OrderStatusEnum) => {
+  return props.modelValue.includes(status);
 };
 
-const toggleStatus = (statusValue: OrderStatusEnum) => {
-  const currentValue = [...localValue.value];
-  const index = currentValue.indexOf(statusValue);
-  
-  if (index > -1) {
-    currentValue.splice(index, 1);
-  } else {
-    currentValue.push(statusValue);
-  }
-  
-  localValue.value = currentValue;
-};
-
-const toggleDropdown = (event: MouseEvent) => {
-  event.stopPropagation();
-  
+const toggleDropdown = () => {
   if (!props.disabled) {
     isOpen.value = !isOpen.value;
   }
 };
 
-const clearAll = () => {
-  localValue.value = [];
+const closeDropdown = () => {
   isOpen.value = false;
 };
 
+const toggleStatus = (status: OrderStatusEnum) => {
+  const newValue = [...props.modelValue];
+  const index = newValue.indexOf(status);
+  
+  if (index > -1) {
+    newValue.splice(index, 1);
+  } else {
+    newValue.push(status);
+  }
+  
+  emit('update:modelValue', newValue);
+};
+
+const clearSelection = () => {
+  emit('update:modelValue', []);
+};
+
+const selectAll = () => {
+  emit('update:modelValue', availableStatuses.map(s => s.value));
+};
+
 const handleClickOutside = (event: MouseEvent) => {
-  if (dropdownContainer.value && !dropdownContainer.value.contains(event.target as Node)) {
-    isOpen.value = false;
+  const target = event.target as HTMLElement;
+  if (!target.closest('.status-filter-container')) {
+    closeDropdown();
   }
 };
 
@@ -146,6 +144,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  position: relative;
   
   .filter-label {
     font-size: 0.8rem;
@@ -157,180 +156,164 @@ onUnmounted(() => {
   }
 }
 
-.dropdown-container {
+.status-filter-container {
   position: relative;
-  width: 100%;
+  flex-grow: 1;
 }
 
-.dropdown-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.status-filter-toggle {
+  width: 100%;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-text-300);
+  border: 2px solid var(--color-text-300);
   border-radius: 4px;
   background: white;
   font-size: 0.8rem;
   height: 2.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   
-  &:hover:not(.dropdown-disabled) {
-    border-color: var(--color-primary-500);
-    background: var(--color-background-50);
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary-400);
+    box-shadow: 0 0 0 1px rgba(var(--color-primary-500-rgb, 59, 130, 246), 0.1);
   }
   
-  &.dropdown-open {
+  &:focus {
+    outline: none;
     border-color: var(--color-primary-500);
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    box-shadow: 0 0 0 1px var(--color-primary-500);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-500-rgb, 59, 130, 246), 0.2);
   }
   
-  &.dropdown-disabled {
+  &:disabled {
     background: var(--color-background-300);
     cursor: not-allowed;
     opacity: 0.6;
+  }
+  
+  .arrow {
+    transition: transform 0.2s;
+    font-size: 0.7em;
     
-    &:hover {
-      border-color: var(--color-text-300);
-      background: var(--color-background-300);
+    &.open {
+      transform: rotate(180deg);
     }
   }
 }
 
-.dropdown-selected {
-  color: var(--color-text-800);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  
-  .dropdown-disabled & {
-    color: var(--color-text-500);
-  }
-}
-
-.dropdown-arrow {
-  color: var(--color-text-500);
-  font-size: 0.75rem;
-  margin-left: 0.5rem;
-  transition: transform 0.2s ease;
-  
-  .dropdown-open & {
-    transform: rotate(180deg);
-  }
-  
-  .dropdown-disabled & {
-    color: var(--color-text-400);
-  }
-}
-
-.dropdown-menu {
-  padding: 0%;
-  overflow-y: auto;
-  display: block;
+.status-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
-  border: 2px solid var(--color-primary-500);
-  border-radius: 0 0 4px 4px;
-  max-height: 250px;
-  animation: fadeIn 0.2s ease-out;
+  background: white;
+  border: 1px solid var(--color-text-300);
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.status-options {
+  padding: 0.5rem;
 }
 
-.dropdown-item {
+.status-option {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.625rem 0.75rem;
+  padding: 0.5rem;
   cursor: pointer;
-  transition: all 0.15s ease;
-  border-bottom: 1px solid var(--color-text-100);
-  
-  &:last-child {
-    border-bottom: none;
-  }
+  border-radius: 4px;
+  transition: background-color 0.2s;
   
   &:hover {
-    background: var(--color-primary-50);
+    background-color: var(--color-background-100);
   }
   
-  &.dropdown-item-selected {
-    background: var(--color-primary-50);
-    color: var(--color-primary-700);
-    font-weight: 500;
-    
-    &:hover {
-      background: var(--color-primary-100);
-    }
+  input[type="checkbox"] {
+    cursor: pointer;
   }
 }
 
-.checkbox-indicator {
-  width: 1rem;
-  height: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid var(--color-text-300);
-  border-radius: 3px;
-  transition: all 0.15s ease;
-  
-  .dropdown-item-selected & {
-    border-color: var(--color-primary-500);
-    background: var(--color-primary-500);
-  }
-  
-  .dropdown-item:hover & {
-    border-color: var(--color-primary-400);
-  }
-}
-
-.checkmark {
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
   font-size: 0.75rem;
-  font-weight: bold;
-  color: white;
-  line-height: 1;
-}
-
-.dropdown-item-label {
-  font-size: 0.8rem;
-  color: inherit;
-}
-
-.dropdown-actions {
-  padding: 0%;
-  border-top: 1px solid var(--color-text-200);
-  background: var(--color-background-50);
-  position: sticky;
-  bottom: 0;
-}
-
-.clear-all-btn {
-  padding: 0.75rem;
-  width: 100%;
-  background: none;
-  border: none;
-  font-size: 0.8rem;
   font-weight: 500;
+  white-space: nowrap;
+  
+  &.status-new {
+    background: var(--color-info-100);
+    color: var(--color-info-700);
+  }
+  
+  &.status-processing {
+    background: var(--color-warning-100);
+    color: var(--color-warning-700);
+  }
+  
+  &.status-ready {
+    background: var(--color-success-100);
+    color: var(--color-success-700);
+  }
+  
+  &.status-done {
+    background: var(--color-primary-100);
+    color: var(--color-primary-700);
+  }
+  
+  &.status-cancelled {
+    background: var(--color-error-100);
+    color: var(--color-error-700);
+  }
+  
+  &.status-error {
+    background: var(--color-error-100);
+    color: var(--color-error-700);
+  }
+  
+  &.status-archived {
+    background: var(--color-text-100);
+    color: var(--color-text-600);
+  }
+}
+
+.dropdown-footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-top: 1px solid var(--color-text-200);
+  background: var(--color-background-100);
+}
+
+.clear-btn,
+.select-all-btn {
+  flex: 1;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--color-text-300);
+  border-radius: 4px;
+  background: white;
+  font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
   
   &:hover {
-    background: var(--color-primary-400);
+    background: var(--color-background-200);
+    border-color: var(--color-text-400);
+  }
+}
+
+.select-all-btn {
+  background: var(--color-primary-500);
+  color: white;
+  border-color: var(--color-primary-500);
+  
+  &:hover {
+    background: var(--color-primary-600);
+    border-color: var(--color-primary-600);
   }
 }
 </style>
