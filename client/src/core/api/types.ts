@@ -12,7 +12,15 @@ export type ProfileInfo = {
   groups: Group[];
   fullname: string;
   department: string;
+  current_role: string;
 };
+
+export const userRoles = {
+  reader: "Reader",
+  librarian: "Librarian",
+  admin: "Admin",
+} as const;
+export type UserRoleEnum = keyof typeof userRoles;
 
 export type Library = {
   id: number;

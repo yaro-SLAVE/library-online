@@ -10,6 +10,13 @@ class AuthResponse(DataClassJsonMixin):
     accessToken: str
     refreshToken: str
 
+@dataclass
+class AuthUniversalResponse(DataClassJsonMixin):
+    dataclass_json_config = config(undefined=Undefined.EXCLUDE)["dataclasses_json"]
+    accessToken: str
+    refreshToken: str
+    roles: list[str]
+
 
 @dataclass
 class UserInfo(DataClassJsonMixin):
@@ -57,3 +64,10 @@ async def get_login_info(client: ClientSession, access_token: str) -> UserInfo:
     r = await client.get(f"{settings.OPAC_HOSTNAME}/api/readers/info", headers=headers)
     r.raise_for_status()
     return UserInfo.schema().load(await r.json())
+
+async def login_universal(client: ClientSession, username: str, password: str) -> AuthUniversalResponse:
+    payload = {"username": username, "password": password}
+
+    r = await client.post(f"{settings.OPAC_HOSTNAME}/api/login/universal", json=payload)
+    r.raise_for_status()
+    return AuthResponse.schema().load(await r.json())

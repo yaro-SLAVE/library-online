@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ProfileInfo } from "./types";
+import type { ProfileInfo, UserRoleEnum } from "./types";
 
 export async function profileInfo(): Promise<ProfileInfo> {
   try {
@@ -8,6 +8,17 @@ export async function profileInfo(): Promise<ProfileInfo> {
     return data;
   } catch (error) {
     console.error("Ошибка при получении информации о профиле", error);
+    throw error;
+  }
+}
+
+export async function setRole(role: UserRoleEnum) {
+  try {
+    const { data } = await axios.post("/api/profile/set_role/", {
+      role: role.toString()
+    });
+  } catch (error) {
+    console.error("Ошибка при указании роли", error);
     throw error;
   }
 }

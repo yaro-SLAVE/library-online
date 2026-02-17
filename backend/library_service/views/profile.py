@@ -12,6 +12,10 @@ from asgiref.sync import sync_to_async
 from datetime import datetime, timedelta
 from django.db.models import OuterRef, Exists
 
+from rest_framework import serializers
+
+import json
+
 class ProfileViewset(AsyncGenericViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -25,6 +29,19 @@ class ProfileViewset(AsyncGenericViewSet):
         profile = await self.get_queryset().afirst()
         serializer = self.get_serializer(profile)
         return Response(await serializer.adata)
+    
+    @action(detail=False, methods=['POST'], url_path="set_role")
+    async def set_role(self, request, *args, **kwargs):
+        profile = await self.get_queryset().afirst()
+
+        role = json.loads(self.request.body)['role']
+        
+        if (role == 'Admin' and profile.user.is_superuser) or (role == 'Labrarian' and 'Labrarian' in profile.user.groups):
+            profile.current_role = role
+            profile.asave()
+            return Response(status=200)
+        else: 
+            return Response(status=403)
     
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
