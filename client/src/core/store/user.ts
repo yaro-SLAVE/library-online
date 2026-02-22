@@ -3,15 +3,13 @@ import { defineStore } from "pinia";
 import { useLocalStorage } from "@vueuse/core";
 import { useAuthStore } from "./auth";
 import { profileInfo, setRole } from "@api/profile";
-import { userRoles, type Group, type UserRoleEnum } from "@core/api/types";
+import type { Group} from "@core/api/types";
 
 export const useUserStore = defineStore("user", () => {
   const currentUser = ref<Awaited<ReturnType<typeof profileInfo>> | null>(null);
   const isLoaded = ref(false);
 
   const availableRoles = computed<Group[]>(() => currentUser.value?.groups ?? ["Reader"]);
-
-  const currentRole = computed(() => currentUser.value?.current_role ? currentUser.value?.current_role : userRoles.reader);
 
   const isAdmin = computed(() => currentUser.value?.current_role === "Admin");
   const isLibrarian = computed(() => currentUser.value?.current_role === "Librarian");
@@ -23,21 +21,19 @@ export const useUserStore = defineStore("user", () => {
     try {
       currentUser.value = await profileInfo();
       isLoaded.value = true;
-
-      // if (!availableRoles.value.includes(currentRole.value)) {
-      //   currentRole.value = "Reader";
-      // }
     } catch {
       currentUser.value = null;
       isLoaded.value = false;
-      // currentRole.value = "Reader";
+    }
+
+    if (currentUser.value?.current_role === null) {
+      currentUser.value.current_role = "None"
     }
   }
 
   function clearUser() {
     currentUser.value = null;
     isLoaded.value = false;
-    // currentRole.value = "Reader";
   }
 
   async function setCurrentRole(role: Group) {
@@ -46,9 +42,9 @@ export const useUserStore = defineStore("user", () => {
       availableRoles.value.includes("Admin") &&
       role === "Librarian"
     ) {
-      await setRole(userRoles.admin);
+      await setRole("Admin");
     } else if (availableRoles.value.includes(role) && role === "Librarian") {
-      await setRole(userRoles.librarian);
+      await setRole("librarian");
     }
 
     await fetchProfile();
@@ -58,7 +54,6 @@ export const useUserStore = defineStore("user", () => {
     currentUser,
     isLoaded,
     availableRoles,
-    currentRole,
     isAdmin,
     isLibrarian,
     isReader,

@@ -16,6 +16,15 @@ from rest_framework import serializers
 
 import json
 
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django.db.models import Value, CharField
+from django.db.models.functions import Concat
+
 class ProfileViewset(AsyncGenericViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -38,19 +47,11 @@ class ProfileViewset(AsyncGenericViewSet):
         
         if (role == 'Admin' and profile.user.is_superuser) or (role == 'Labrarian' and 'Labrarian' in profile.user.groups):
             profile.current_role = role
-            profile.asave()
+            await profile.asave()
             return Response(status=200)
         else: 
             return Response(status=403)
     
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
-from django.db.models import Value, CharField
-from django.db.models.functions import Concat
 class ProfileBannedViewset(ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = UserProfile.objects.filter(banned_status_our=True)

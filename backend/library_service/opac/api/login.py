@@ -70,4 +70,4 @@ async def login_universal(client: ClientSession, username: str, password: str) -
 
     r = await client.post(f"{settings.OPAC_HOSTNAME}/api/login/universal", json=payload)
     r.raise_for_status()
-    return AuthResponse.schema().load(await r.json())
+    return AuthUniversalResponse.schema().load(await r.json())

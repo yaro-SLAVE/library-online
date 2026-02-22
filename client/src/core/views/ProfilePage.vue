@@ -5,7 +5,7 @@
       <h3 class="text-center">{{ currentUser?.first_name }} {{ currentUser?.last_name }}</h3>
       <h4 class="text-center">{{ currentUser?.username }}</h4>
       <h5 class="text-center">
-        {{ groups[currentRole] }}
+        {{ currentRole }}
       </h5>
       <StyledButton theme="accent" class="w-full" @click="handleLogout">Выйти</StyledButton>
     </div>
@@ -33,12 +33,14 @@ import { useUserStore } from "@core/store/user";
 import { storeToRefs } from "pinia";
 import router from "@core/router/index";
 import type { Group } from "@core/api/types";
-import { ref, onBeforeMount } from "vue";
+import { ref, onBeforeMount, computed } from "vue";
 
 const authStore = useAuthStore();
 const userStore = useUserStore();
 const { isAuthenticated } = storeToRefs(authStore);
-const { currentUser, currentRole } = storeToRefs(userStore);
+const { currentUser } = storeToRefs(userStore);
+
+const currentRole = computed(() => groups[currentUser.value?.current_role]);
 
 const handleLogout = () => {
   router.push("/");
@@ -48,8 +50,9 @@ const handleLogout = () => {
 const openModal = ref(false);
 
 onBeforeMount(() => {
+  console.log(currentUser.value?.current_role);
   if (isAuthenticated) {
-  if (currentUser.value?.groups?.includes("Librarian")) {
+    if (currentUser.value?.current_role === "None") {
       openModal.value = true;
       console.log(currentUser.value?.groups, "YES");
     } else {
@@ -62,6 +65,7 @@ onBeforeMount(() => {
 const handleUserRoleChoice = (choice: Group) => {
   userStore.setCurrentRole(choice);
   openModal.value = false;
+  router.go(0);
   router.push("/");
 };
 

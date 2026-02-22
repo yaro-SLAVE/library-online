@@ -12,7 +12,7 @@ export async function profileInfo(): Promise<ProfileInfo> {
   }
 }
 
-export async function setRole(role: UserRoleEnum) {
+export async function setRole(role: string) {
   try {
     const { data } = await axios.post("/api/profile/set_role/", {
       role: role.toString()
