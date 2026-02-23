@@ -10,6 +10,7 @@ from library_service.serializers.library_settings import LibrarySettingsSerializ
 
 import requests
 from datetime import datetime, timedelta
+from library_service.permissions import IsAdmin
 
 class LibrarySettingsViewSet(amixins.ListModelMixin, AsyncGenericViewSet):
     serializer_class = LibrarySettingsSerializer
@@ -52,7 +53,7 @@ class LibrarySettingsViewSet(amixins.ListModelMixin, AsyncGenericViewSet):
     async def aupdate(self, request, *args, **kwargs):
         return await super().aupdate(request, *args, **kwargs)
 
-    @action(detail=False, url_path="update", methods=["put"], permission_classes=[IsAuthenticated])
+    @action(detail=False, url_path="update", methods=["put"], permission_classes=[IsAuthenticated, IsAdmin])
     async def update_settings(self, request, *args, **kwargs):
         print(request.data)
         serializer = self.get_serializer(await self.aget_object(), data=request.data)

@@ -26,7 +26,7 @@ export const useUserStore = defineStore("user", () => {
       isLoaded.value = false;
     }
 
-    if (currentUser.value?.current_role === null) {
+    if (currentUser.value?.current_role === null || currentUser.value?.current_role === "") {
       currentUser.value.current_role = "None"
     }
   }

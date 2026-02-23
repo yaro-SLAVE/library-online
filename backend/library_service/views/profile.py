@@ -25,6 +25,8 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Value, CharField
 from django.db.models.functions import Concat
 
+from library_service.permissions import IsAdmin
+
 class ProfileViewset(AsyncGenericViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -53,7 +55,7 @@ class ProfileViewset(AsyncGenericViewSet):
             return Response(status=403)
     
 class ProfileBannedViewset(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin]
     queryset = UserProfile.objects.filter(banned_status_our=True)
     
     # GET /api/profile/banned/ - список забаненных пользователей
