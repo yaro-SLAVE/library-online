@@ -1,6 +1,6 @@
 //@ts-nocheck
 
-import axios from "axios";
+import { api } from "./axios"
 import type { BorrowedBook, Order, UserOrder, OrderStatusEnum, OrderCheckingInfo } from "./types";
 
 export async function updateOrderStatus(
@@ -22,7 +22,7 @@ export async function updateOrderStatus(
     const updatedStatuses = [...currentOrder.statuses, statusUpdate];
     console.log(updatedStatuses);
 
-    await axios.put(`/api/staff/order/${orderId}/`, { status: statusUpdate, books: books });
+    await api.put(`/api/staff/order/${orderId}/`, { status: statusUpdate, books: books });
     console.log(`Статус заказа ${orderId} добавлен: "${newStatus}"`);
   } catch (error) {
     console.error("Ошибка при обновлении статуса заказа", error);
@@ -32,7 +32,7 @@ export async function updateOrderStatus(
 
 export async function ordersList(): Promise<Order[]> {
   try {
-    const { data } = await axios.get("/api/order/");
+    const { data } = await api.get("/api/order/");
     console.log("/api/order/", data);
     return data;
   } catch (error) {
@@ -43,7 +43,7 @@ export async function ordersList(): Promise<Order[]> {
 
 export async function fetchNewOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff-order/order/?status=new");
+    const response = await api.get("/api/staff-order/order/?status=new");
     console.log("Ответ сервера:", response);
     return response.data;
   } catch (error: unknown) {
@@ -57,7 +57,7 @@ export async function fetchNewOrders(): Promise<UserOrder[]> {
 
 export async function fetchProcessingOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff-order/order/?status=processing");
+    const response = await api.get("/api/staff-order/order/?status=processing");
     return response.data;
   } catch (error) {
     console.error("Ошибка при получении заказов в процессе:", error);
@@ -67,7 +67,7 @@ export async function fetchProcessingOrders(): Promise<UserOrder[]> {
 
 export async function fetchReadyOrders(): Promise<UserOrder[]> {
   try {
-    const response = await axios.get("/api/staff-order/order/?status=ready");
+    const response = await api.get("/api/staff-order/order/?status=ready");
     return response.data;
   } catch (error) {
     console.error("Ошибка при получении готовых заказов:", error);
@@ -78,9 +78,9 @@ export async function fetchReadyOrders(): Promise<UserOrder[]> {
 export async function fetchArchiveOrders(): Promise<UserOrder[]> {
   try {
     let data = [];
-    const response = await axios.get("/api/staff-order/order/?status=done");
+    const response = await api.get("/api/staff-order/order/?status=done");
     data = response.data;
-    const response2 = await axios.get("/api/staff-order/order/?status=cancelled");
+    const response2 = await api.get("/api/staff-order/order/?status=cancelled");
     response2.data.forEach((element) => {
       data.push(element);
     });
@@ -93,7 +93,7 @@ export async function fetchArchiveOrders(): Promise<UserOrder[]> {
 
 export async function getOrder(orderId: number): Promise<Order> {
   try {
-    const { data } = await axios.get(`/api/staff/order/${orderId}/`);
+    const { data } = await api.get(`/api/staff/order/${orderId}/`);
     console.log(`/api/order/${orderId}`, data);
     return data;
   } catch (error) {
@@ -104,7 +104,7 @@ export async function getOrder(orderId: number): Promise<Order> {
 
 export async function checkOrder(orderId: number): Promise<OrderCheckingInfo> {
   try {
-    const { data } = await axios.get(`/api/staff/order/check/${orderId}/`);
+    const { data } = await api.get(`/api/staff/order/check/${orderId}/`);
     console.log(`/api/order/${orderId}`, data);
 
     console.log("Найденные книги:", data.found_books);
@@ -127,7 +127,7 @@ export async function checkOrder(orderId: number): Promise<OrderCheckingInfo> {
 
 export async function getOrderStaff(orderId: number): Promise<Order> {
   try {
-    const { data } = await axios.get(`/api/staff/order/${orderId}/`);
+    const { data } = await api.get(`/api/staff/order/${orderId}/`);
     console.log(`/api/staff/order/${orderId}`, data);
 
     if ((['ready', 'done', 'cancelled']).includes(data.statuses[data.statuses.length - 1].status)) {
@@ -171,7 +171,7 @@ export async function getOrderStaff(orderId: number): Promise<Order> {
 
 export async function createOrder(libraryId: number, bookIds: string[], borrowedBookIds: number[]) {
   try {
-    await axios.post("/api/order/", {
+    await api.post("/api/order/", {
       library: libraryId,
       books: bookIds,
       borrowed: borrowedBookIds,
@@ -189,7 +189,7 @@ export async function editOrder(
   borrowedBookIds: number[]
 ) {
   try {
-    await axios.put(`/api/order/${orderId}/`, {
+    await api.put(`/api/order/${orderId}/`, {
       library: libraryId,
       books: bookIds,
       borrowed: borrowedBookIds,
@@ -202,7 +202,7 @@ export async function editOrder(
 
 export async function deleteOrder(orderId: number) {
   try {
-    await axios.delete(`/api/order/${orderId}/`);
+    await api.delete(`/api/order/${orderId}/`);
   } catch (error) {
     console.error("Ошибка при удалении заказа", error);
     throw error;
@@ -211,7 +211,7 @@ export async function deleteOrder(orderId: number) {
 
 export async function borrowedList(): Promise<BorrowedBook[]> {
   try {
-    const { data } = await axios.get("/api/borrowed/");
+    const { data } = await api.get("/api/borrowed/");
     console.log("/api/borrowed/", data);
     return data;
   } catch (error) {

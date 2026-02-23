@@ -1,15 +1,15 @@
-import axios from "axios";
+import { api } from "./axios"
 import type { LibrarySettings } from "@api/types";
 
 export async function getSettings(): Promise<LibrarySettings> {
-    const { data } = await axios.get("/api/settings/");
+    const { data } = await api.get("/api/settings/");
     console.log("/api/settings/", data);
     return data;
 }
 
 export async function updateSettings(settings: LibrarySettings) {
     try {
-        await axios.put(`/api/settings/update/`, {
+        await api.put(`/api/settings/update/`, {
         max_books_per_order: settings.max_books_per_order,
         max_books_per_reader: settings.max_books_per_reader,
         logo: settings.logo,

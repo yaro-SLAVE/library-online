@@ -1,9 +1,9 @@
-import axios from "axios";
-import type { ProfileInfo, UserRoleEnum } from "./types";
+import { api } from "./axios"
+import type { ProfileInfo } from "./types";
 
 export async function profileInfo(): Promise<ProfileInfo> {
   try {
-    const { data } = await axios.get("/api/profile/self-info/");
+    const { data } = await api.get("/api/profile/self-info/");
     console.log("/api/profile/self-info/", data);
     return data;
   } catch (error) {
@@ -14,7 +14,7 @@ export async function profileInfo(): Promise<ProfileInfo> {
 
 export async function setRole(role: string) {
   try {
-    const { data } = await axios.post("/api/profile/set_role/", {
+    const { data } = await api.post("/api/profile/set_role/", {
       role: role.toString()
     });
   } catch (error) {
@@ -32,7 +32,7 @@ export interface BannedUser {
 // Получить список забаненных пользователей
 export async function fetchBannedUsers(): Promise<BannedUser[]> {
   try {
-    const response = await axios.get("/api/profile/banned/");
+    const response = await api.get("/api/profile/banned/");
     console.log('Полный ответ:', response.data);
     
     // Теперь бэкенд возвращает данные в нужном формате
@@ -53,7 +53,7 @@ export async function fetchBannedUsers(): Promise<BannedUser[]> {
 // Разблокировать пользователя
 export async function unbanUser(userId: number): Promise<void> {
   try {
-    await axios.delete(`/api/profile/banned/unban/${userId}/`);
+    await api.delete(`/api/profile/banned/unban/${userId}/`);
   } catch (error) {
     console.error("Ошибка при разблокировке пользователя:", error);
     throw error;
@@ -73,7 +73,7 @@ export interface BanCandidate {
 // Получить кандидатов на блокировку
 export async function fetchBanCandidates(startDate: string, endDate: string): Promise<BanCandidate[]> {
   try {
-    const response = await axios.get(`/api/profile/banned/candidates_for_ban/${startDate}/${endDate}/`);
+    const response = await api.get(`/api/profile/banned/candidates_for_ban/${startDate}/${endDate}/`);
     console.log('Получены кандидаты на блокировку:', response.data);
     return response.data.ban_candidates;
   } catch (error) {
@@ -85,7 +85,7 @@ export async function fetchBanCandidates(startDate: string, endDate: string): Pr
 // Заблокировать пользователя
 export async function banUser(userId: number): Promise<void> {
   try {
-    await axios.put(`/api/profile/banned/ban/${userId}/`);
+    await api.put(`/api/profile/banned/ban/${userId}/`);
   } catch (error) {
     console.error("Ошибка при блокировке пользователя:", error);
     throw error;

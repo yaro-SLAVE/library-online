@@ -1,5 +1,5 @@
 // orders.ts (updated fullname mapping)
-import axios from "axios";
+import { api } from "./axios"
 import type { OrderStats, PaginatedOrderStats, OrdersFilters, Order, UserOrder, OrderStatusEnum } from "./types";
 import { fetchNewOrders, fetchProcessingOrders, fetchReadyOrders, fetchArchiveOrders } from "./order";
 
@@ -106,7 +106,7 @@ export async function getOrdersStats(filters?: OrdersFilters): Promise<Paginated
 
 export async function getOrderDetails(orderId: number): Promise<Order> {
   try {
-    const { data } = await axios.get(`/api/staff/order/${orderId}/`);
+    const { data } = await api.get(`/api/staff/order/${orderId}/`);
     return data;
   } catch (error) {
     console.error(`Ошибка при получении деталей заказа ${orderId}`, error);

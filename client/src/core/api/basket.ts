@@ -1,9 +1,9 @@
-import axios from "axios";
 import type { Book } from "./types";
+import { api } from "./axios"
 
 export async function basketBooksList(): Promise<Book[]> {
   try {
-    const { data } = await axios.get("/api/basket/");
+    const { data } = await api.get("/api/basket/");
     console.log("/api/basket/", data);
     return data;
   } catch (error) {
@@ -14,7 +14,7 @@ export async function basketBooksList(): Promise<Book[]> {
 
 export async function addBasketBooks(bookIds: string[]) {
   try {
-    await axios.post("/api/basket/", {
+    await api.post("/api/basket/", {
       books: bookIds,
     });
   } catch (error) {
@@ -29,7 +29,7 @@ export async function addBasketBook(bookId: string) {
 
 export async function replaceBasketBooks(bookIds: string[]) {
   try {
-    await axios.put("/api/basket/replace/", {
+    await api.put("/api/basket/replace/", {
       books: bookIds,
     });
   } catch (error) {
@@ -40,7 +40,7 @@ export async function replaceBasketBooks(bookIds: string[]) {
 
 export async function deleteBasketBook(bookId: string) {
   try {
-    await axios.delete(`/api/basket/${bookId}/`);
+    await api.delete(`/api/basket/${bookId}/`);
   } catch (error) {
     console.error("Ошибка при удалении книги из корзины", error);
     throw error;
