@@ -16,9 +16,11 @@ from library_service.serializers.moderator import (
     ModeratorOrderSerializer
 )
 
+from library_service.permissions import IsAdmin
+
 
 class ReadersViewset(AsyncGenericViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin]
     serializer_class = ReaderStatsSerializer
     queryset = UserProfile.objects.all()
 
@@ -258,7 +260,7 @@ class ReadersViewset(AsyncGenericViewSet):
             )
 
 class StaffViewset(AsyncGenericViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin]
     serializer_class = StaffStatsSerializer
     queryset = UserProfile.objects.all()
     
@@ -486,6 +488,6 @@ class StaffViewset(AsyncGenericViewSet):
             )
 
 class ModeratorOrderViewset(AsyncGenericViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin]
     serializer_class = ModeratorOrderSerializer
     queryset = Order.objects.all()

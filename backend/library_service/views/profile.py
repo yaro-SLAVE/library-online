@@ -12,6 +12,21 @@ from asgiref.sync import sync_to_async
 from datetime import datetime, timedelta
 from django.db.models import OuterRef, Exists
 
+from rest_framework import serializers
+
+import json
+
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django.db.models import Value, CharField
+from django.db.models.functions import Concat
+
+from library_service.permissions import IsAdmin
+
 class ProfileViewset(AsyncGenericViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -26,16 +41,21 @@ class ProfileViewset(AsyncGenericViewSet):
         serializer = self.get_serializer(profile)
         return Response(await serializer.adata)
     
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
-from django.db.models import Value, CharField
-from django.db.models.functions import Concat
+    @action(detail=False, methods=['POST'], url_path="set_role")
+    async def set_role(self, request, *args, **kwargs):
+        profile = await self.get_queryset().afirst()
+
+        role = json.loads(self.request.body)['role']
+        
+        if (role == 'Admin' and profile.user.is_superuser) or (role == 'Labrarian' and 'Labrarian' in profile.user.groups):
+            profile.current_role = role
+            await profile.asave()
+            return Response(status=200)
+        else: 
+            return Response(status=403)
+    
 class ProfileBannedViewset(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin]
     queryset = UserProfile.objects.filter(banned_status_our=True)
     
     # GET /api/profile/banned/ - список забаненных пользователей

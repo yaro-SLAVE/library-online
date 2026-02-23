@@ -8,6 +8,8 @@ from adrf.viewsets import GenericViewSet as AsyncGenericViewSet
 
 from aiohttp import ClientSession
 
+from library_service.permissions import IsLibrarian, IsAdmin
+
 from library_service.models.user import UserProfile
 from library_service.opac.api.ticket import opac_reader_loans
 from library_service.opac.book import book_retrieve_by_id
@@ -44,7 +46,7 @@ class StaffOrderViewset(
     SessionListModelMixin,
     AsyncGenericViewSet,
 ):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsLibrarian | IsAdmin]
     queryset = Order.objects.all()
 
     def get_serializer_class(self):
@@ -93,7 +95,7 @@ class StaffOrderGetUpdateViewset(
     SessionUpdateModelMixin,
     AsyncGenericViewSet,
 ):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsLibrarian | IsAdmin]
     queryset = Order.objects.all()
 
     def get_serializer_class(self):
@@ -177,7 +179,7 @@ class StaffBorrowedViewset(
     SessionListModelMixin,
     AsyncGenericViewSet,
 ):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsLibrarian | IsAdmin]
     queryset = OrderItem.objects.all()
     serializer_class = BorrowedBookSerializer
 

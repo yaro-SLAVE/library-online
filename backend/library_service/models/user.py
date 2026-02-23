@@ -13,6 +13,7 @@ class UserProfile(models.Model):
     department = models.CharField(verbose_name="Отдел или Институт", max_length=511, null=True, blank=True)
     banned_status_our = models.BooleanField(verbose_name="Статус бана в нашей системе", default=False)
     #banned_status_external = models.BooleanField(verbose_name="Статус бана во внешней системе", default=False)
+    current_role = models.TextField(verbose_name="Текущая роль", null=True, blank=True)
 
     class Meta:
         verbose_name = "Профиль"

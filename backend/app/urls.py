@@ -36,7 +36,7 @@ from library_service.views.order import BorrowedViewset, OrderViewset
 from library_service.views.profile import ProfileViewset, ProfileBannedViewset
 from library_service.views.staff_order import StaffOrderViewset, StaffOrderGetUpdateViewset, StaffBorrowedViewset
 from library_service.views.comments import OrderCommentViewset, OrderItemCommentViewset
-from library_service.views.auth import AuthViewset, AuthThirdPartyViewset
+from library_service.views.auth import AuthViewset, AuthThirdPartyViewset, LogoutViewset
 from library_service.views.moderator import ReadersViewset
 from library_service.views.moderator import StaffViewset
 
@@ -66,6 +66,7 @@ urlpatterns = [
     path("api/auth/bitrix-login/", BitrixAuthView.as_view()),
     path("api/auth/third-party/", AuthThirdPartyViewset.as_view()),
     path("api/auth/refresh/", TokenRefreshView.as_view()),
-    path("api/auth/logout/", TokenBlacklistView.as_view()),
+    path("api/auth/logout/", LogoutViewset.as_view()),
+    # path("api/auth/logout/", TokenBlacklistView.as_view()),
     path("api/", include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

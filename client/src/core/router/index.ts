@@ -11,6 +11,7 @@ const router = createRouter({
 });
 
 const roleHomeRoutes: Record<string, string> = {
+  None: "/profile",
   Reader: "/",
   Librarian: "/staff/orders",
   Admin: "/moderator/readers",
@@ -44,11 +45,11 @@ router.beforeEach(async (to, from, next) => {
     | string[]
     | undefined;
 
-  if (requiredRoles?.includes(user.currentRole)) {
+  if (requiredRoles?.includes(user.currentUser?.current_role)) {
     return next();
   }
 
-  const fallback = roleHomeRoutes[user.currentRole] ?? "/";
+  const fallback = roleHomeRoutes[user.currentUser?.current_role] ?? "/";
   return next(fallback);
 });
 

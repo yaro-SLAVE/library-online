@@ -12,6 +12,7 @@ export type ProfileInfo = {
   groups: Group[];
   fullname: string;
   department: string;
+  current_role: string;
 };
 
 export type Library = {

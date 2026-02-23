@@ -93,6 +93,13 @@ class BitrixAuthView(AsyncAPIView):
             except ClientResponseError as error:
                 pass #Если не нашли аккаунт с данным mira_id, есть смысл авторизовать читателя?
 
+            user_groups = [x.name async for x in user.groups.all()]
+
+            if ("Librarian" not in user_groups):
+                user.profile.current_role = "Reader"
+            else:
+                user.profile.current_role = None
+
             await user.profile.asave()
 
             user.last_login = timezone.now()
