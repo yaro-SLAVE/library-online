@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
+// import { defineProps } from "vue";
 import type { Order } from "@api/types";
 // import VueHtmlToPaper from "vue-html-to-paper";
 

@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, computed } from "vue";
+import { computed } from "vue";
 import QrcodeVue from "qrcode.vue";
 import type { Order } from "@api/types";
 import ShortBookCard from "@components/ShortBookCard.vue";
