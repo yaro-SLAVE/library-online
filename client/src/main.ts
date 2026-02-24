@@ -15,15 +15,7 @@ import "vue-toastification/dist/index.css";
 import axios from "axios";
 import { useAuthStore } from "@core/store/auth";
 
-axios.interceptors.request.use(async (config) => {
-  const authStore = useAuthStore();
-
-  if (await authStore.updateTokens()) {
-    config.headers.Authorization = `Bearer ${authStore.access}`;
-  }
-
-  return config;
-});
+import axiosPlugin from './core/api/axios';
 
 const app = createApp(App);
 
@@ -32,5 +24,6 @@ const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
 app.use(router);
+app.use(axiosPlugin);
 
 app.mount("#app");

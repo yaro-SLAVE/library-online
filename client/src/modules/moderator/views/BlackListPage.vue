@@ -8,7 +8,7 @@
           @click="currentTab = tabsNumbers.candidates"
           href="#"
         >
-          Претенденты на блокировку
+          Претенденты на блокировку и остальные читатели
         </a>
       </li>
       <li class="tab-item">

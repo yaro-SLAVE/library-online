@@ -12,6 +12,21 @@ from asgiref.sync import sync_to_async
 from datetime import datetime, timedelta
 from django.db.models import OuterRef, Exists
 
+from rest_framework import serializers
+
+import json
+
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from django.db.models import Value, CharField
+from django.db.models.functions import Concat
+
+from library_service.permissions import IsAdmin
+
 class ProfileViewset(AsyncGenericViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -26,16 +41,21 @@ class ProfileViewset(AsyncGenericViewSet):
         serializer = self.get_serializer(profile)
         return Response(await serializer.adata)
     
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
-from django.db.models import Value, CharField
-from django.db.models.functions import Concat
+    @action(detail=False, methods=['POST'], url_path="set_role")
+    async def set_role(self, request, *args, **kwargs):
+        profile = await self.get_queryset().afirst()
+
+        role = json.loads(self.request.body)['role']
+        
+        if (role == 'Admin' and profile.user.is_superuser) or (role == 'Labrarian' and 'Labrarian' in profile.user.groups):
+            profile.current_role = role
+            await profile.asave()
+            return Response(status=200)
+        else: 
+            return Response(status=403)
+    
 class ProfileBannedViewset(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdmin]
     queryset = UserProfile.objects.filter(banned_status_our=True)
     
     # GET /api/profile/banned/ - список забаненных пользователей
@@ -150,42 +170,81 @@ class ProfileBannedViewset(ModelViewSet):
         from library_service.models.order import OrderHistory
 
         with connection.cursor() as cursor:
+            # Создаем базовый набор параметров для одной части запроса
+            base_params = [
+                OrderHistory.Status.CANCELLED,  # %s для cancelled_orders.status
+                OrderHistory.NOT_CAME_DESCRIPTION, # %s для cancelled_orders.description
+                OrderHistory.Status.NEW,        # %s для new_orders.status
+                start_date_obj,                 # %s для начала периода
+                end_date_obj                    # %s для конца периода
+            ]
+            
+            # Поскольку у нас UNION ALL, и в каждой части по 5 параметров %s,
+            # нам нужно передать их ДВАЖДЫ в одном списке.
+            full_params = base_params + base_params
+            
             sql = """
-            SELECT 
-                up.user_id,
-                up.library_card,
-                case when up.fullname is not null and length(trim(up.fullname)) > 0  then up.fullname  else u.first_name || ' ' || u.last_name end as fullname,
-                COUNT(DISTINCT new_orders.order_id) as total_orders_count,
-                COUNT(DISTINCT cancelled_orders.order_id) as cancelled_orders_count
-            FROM 
-                library_service_orderhistory new_orders
-            LEFT JOIN 
-                library_service_orderhistory cancelled_orders ON new_orders.order_id = cancelled_orders.order_id 
-                AND cancelled_orders.status = %s 
-                AND cancelled_orders.description = %s
-            INNER JOIN 
-                library_service_order ordr ON ordr.id = new_orders.order_id
-            INNER JOIN 
-                library_service_userprofile up ON up.user_id = ordr.user_id
-            INNER JOIN 
-                auth_user u ON up.user_id = u.id
-            WHERE 
-                new_orders.status = %s
-                AND DATE(new_orders.date) BETWEEN %s AND %s
-                AND up.banned_status_our = 0
-            GROUP BY 
-                up.user_id, up.library_card, u.username
-            HAVING 
-                COUNT(DISTINCT cancelled_orders.order_id) > 0;
+-- ЧАСТЬ 1: Кандидаты "Да"
+SELECT 
+    up.user_id,
+    up.library_card,
+    'Да' AS is_candidate,
+    CASE WHEN up.fullname IS NOT NULL AND LENGTH(TRIM(up.fullname)) > 0 THEN up.fullname ELSE u.first_name || ' ' || u.last_name END AS fullname,
+    COUNT(DISTINCT new_orders.order_id) AS total_orders_count,
+    COUNT(DISTINCT cancelled_orders.order_id) AS cancelled_orders_count
+FROM 
+    library_service_orderhistory new_orders
+LEFT JOIN 
+    library_service_orderhistory cancelled_orders ON new_orders.order_id = cancelled_orders.order_id 
+    AND cancelled_orders.status = %s 
+    AND cancelled_orders.description = %s
+INNER JOIN 
+    library_service_order ordr ON ordr.id = new_orders.order_id
+INNER JOIN 
+    library_service_userprofile up ON up.user_id = ordr.user_id
+INNER JOIN 
+    auth_user u ON up.user_id = u.id
+WHERE 
+    new_orders.status = %s
+    AND DATE(new_orders.date) BETWEEN %s AND %s
+    AND up.banned_status_our = 0
+GROUP BY 
+    up.user_id, up.library_card, u.username, up.fullname, u.first_name, u.last_name
+HAVING 
+    COUNT(DISTINCT cancelled_orders.order_id) > 0
+
+UNION ALL
+
+-- ЧАСТЬ 2: Все остальные ("Нет")
+SELECT 
+    up.user_id,
+    up.library_card,
+    'Нет' AS is_candidate,
+    CASE WHEN up.fullname IS NOT NULL AND LENGTH(TRIM(up.fullname)) > 0 THEN up.fullname ELSE u.first_name || ' ' || u.last_name END AS fullname,
+    0 AS total_orders_count,
+    0 AS cancelled_orders_count
+FROM 
+    library_service_userprofile up
+INNER JOIN 
+    auth_user u ON up.user_id = u.id
+WHERE 
+    up.banned_status_our = 0
+    AND up.user_id NOT IN (
+        SELECT ordr2.user_id
+        FROM library_service_orderhistory new_orders2
+        INNER JOIN library_service_order ordr2 ON ordr2.id = new_orders2.order_id
+        LEFT JOIN library_service_orderhistory cancelled_orders2 ON new_orders2.order_id = cancelled_orders2.order_id 
+            AND cancelled_orders2.status = %s 
+            AND cancelled_orders2.description = %s
+        WHERE new_orders2.status = %s
+            AND DATE(new_orders2.date) BETWEEN %s AND %s
+        GROUP BY ordr2.user_id
+        HAVING COUNT(DISTINCT cancelled_orders2.order_id) > 0
+    );
             """
             
-            cursor.execute(sql, [
-                OrderHistory.Status.CANCELLED,  # для cancelled_orders
-                OrderHistory.NOT_CAME_DESCRIPTION,
-                OrderHistory.Status.NEW,        # для new_orders
-                start_date_obj,
-                end_date_obj
-            ])
+            # Выполняем с полным набором (10 параметров)
+            cursor.execute(sql, full_params)
             
             columns = [col[0] for col in cursor.description]
             candidates_data = [

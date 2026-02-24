@@ -1,2 +1,8 @@
 .env
 .git
+node_modules
+__pycache__
+*.pyc
+.venv
+client/dist
+*.log

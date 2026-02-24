@@ -4,7 +4,7 @@
       {{ states[state] }}
     </h1>
   </div>
-  <ModalDialog v-model="openModal">
+  <!-- <ModalDialog v-model="openModal">
     <h4 class="modal-text">Зайти как сотрудник<br />или как читатель ?</h4>
     <div class="choice-buttons">
       <StyledButton @click="handleUserRoleChoice('Reader')"> Читатель </StyledButton>
@@ -12,7 +12,7 @@
         Сотрудник
       </StyledButton>
     </div>
-  </ModalDialog>
+  </ModalDialog> -->
 </template>
 
 <script setup lang="ts">
@@ -44,16 +44,17 @@ onBeforeMount(async () => {
     state.value = "auth";
     const success = await authStore.bitrixLogin(code);
     if (success) {
-      await userStore.fetchProfile();
-      const { currentUser } = storeToRefs(userStore);
-      if (currentUser.value?.groups?.includes("Librarian")) {
-        openModal.value = true;
-        console.log(currentUser.value?.groups, "YES");
-      } else {
-        console.log(currentUser.value?.groups, "NO");
-        state.value = "success";
-        router.push("/profile");
-      }
+      // await userStore.fetchProfile();
+      // const { currentUser } = storeToRefs(userStore);
+      // if (currentUser.value?.groups?.includes("Librarian")) {
+      //   openModal.value = true;
+      //   console.log(currentUser.value?.groups, "YES");
+      // } else {
+      //   console.log(currentUser.value?.groups, "NO");
+      //   state.value = "success";
+      //   router.push("/profile");
+      // }
+      router.push("/profile");
       state.value = "success";
     } else {
       state.value = "error";
@@ -63,11 +64,11 @@ onBeforeMount(async () => {
   }
 });
 
-const handleUserRoleChoice = (choice: Group) => {
-  userStore.setCurrentRole(choice);
-  state.value = "success";
-  router.push("/profile");
-};
+// const handleUserRoleChoice = (choice: Group) => {
+//   userStore.setCurrentRole(choice);
+//   state.value = "success";
+//   router.push("/profile");
+// };
 </script>
 
 <style lang="scss" scoped>

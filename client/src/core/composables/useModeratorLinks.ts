@@ -8,7 +8,7 @@ export const useModeratorLinks = () => {
   const authStore = useAuthStore();
   const userStore = useUserStore();
   const { isAuthenticated } = storeToRefs(authStore);
-  const { currentRole } = storeToRefs(userStore);
+  const { currentUser } = storeToRefs(userStore);
   const links = computed(() => {
     const rawLinks: Array<{ to: string; name: string; hide?: boolean }> = [
       {
@@ -23,7 +23,7 @@ export const useModeratorLinks = () => {
       {
         to: "/moderator",
         name: "Админка",
-        hide: currentRole.value !== "Admin",
+        hide: currentUser.value?.current_role !== "Admin",
       },
     ];
 

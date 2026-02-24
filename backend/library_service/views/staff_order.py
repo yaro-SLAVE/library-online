@@ -8,6 +8,8 @@ from adrf.viewsets import GenericViewSet as AsyncGenericViewSet
 
 from aiohttp import ClientSession
 
+from library_service.permissions import IsLibrarian, IsAdmin
+
 from library_service.models.user import UserProfile
 from library_service.opac.api.ticket import opac_reader_loans
 from library_service.opac.book import book_retrieve_by_id
@@ -44,7 +46,7 @@ class StaffOrderViewset(
     SessionListModelMixin,
     AsyncGenericViewSet,
 ):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsLibrarian | IsAdmin]
     queryset = Order.objects.all()
 
     def get_serializer_class(self):
@@ -93,7 +95,7 @@ class StaffOrderGetUpdateViewset(
     SessionUpdateModelMixin,
     AsyncGenericViewSet,
 ):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsLibrarian | IsAdmin]
     queryset = Order.objects.all()
 
     def get_serializer_class(self):
@@ -133,13 +135,14 @@ class StaffOrderGetUpdateViewset(
             for loan in loans:
                 book = await book_retrieve_by_id(client, loan.db, loan.book)
                 loans_id_list.append(book.id)
+                loan.book_id = book.id
 
             books = OrderItem.objects.prefetch_related("order").filter(order=order).all()
             found_books = []
 
             async for book in books:
-                for loan in loans_id_list:
-                    if book.book_id == loan:
+                for loan in loans:
+                    if book.book_id == loan.book_id:
                         found_books.append(book)
                         book.handed_date = loan.date
                         book.to_return_date = loan.deadline
@@ -168,8 +171,6 @@ class StaffOrderGetUpdateViewset(
                     additional_books, many=True, context=self.get_serializer_context()
                 ).data,
             }
-
-        print(response)
         return Response(response)
 
 
@@ -178,7 +179,7 @@ class StaffBorrowedViewset(
     SessionListModelMixin,
     AsyncGenericViewSet,
 ):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsLibrarian | IsAdmin]
     queryset = OrderItem.objects.all()
     serializer_class = BorrowedBookSerializer
 

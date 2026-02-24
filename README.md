@@ -220,43 +220,140 @@ python manage.py generate_test_data --flush
 ```
 
 
-### Запуск на проде
+### Запуск через Docker
 
-В корне необходимо создать файла `.env`, скопировав в него текст из соответствующего .example файла `.env.example`.
+Проект поддерживает два режима запуска через Docker:
+- **Dev** (разработка) - фронтенд с hot-reload на Vite, бэкенд с автоперезагрузкой, PostgreSQL на отдельном порту
+- **Prod** (продакшен) - фронтенд собирается в статику и раздается через nginx, бэкенд через uvicorn с несколькими workers
 
-После этого требуется дополнительное заполнение созданного файла. Обязательным является заполнение следующих полей:
+#### Конфигурация .env
 
-- `POSTGRES_PASSWORD` (пароль СУБД)
-- `LIBRARY_PORT` (на каком порте будет хоститься сервис)
-- `DJANGO_SECRET_KEY` (секретный ключ для Django).
-- `DJANGO_SUPERUSER_USERNAME` (имя админского аккаунта в django)
-- `DJANGO_SUPERUSER_PASSWORD` (пароль админского аккаунта в django)
-- `SERVICE_HOSTNAME` (адрес сервиса, например: http://localhost:8000)
-- `SERVICE_CSRF_HOSTNAME` (адрес сервиса для CSRF, например: http://localhost:8000. Обязательно должен содержать http:// или https://)
-- `OAUTH_CLIENT_ID` (публичная часть oauth ключа для int.istu.edu)
-- `OAUTH_CLIENT_SECRET` (приватная часть oauth ключа для int.istu.edu)
-- `OPAC_INTERNAL_TOKEN` (супер-токен)
+В корне необходимо создать файл `.env`, скопировав в него текст из `.env.example`:
 
-Пароль для БД рекомендуется генерировать случайно:
+```sh
+cp .env.example .env
+```
 
+После этого требуется заполнение созданного файла. Обязательными являются следующие поля:
+
+**Основные настройки:**
+- `POSTGRES_PASSWORD` - пароль PostgreSQL (генерируется случайно)
+- `DJANGO_SECRET_KEY` - секретный ключ для Django (генерируется случайно)
+- `DJANGO_SUPERUSER_USERNAME` - имя админского аккаунта в Django
+- `DJANGO_SUPERUSER_PASSWORD` - пароль админского аккаунта в Django
+
+**Настройки портов:**
+- `POSTGRES_PORT` - порт PostgreSQL для dev окружения (по умолчанию 5433, чтобы избежать конфликта с локальной БД)
+- `BACKEND_PORT` - порт Django для dev окружения (по умолчанию 8000)
+- `FRONTEND_PORT` - порт Vite для dev окружения (по умолчанию 5173)
+- `LIBRARY_PORT` - порт nginx для prod окружения (по умолчанию 5173 для совместимости с OAuth)
+
+**Настройки сервиса:**
+- `SERVICE_HOSTNAME` - адрес сервиса без схемы, например: `localhost`
+- `SERVICE_CSRF_HOSTNAME` - полный адрес для CSRF, например: `http://localhost:5173` (обязательно с `http://` или `https://`)
+- `OPAC_HOSTNAME` - адрес внутренней системы OPAC: `https://library.istu.edu/opac`
+
+**OAuth настройки:**
+- `OAUTH_CLIENT_ID` - публичная часть OAuth ключа для int.istu.edu
+- `OAUTH_CLIENT_SECRET` - приватная часть OAuth ключа для int.istu.edu
+- `OPAC_INTERNAL_TOKEN` - супер-токен для доступа к OPAC
+
+**Генерация случайных значений:**
+
+Пароль для БД:
 ```sh
 openssl rand -hex 32 | tr -d '\n'
 ```
 
-Для генерации ключа в Django используется следующий код на Python:
-
+Ключ для Django:
 ```python
 from django.core.management.utils import get_random_secret_key
 print(get_random_secret_key())
 ```
 
-При получении пары ключей oauth, для redirect_uri нужно указать значение, равное `${SERVICE_HOSTNAME}/bitrix-auth`, соотввественно, подставив ранее указанное значение вместо `${SERVICE_HOSTNAME}`.
+**Важно про OAuth redirect_uri:**
 
-После того, как данные файлы были заполнены, можно приступать к запуску сервиса с использованием docker compose или podman compose:
+Приложение использует `window.location.origin` для формирования OAuth redirect URI во время выполнения. Это означает, что redirect_uri автоматически подстраивается под текущий адрес (localhost:5173, localhost:8080, и тд).
+
+#### Запуск Dev окружения
+
+Для локальной разработки используйте make-команды:
 
 ```sh
-sudo docker compose build
-sudo docker compose up -d
+# Первый запуск (создаст .env => cp .env.example .env (супер секретные поля пишем сами, возможно нужно будет перезапустить), соберет и запустит контейнеры)
+# 
+make dev
+
+# Последующие запуски без пересборки
+make up
+
+# Просмотр логов
+make logs
+
+# Перезапуск
+make restart
+
+# Остановка
+make down
+
+# Полная очистка (удаляет volumes и images)
+make clear
 ```
 
-Сервис будет запущен на порту, указанном в `LIBRARY_PORT`
+После запуска доступны:
+- Frontend: http://localhost:5173 (или значение `FRONTEND_PORT`)
+- Backend API: http://localhost:8000 (или значение `BACKEND_PORT`)
+- Django Admin: http://localhost:8000/admin
+- PostgreSQL: localhost:5433 (или значение `POSTGRES_PORT`)
+
+В dev режиме:
+- Фронтенд запускается с Vite dev server с hot-reload
+- Бэкенд использует `runserver` с автоперезагрузкой
+- Код монтируется через volumes, изменения применяются сразу
+- PostgreSQL доступен на отдельном порту
+
+#### Запуск Prod окружения
+
+Для продакшен-сборки используйте make-команды с суффиксом `-prod`:
+
+```sh
+# Первый запуск (соберет и запустит)
+make prod
+
+# Последующие запуски без пересборки
+make up-prod
+
+# Просмотр логов
+make logs-prod
+
+# Перезапуск
+make restart-prod
+
+# Остановка
+make down-prod
+
+# Полная очистка
+make clear-prod
+```
+
+После запуска сервис доступен на порту из `LIBRARY_PORT` (по умолчанию 5173).
+
+В prod режиме:
+- Фронтенд собирается в статику и раздается через nginx
+- Бэкенд запускается через uvicorn с 4 workers
+- Включено gzip сжатие статики
+- Настроено кеширование статических файлов (1 год)
+- Все сервисы работают от non-root пользователя
+- Логи ротируются (max 10MB × 3 файла)
+
+#### Ручной запуск через docker compose
+
+Если не хотите использовать Makefile:
+
+```sh
+# Dev
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+# Prod
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
