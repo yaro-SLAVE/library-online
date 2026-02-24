@@ -1,7 +1,7 @@
 import { useLocalStorage } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
+import { api } from "../api/axios"
 import { computed } from "vue";
 
 export const useAuthStore = defineStore("auth", () => {
@@ -26,8 +26,8 @@ export const useAuthStore = defineStore("auth", () => {
 
   async function refreshTokens(): Promise<boolean> {
     try {
-      const simpleAxios = axios.create();
-      const { data } = await simpleAxios.post<Tokens>("/api/auth/refresh/", {
+      const simpleapi = api.create();
+      const { data } = await simpleapi.post<Tokens>("/api/auth/refresh/", {
         refresh: refresh.value,
       });
 
@@ -52,8 +52,8 @@ export const useAuthStore = defineStore("auth", () => {
 
   async function login(username: string, password: string): Promise<boolean> {
     try {
-      const simpleAxios = axios.create();
-      const { data } = await simpleAxios.post<Tokens>("/api/auth/login/", {
+      const simpleapi = api.create();
+      const { data } = await simpleapi.post<Tokens>("/api/auth/login/", {
         username: username,
         password: password,
       });
@@ -67,8 +67,8 @@ export const useAuthStore = defineStore("auth", () => {
 
   async function bitrixLogin(code: string): Promise<boolean> {
     try {
-      const simpleAxios = axios.create();
-      const { data } = await simpleAxios.post<Tokens>("/api/auth/bitrix-login/", {
+      const simpleapi = api.create();
+      const { data } = await simpleapi.post<Tokens>("/api/auth/bitrix-login/", {
         code: code,
       });
       refresh.value = data.refresh;
@@ -84,8 +84,8 @@ export const useAuthStore = defineStore("auth", () => {
     refresh.value = undefined;
     access.value = undefined;
 
-    const simpleAxios = axios.create();
-    await simpleAxios.post("/api/auth/logout/", {
+    const simpleapi = api.create();
+    await simpleapi.post("/api/auth/logout/", {
       refresh: refreshCopy,
     });
   }

@@ -14,8 +14,6 @@ from django.db.models import OuterRef, Exists
 
 from rest_framework import serializers
 
-import json
-
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
@@ -45,14 +43,34 @@ class ProfileViewset(AsyncGenericViewSet):
     async def set_role(self, request, *args, **kwargs):
         profile = await self.get_queryset().afirst()
 
-        role = json.loads(self.request.body)['role']
-        
-        if (role == 'Admin' and profile.user.is_superuser) or (role == 'Labrarian' and 'Labrarian' in profile.user.groups):
-            profile.current_role = role
-            await profile.asave()
-            return Response(status=200)
-        else: 
+        role = request.data.get("role")
+        normalize_map = {
+            "admin": "Admin",
+            "Admin": "Admin",
+            "reader": "Reader",
+            "Reader": "Reader",
+            "librarian": "Librarian",
+            "Librarian": "Librarian",
+            "Labrarian": "Librarian",
+        }
+        normalized_role = normalize_map.get(str(role), None)
+
+        if normalized_role is None:
+            return Response({"detail": "Invalid role"}, status=400)
+
+        user_groups = [group.name async for group in profile.user.groups.all()]
+        is_allowed = (
+            (normalized_role == "Reader" and "Reader" in user_groups)
+            or (normalized_role == "Librarian" and "Librarian" in user_groups)
+            or (normalized_role == "Admin" and profile.user.is_superuser)
+        )
+
+        if not is_allowed:
             return Response(status=403)
+
+        profile.current_role = normalized_role
+        await profile.asave(update_fields=["current_role"])
+        return Response(status=200)
     
 class ProfileBannedViewset(ModelViewSet):
     permission_classes = [IsAuthenticated, IsAdmin]
@@ -255,4 +273,3 @@ WHERE
         return Response({
             'ban_candidates': candidates_data
         })
-

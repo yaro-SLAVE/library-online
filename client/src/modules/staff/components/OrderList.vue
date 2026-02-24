@@ -68,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import type { UserOrder } from "@api/types";
 import OrderTableRow from "@staff/components/OrderTableRow.vue";
 const props = defineProps<{

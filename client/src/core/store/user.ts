@@ -1,6 +1,5 @@
 import { ref, computed } from "vue";
 import { defineStore } from "pinia";
-import { useLocalStorage } from "@vueuse/core";
 import { useAuthStore } from "./auth";
 import { profileInfo, setRole } from "@api/profile";
 import type { Group} from "@core/api/types";
@@ -36,18 +35,21 @@ export const useUserStore = defineStore("user", () => {
     isLoaded.value = false;
   }
 
-  async function setCurrentRole(role: Group) {
-    if (
-      availableRoles.value.includes(role) &&
-      availableRoles.value.includes("Admin") &&
-      role === "Librarian"
-    ) {
-      await setRole("Admin");
-    } else if (availableRoles.value.includes(role) && role === "Librarian") {
-      await setRole("librarian");
+  async function setCurrentRole(role: Group): Promise<boolean> {
+    if (!availableRoles.value.includes(role)) {
+      return false;
     }
 
-    await fetchProfile();
+    const targetRole: Group =
+      role === "Librarian" && availableRoles.value.includes("Admin") ? "Admin" : role;
+
+    try {
+      await setRole(targetRole);
+      await fetchProfile();
+      return currentUser.value?.current_role === targetRole;
+    } catch {
+      return false;
+    }
   }
 
   return {

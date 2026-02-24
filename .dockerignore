@@ -1,8 +1,12 @@
 .env
 .git
 node_modules
+**/node_modules
 __pycache__
 *.pyc
 .venv
 client/dist
+client/.vite
+client/.vite-temp
+client/.npm
 *.log

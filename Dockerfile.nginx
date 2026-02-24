@@ -2,11 +2,28 @@ FROM node:24 as build-frontend
 
 ARG VITE_OAUTH_CLIENT_ID
 ENV VITE_OAUTH_CLIENT_ID=$VITE_OAUTH_CLIENT_ID
+ARG VITE_API_PREFIX=/
+ENV VITE_API_PREFIX=$VITE_API_PREFIX
+ARG VITE_BASE_PATH=/
+ENV VITE_BASE_PATH=$VITE_BASE_PATH
 
 WORKDIR /app
+COPY client/package*.json /app/
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --cache /root/.npm --prefer-offline --no-audit --no-fund
 COPY client/. /app/
-RUN --mount=type=cache,target=/app/.npm npm set cache /app/.npm && npm install && npm run build
+RUN npm run build
 
 FROM nginx:1.27.5
+ARG NGINX_PROFILE=prod
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.dev.conf /etc/nginx/default.dev.conf
+COPY nginx.prod.conf.template /etc/nginx/default.prod.conf.template
+RUN mkdir -p /etc/nginx/templates /etc/nginx/conf.d && \
+    if [ "$NGINX_PROFILE" = "dev" ]; then \
+      cp /etc/nginx/default.dev.conf /etc/nginx/conf.d/default.conf; \
+    else \
+      cp /etc/nginx/default.prod.conf.template /etc/nginx/templates/default.conf.template; \
+    fi && \
+    rm /etc/nginx/default.dev.conf /etc/nginx/default.prod.conf.template
 COPY --from=build-frontend /app/dist/. /usr/share/nginx/html/

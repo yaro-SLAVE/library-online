@@ -247,6 +247,7 @@ cp .env.example .env
 - `BACKEND_PORT` - порт Django для dev окружения (по умолчанию 8000)
 - `FRONTEND_PORT` - порт Vite для dev окружения (по умолчанию 5173)
 - `LIBRARY_PORT` - порт nginx для prod окружения (по умолчанию 5173 для совместимости с OAuth)
+- `SITE_BASE_PATH` - базовый префикс сайта в prod (например: `/uz`, без завершающего `/`)
 
 **Настройки сервиса:**
 - `SERVICE_HOSTNAME` - адрес сервиса без схемы, например: `localhost`
@@ -345,6 +346,7 @@ make clear-prod
 - Настроено кеширование статических файлов (1 год)
 - Все сервисы работают от non-root пользователя
 - Логи ротируются (max 10MB × 3 файла)
+- `SITE_BASE_PATH` используется и для API префикса на фронте, и для nginx маршрутов (`${SITE_BASE_PATH}/api`, `${SITE_BASE_PATH}/admin`)
 
 #### Ручной запуск через docker compose
 

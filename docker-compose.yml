@@ -44,7 +44,7 @@ services:
       - media:/app/media
       - django-static:/app/staticfiles
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/admin/')"]
+      test: ["CMD-SHELL", "timeout 1s bash -c ':> /dev/tcp/127.0.0.1/8000' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3

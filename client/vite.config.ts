@@ -1,9 +1,30 @@
+import { existsSync } from "node:fs";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "node:url";
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
+const backendPort = process.env.BACKEND_PORT || "8000";
+const backendHost = existsSync("/.dockerenv") ? "library-service" : "127.0.0.1";
+const proxyTarget = `http://${backendHost}:${backendPort}`;
+
+function normalizeBasePath(path: string | undefined): string {
+  if (!path || path === "/") {
+    return "/";
+  }
+
+  const withLeadingSlash = path.startsWith("/") ? path : `/${path}`;
+  return withLeadingSlash.endsWith("/") ? withLeadingSlash : `${withLeadingSlash}/`;
+}
+
+const basePath = normalizeBasePath(process.env.VITE_BASE_PATH);
 
 export default defineConfig({
-  plugins: [vue()],
+  base: basePath,
+  plugins: [
+    vue(),
+    nodePolyfills(),
+  ],
   resolve: {
     alias: {
       '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
@@ -33,20 +54,20 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8000",
-        changeOrigin: true, 
+        target: proxyTarget,
+        changeOrigin: false,
       },
       "/admin": {
-        target: "http://127.0.0.1:8000",
-        changeOrigin: true, 
+        target: proxyTarget,
+        changeOrigin: false,
       },
       "/static": {
-        target: "http://127.0.0.1:8000",
-        changeOrigin: true, 
+        target: proxyTarget,
+        changeOrigin: false,
       },
       "/media": {
-        target: "http://127.0.0.1:8000",
-        changeOrigin: true, 
+        target: proxyTarget,
+        changeOrigin: false,
       },
     },
   },

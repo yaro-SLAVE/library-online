@@ -22,6 +22,21 @@ OAUTH_CLIENT_SECRET = os.environ.get("OAUTH_CLIENT_SECRET", "")
 
 OPAC_INTERNAL_TOKEN = os.environ.get("OPAC_INTERNAL_TOKEN", "")
 
+# Если код ниже:
+
+# FORCE_SCRIPT_NAME не будет задан (останется None);
+# в prod под /uz начнут ломаться Django URL/редиректы/admin (будут генерироваться как /admin, /static/... без /uz);
+
+site_base_path = os.environ.get("SITE_BASE_PATH", "").strip()
+if site_base_path and site_base_path != "/":
+    if not site_base_path.startswith("/"):
+        site_base_path = f"/{site_base_path}"
+    if site_base_path.endswith("/"):
+        site_base_path = site_base_path[:-1]
+    FORCE_SCRIPT_NAME = site_base_path
+else:
+    FORCE_SCRIPT_NAME = None
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
