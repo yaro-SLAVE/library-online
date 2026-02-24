@@ -1,5 +1,6 @@
 import { type App } from 'vue';
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+//@ts-ignore
 import qs from 'qs';
 import { useAuthStore } from "@core/store/auth";
 

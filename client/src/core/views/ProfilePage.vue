@@ -40,6 +40,7 @@ const userStore = useUserStore();
 const { isAuthenticated } = storeToRefs(authStore);
 const { currentUser } = storeToRefs(userStore);
 
+//@ts-ignore
 const currentRole = computed(() => groups[currentUser.value?.current_role]);
 
 const handleLogout = () => {
