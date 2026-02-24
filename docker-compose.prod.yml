@@ -11,6 +11,7 @@ services:
         NGINX_PROFILE: "prod"
         VITE_OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID}"
         VITE_API_PREFIX: "${SITE_BASE_PATH:-/uz}"
+        VITE_BASE_PATH: "${SITE_BASE_PATH:-/uz}"
     environment:
       SITE_BASE_PATH: "${SITE_BASE_PATH:-/uz}"
     restart: unless-stopped

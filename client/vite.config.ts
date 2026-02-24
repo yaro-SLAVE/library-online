@@ -8,7 +8,19 @@ const backendPort = process.env.BACKEND_PORT || "8000";
 const backendHost = existsSync("/.dockerenv") ? "library-service" : "127.0.0.1";
 const proxyTarget = `http://${backendHost}:${backendPort}`;
 
+function normalizeBasePath(path: string | undefined): string {
+  if (!path || path === "/") {
+    return "/";
+  }
+
+  const withLeadingSlash = path.startsWith("/") ? path : `/${path}`;
+  return withLeadingSlash.endsWith("/") ? withLeadingSlash : `${withLeadingSlash}/`;
+}
+
+const basePath = normalizeBasePath(process.env.VITE_BASE_PATH);
+
 export default defineConfig({
+  base: basePath,
   plugins: [
     vue(),
     nodePolyfills(),
