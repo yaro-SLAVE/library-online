@@ -1,7 +1,12 @@
+import { existsSync } from "node:fs";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "node:url";
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
+
+const backendPort = process.env.BACKEND_PORT || "8000";
+const backendHost = existsSync("/.dockerenv") ? "library-service" : "127.0.0.1";
+const proxyTarget = `http://${backendHost}:${backendPort}`;
 
 export default defineConfig({
   plugins: [
@@ -37,20 +42,20 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8000",
-        changeOrigin: true, 
+        target: proxyTarget,
+        changeOrigin: false,
       },
       "/admin": {
-        target: "http://127.0.0.1:8000",
-        changeOrigin: true, 
+        target: proxyTarget,
+        changeOrigin: false,
       },
       "/static": {
-        target: "http://127.0.0.1:8000",
-        changeOrigin: true, 
+        target: proxyTarget,
+        changeOrigin: false,
       },
       "/media": {
-        target: "http://127.0.0.1:8000",
-        changeOrigin: true, 
+        target: proxyTarget,
+        changeOrigin: false,
       },
     },
   },
