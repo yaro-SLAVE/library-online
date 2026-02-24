@@ -2,6 +2,7 @@ services:
   library-service:
     environment:
       MODE: "prod"
+      SITE_BASE_PATH: "${SITE_BASE_PATH:-/uz}"
 
   nginx:
     build:

@@ -1,20 +1,37 @@
 server {
     listen 80;
 
-    location ${SITE_BASE_PATH}/api {
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass http://library-service:8000/api;
+    location = ${SITE_BASE_PATH}/api {
+        return 301 ${SITE_BASE_PATH}/api/;
     }
 
-    location ${SITE_BASE_PATH}/admin {
+    location ${SITE_BASE_PATH}/api/ {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_pass http://library-service:8000/admin;
+        proxy_pass http://library-service:8000/api/;
+    }
+
+    location = ${SITE_BASE_PATH}/admin {
+        return 301 ${SITE_BASE_PATH}/admin/;
+    }
+
+    location ${SITE_BASE_PATH}/admin/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://library-service:8000/admin/;
+    }
+
+    # If backend redirects to /admin/*, keep user inside the prefixed site.
+    location = /admin {
+        return 301 ${SITE_BASE_PATH}/admin/;
+    }
+
+    location /admin/ {
+        return 301 ${SITE_BASE_PATH}$request_uri;
     }
 
     location ${SITE_BASE_PATH}/assets/ {
