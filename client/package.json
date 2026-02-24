@@ -40,7 +40,7 @@
     "vue-html-to-paper": "^2.0.3",
     "vue-router": "^4.4.5",
     "vue-toastification": "^2.0.0-rc.5",
-    "write-excel-file": "^2.3.10"
+    "write-excel-file": "^3.0.2"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
