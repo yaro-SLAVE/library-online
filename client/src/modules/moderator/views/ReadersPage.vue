@@ -64,7 +64,7 @@ import { useRouter } from "vue-router";
 import { getReaders } from "@api/readers";
 import type { ReaderStats, ReadersFilters, OrderStatusEnum } from "@api/types";
 
-import writeXlsxFile from 'write-excel-file/node';
+import writeXlsxFile from "write-excel-file";
 
 import StyledButton from "@components/StyledButton.vue";
 //@ts-nocheck

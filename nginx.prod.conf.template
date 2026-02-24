@@ -1,0 +1,37 @@
+server {
+    listen 80;
+
+    location ${SITE_BASE_PATH}/api {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://library-service:8000/api;
+    }
+
+    location ${SITE_BASE_PATH}/admin {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_pass http://library-service:8000/admin;
+    }
+
+    location /media/ {
+        alias /usr/share/nginx/html/media/;
+        include /etc/nginx/mime.types;
+    }
+
+    location / {
+        root /usr/share/nginx/html;
+        index index.html;
+        include /etc/nginx/mime.types;
+        try_files $uri $uri/ /index.html;
+
+        # Cache static assets
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+}

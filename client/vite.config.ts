@@ -4,11 +4,6 @@ import { fileURLToPath, URL } from "node:url";
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
-  build: {
-    rollupOptions: {
-      external: ['archiver-node'],
-    },
-  },
   plugins: [
     vue(),
     nodePolyfills(),
