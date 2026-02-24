@@ -42,17 +42,27 @@ router.beforeEach(async (to, from, next) => {
     lastProfileCheck = now;
   }
 
+  if (!user.currentUser) {
+    if (to.path === "/profile") {
+      return next();
+    }
+    return next("/profile");
+  }
+
   const requiredRoles = to.matched.map((r) => r.meta.roles).find((r) => r !== undefined) as
     | string[]
     | undefined;
 
-  //@ts-ignore
-  if (requiredRoles?.includes(user.currentUser?.current_role)) {
+  const currentRole = user.currentUser.current_role || "None";
+
+  if (requiredRoles?.includes(currentRole)) {
     return next();
   }
 
-  //@ts-ignore
-  const fallback = roleHomeRoutes[user.currentUser?.current_role] ?? "/";
+  const fallback = roleHomeRoutes[currentRole] ?? "/profile";
+  if (fallback === to.path) {
+    return next();
+  }
   return next(fallback);
 });
 
