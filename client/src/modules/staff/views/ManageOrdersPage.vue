@@ -123,20 +123,29 @@ const processingOrdersCount = computed(() => tabs.value[tabsNumbers.processing].
 const readyOrdersCount = computed(() => tabs.value[tabsNumbers.ready].data.length);
 const archiveOrdersCount = computed(() => tabs.value[tabsNumbers.archive].data.length);
 const selectedOrder = ref<Order | null>(null);
+const refreshTabData = async (tabIndex: number) => {
+  tabs.value[tabIndex].data = await fetchUserOrders(tabs.value[tabIndex]);
+};
+
+const refreshAllTabs = async () => {
+  await Promise.all(tabs.value.map((_, tabIndex) => refreshTabData(tabIndex)));
+};
+
 const startAllIntervals = () => {
+  clearAllIntervals();
   tabs.value.forEach((tab, index) => {
     tab.timerId = window.setInterval(async () => {
       if (document.visibilityState === "visible") {
         try {
-          tabs.value[index].data = await fetchUserOrders(tab);
+          await refreshTabData(index);
         } catch (error) {
           console.error(`Ошибка обновления вкладки ${tab.label}:`, error);
         }
       }
     }, tab.interval);
 
-    tab.fetchFn().then(async () => {
-      tabs.value[index].data = await fetchUserOrders(tab);
+    refreshTabData(index).catch((error) => {
+      console.error(`Ошибка начальной загрузки вкладки ${tab.label}:`, error);
     });
   });
 };
@@ -194,12 +203,27 @@ async function handleUpdateOrderStatus(
   description: string,
   books: [] = []
 ) {
+  isLoading.value = true;
   try {
     await updateOrderStatus(orderId, newStatus, description, books);
+    await refreshAllTabs();
+    if (selectedOrder.value && selectedOrder.value.id === orderId) {
+      selectedOrder.value = await getOrderStaff(orderId);
+    }
   } catch (error) {
     console.error("Ошибка при обновлении статуса заказа", error);
+  } finally {
+    isLoading.value = false;
   }
 }
+
+const handleVisibilityChange = () => {
+  if (document.visibilityState === "hidden") {
+    clearAllIntervals();
+  } else {
+    startAllIntervals();
+  }
+};
 
 async function handleCheckOrder(orderId: number): Promise<OrderCheckingInfo | undefined> {
   try {
@@ -211,18 +235,12 @@ async function handleCheckOrder(orderId: number): Promise<OrderCheckingInfo | un
 
 onMounted(async () => {
   startAllIntervals();
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 });
 
 onUnmounted(() => {
   clearAllIntervals();
-});
-
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden") {
-    clearAllIntervals();
-  } else {
-    startAllIntervals();
-  }
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
 });
 </script>
 
