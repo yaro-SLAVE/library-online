@@ -75,6 +75,7 @@ const handleUserRoleChoice = async (choice: Group) => {
   }
 
   openModal.value = false;
+  window.location.reload();
 
   const role = currentUser.value?.current_role;
   if (role === "Admin") {
