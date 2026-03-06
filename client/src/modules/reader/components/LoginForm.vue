@@ -54,6 +54,7 @@ async function login() {
   // TODO: предупреждать пользователя об ошибках
   const r = await authStore.login(username.value, password.value);
   console.log(r);
+  window.location.reload();
 }
 </script>
 
