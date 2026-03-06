@@ -75,7 +75,6 @@ const handleUserRoleChoice = async (choice: Group) => {
   }
 
   openModal.value = false;
-  window.location.reload();
 
   const role = currentUser.value?.current_role;
   if (role === "Admin") {
@@ -85,6 +84,8 @@ const handleUserRoleChoice = async (choice: Group) => {
   } else {
     await router.push("/");
   }
+
+  window.location.reload();
 };
 
 
