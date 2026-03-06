@@ -25,11 +25,6 @@ export default defineConfig({
     vue(),
     nodePolyfills(),
   ],
-  build: {
-    rollupOptions: {
-      external: ['archiver-node'],
-    },
-  },
   resolve: {
     alias: {
       '@assets': fileURLToPath(new URL('./src/assets', import.meta.url)),
