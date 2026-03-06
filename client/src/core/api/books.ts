@@ -19,7 +19,7 @@ export async function searchBooks(expression: string, library?: number): Promise
 
 export async function getBook(bookId: string): Promise<Book> {
   try {
-    const { data } = await api.get(`/api/book/${bookId}`);
+    const { data } = await api.get(`/api/book/${bookId}/`);
     console.log(`/api/book/${bookId}`, data);
     return data;
   } catch (error) {
