@@ -20,8 +20,8 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  const access = useLocalStorage<Token>("accessToken", undefined);
-  const refresh = useLocalStorage<Token>("refreshToken", undefined);
+  const access = useLocalStorage<Token>("uz_accessToken", undefined);
+  const refresh = useLocalStorage<Token>("uz_refreshToken", undefined);
   const isAuthenticated = computed(() => refresh.value !== undefined);
 
   async function refreshTokens(): Promise<boolean> {
